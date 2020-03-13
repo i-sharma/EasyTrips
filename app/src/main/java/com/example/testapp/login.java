@@ -38,5 +38,15 @@ public class login extends AppCompatActivity {
                 startActivity(it);
             }
         });
+        lin.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent it2 = new Intent(login.this, Explore.class);
+                startActivity(it2);
+            }
+        });
     }
+
 }
