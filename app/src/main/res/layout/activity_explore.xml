@@ -3,45 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#070707">
-    <ImageView
+    android:background="#070707"
+    android:id="@+id/explore_parent_layout">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/location_pic"
-        android:src="@drawable/delhi"
-        android:layout_marginTop="0dp"
-        android:padding="6dp"
-        android:adjustViewBounds="true"/>
-
-
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/location_pic"
-        android:fontFamily="@font/fira_mono_bold"
-        android:gravity="center"
-        android:text="RED FORT"
-        android:textColor="#FFFFFF"
-        android:textSize="19dp"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/location_pic"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:fontFamily="@font/fira_mono_medium"
-        android:gravity="center"
-        android:text="A historic fort in the city of Delhi in India,
-which served as the main residence of the
-Mughal Emperors. "
-        android:textColor="#AFAFAF"
-        android:textSize="13dp"/>
-
-
-
-
+        android:layout_height="match_parent"/>
 </LinearLayout>
 
