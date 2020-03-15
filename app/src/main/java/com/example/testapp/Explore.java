@@ -24,12 +24,16 @@ public class Explore extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
-        for (int i = 0; i < 5; i++) {
-            mImages.addLast("https://i.picsum.photos/id/638/300/200.jpg");
+        for (int i = 0; i < 20; i++) {
+//            mImages.addLast("https://i.picsum.photos/id/638/300/200.jpg");
+            mImages.addLast("https://cdn.pixabay.com/photo/2020/03/07/11/54/the-fog-4909513_1280.jpg");
             mImageNames.addLast("hello");
             mImageDescriptions.addLast("jaslkdfjlkfjlsdkfj sldkjf sdkjflsdkjdfldkdf ljf lsdjkf sldjfksdlfj ");
 
         }
+        mImages.addLast("https://i.picsum.photos/id/638/300/200.jpg");
+        mImageNames.addLast("hello");
+        mImageDescriptions.addLast("jaslkdfjlkfjlsdkfj sldkjf sdkjflsdkjdfldkdf ljf lsdjkf sldjfksdlfj ");
 
         // Get a handle to the RecyclerView.
         mRecyclerView = findViewById(R.id.recycler_view);
