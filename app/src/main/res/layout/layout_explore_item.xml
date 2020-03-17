@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="6dp"
     android:background="#070707"
-    >
+    android:onClick="clicked_item">
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

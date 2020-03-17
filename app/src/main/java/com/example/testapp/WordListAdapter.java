@@ -2,6 +2,7 @@ package com.example.testapp;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -28,7 +31,6 @@ public class WordListAdapter extends
     private Context mContext;
     public WordListAdapter(Context context, LinkedList<String> ImageNames,
                            LinkedList<String> ImageDescriptions, LinkedList<String> Images) {
-        Log.d(TAG, "here we go again " + Arrays.toString(ImageNames.toArray()));
         mInflater = LayoutInflater.from(context);
         this.mImages = Images;
         this.mImageDescriptions = ImageDescriptions;
@@ -42,9 +44,6 @@ public class WordListAdapter extends
         View mItemView = mInflater.inflate(R.layout.layout_explore_item,
                 parent, false);
         WordViewHolder holder =  new WordViewHolder(mItemView, this);
-//        holder.imgDescription = (TextView) mItemView.findViewById(R.id.ts_description);
-//        holder.imgName = (TextView)mItemView.findViewById(R.id.ts_name);
-//        holder.imgView =(ImageView) mItemView.findViewById(R.id.ts_image);
         return holder;
     }
 
@@ -56,11 +55,10 @@ public class WordListAdapter extends
         }
 
         if (holder.imgDescription != null) {
-            Log.d(TAG, "imgdescr" + mImageDescriptions.get(position));
             holder.imgDescription.setText(mImageDescriptions.get(position));
         }
         if (holder.imgView != null) {
-            Log.d(TAG, "here img");
+            Log.d(TAG, "here here");
             try {
                 Glide.with(mContext)
                         .asBitmap()
@@ -68,7 +66,14 @@ public class WordListAdapter extends
                         .into(new CustomTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(@NonNull Bitmap resource, Transition<? super Bitmap> transition) {
+
+
+//                                Bitmap bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+//                                        R.drawable.lion);
+//                                RoundedBitmapDrawable img = RoundedBitmapDrawableFactory.create(getResources(),bitmap);
+//                                img.setCornerRadius(150);
                                 holder.imgView.setImageBitmap(resource);
+//                                imageView.setImageDrawable(img);
                             }
 
                             @Override

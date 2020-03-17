@@ -1,8 +1,11 @@
 package com.example.testapp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +18,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Explore extends AppCompatActivity {
+    private static final String TAG = "Explore";
     private final LinkedList<String> mImages = new LinkedList<>();
     private final LinkedList<String> mImageNames = new LinkedList<>();
     private final LinkedList<String> mImageDescriptions = new LinkedList<>();
@@ -25,7 +29,6 @@ public class Explore extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
         for (int i = 0; i < 20; i++) {
-//            mImages.addLast("https://i.picsum.photos/id/638/300/200.jpg");
             mImages.addLast("https://cdn.pixabay.com/photo/2020/03/07/11/54/the-fog-4909513_1280.jpg");
             mImageNames.addLast("hello");
             mImageDescriptions.addLast("jaslkdfjlkfjlsdkfj sldkjf sdkjflsdkjdfldkdf ljf lsdjkf sldjfksdlfj ");
@@ -43,5 +46,11 @@ public class Explore extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
         // Give the RecyclerView a default layout manager.
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    public void clicked_item(View view) {
+        Log.d(TAG, "we are here");
+        Intent it = new Intent(Explore.this, tsDetails.class);
+        startActivity(it);
     }
 }
