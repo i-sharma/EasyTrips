@@ -20,8 +20,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -48,8 +52,15 @@ public class Explore extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        Query query = rootRef.collection("users")
-                .orderBy("born", Query.Direction.ASCENDING);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        final StorageReference storageRef = storage.getReference();
+
+
+
+        Query query = rootRef.collection("ts_data")
+                .document("delhi")
+                .collection("delhi_data")
+                .orderBy("priority", Query.Direction.ASCENDING);
 
         FirestoreRecyclerOptions<explore_model> options = new FirestoreRecyclerOptions.Builder<explore_model>()
                 .setQuery(query, explore_model.class)
@@ -57,8 +68,24 @@ public class Explore extends AppCompatActivity {
 
         adapter = new FirestoreRecyclerAdapter<explore_model, ExploreViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ExploreViewHolder holder , int position, @NonNull explore_model productModel) {
-                holder.setFirstName(productModel.getFirst());
+            protected void onBindViewHolder(@NonNull final ExploreViewHolder holder , int position, @NonNull explore_model productModel) {
+                holder.setTitle(productModel.getTitle());
+                holder.setShortDescription(productModel.getShort_description());
+
+                StorageReference spaceRef = storageRef.child("photos_delhi/" + productModel.getImage_name());
+                final long ONE_MEGABYTE = 1024 * 1024;
+                spaceRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+                    @Override
+                    public void onSuccess(byte[] bytes) {
+                        // Data for "images/island.jpg" is returns, use this as needed
+                        holder.setImage(bytes);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        // Handle any errors
+                    }
+                });
             }
 
             @NonNull
@@ -69,6 +96,9 @@ public class Explore extends AppCompatActivity {
             }
         };
         recyclerView.setAdapter(adapter);
+
+
+
 
 
 
@@ -97,9 +127,22 @@ public class Explore extends AppCompatActivity {
             view = itemView;
         }
 
-        void setFirstName(String first) {
+        void setTitle(String title) {
             TextView textView = view.findViewById(R.id.ts_name);
-            textView.setText(first);
+            textView.setText(title);
+        }
+
+        void setShortDescription(String short_descr){
+            TextView textView = view.findViewById(R.id.ts_description);
+            textView.setText(short_descr);
+        }
+
+        void setImage(byte[] data){
+            ImageView imageView = view.findViewById(R.id.ts_image);
+            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(),bitmap);
+            drawable.setCornerRadius(100);
+            imageView.setImageDrawable(drawable);
         }
     }
 

@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ts_image"
-        android:src="@drawable/delhi"
+        android:src="@drawable/wait"
         android:layout_marginTop="0dp"
         android:padding="6dp"
         android:adjustViewBounds="true"/>
