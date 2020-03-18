@@ -27,26 +27,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
-//    private final LinkedList<String> mImages = new LinkedList<>();
-//    private final LinkedList<String> mImageNames = new LinkedList<>();
-//    private final LinkedList<String> mImageDescriptions = new LinkedList<>();
-//    private RecyclerView mRecyclerView;
-//    private WordListAdapter mAdapter;
-
     private FirestoreRecyclerAdapter<explore_model, ExploreViewHolder> adapter;
-
-
-
-
+    final long ONE_MEGABYTE = 1024 * 1024;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
@@ -54,8 +41,6 @@ public class Explore extends AppCompatActivity {
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
         FirebaseStorage storage = FirebaseStorage.getInstance();
         final StorageReference storageRef = storage.getReference();
-
-
 
         Query query = rootRef.collection("ts_data")
                 .document("delhi")
@@ -73,11 +58,10 @@ public class Explore extends AppCompatActivity {
                 holder.setShortDescription(productModel.getShort_description());
 
                 StorageReference spaceRef = storageRef.child("photos_delhi/" + productModel.getImage_name());
-                final long ONE_MEGABYTE = 1024 * 1024;
+
                 spaceRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
                     @Override
                     public void onSuccess(byte[] bytes) {
-                        // Data for "images/island.jpg" is returns, use this as needed
                         holder.setImage(bytes);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -96,11 +80,6 @@ public class Explore extends AppCompatActivity {
             }
         };
         recyclerView.setAdapter(adapter);
-
-
-
-
-
 
     }
 
@@ -145,23 +124,6 @@ public class Explore extends AppCompatActivity {
             imageView.setImageDrawable(drawable);
         }
     }
-
-//    public void old_queries(){
-//        for (int i = 0; i < 20; i++) {
-//            mImages.addLast("https://cdn.pixabay.com/photo/2020/03/07/11/54/the-fog-4909513_1280.jpg");
-//            mImageNames.addLast("hello");
-//            mImageDescriptions.addLast("Also known as Lal Qila, it is a monument built in 1638 that rises 33 meters (108 ft) above Old Delhi. It was built by the Mughal Emperor Shah Jahan.");
-//
-//        }
-//        mImages.addLast("https://i.picsum.photos/id/638/300/200.jpg");
-//        mImageNames.addLast("hello");
-//        mImageDescriptions.addLast("jaslkdfjlkfjlsdkfj sldkjf sdkjflsdkjdfldkdf ljf lsdjkf sldjfksdlfj ");
-//
-//        mRecyclerView = findViewById(R.id.recycler_view);
-//        mAdapter = new WordListAdapter(this, mImageNames, mImageDescriptions, mImages);
-//        mRecyclerView.setAdapter(mAdapter);
-//        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//    }
 
     public void clicked_item(View view) {
         Log.d(TAG, "we are here");
