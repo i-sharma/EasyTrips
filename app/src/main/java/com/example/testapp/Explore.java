@@ -36,6 +36,7 @@ public class Explore extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
+
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
@@ -47,15 +48,20 @@ public class Explore extends AppCompatActivity {
                 .collection("delhi_data")
                 .orderBy("priority", Query.Direction.ASCENDING);
 
-        FirestoreRecyclerOptions<explore_model> options = new FirestoreRecyclerOptions.Builder<explore_model>()
+        FirestoreRecyclerOptions<explore_model> options = new FirestoreRecyclerOptions
+                .Builder<explore_model>()
                 .setQuery(query, explore_model.class)
                 .build();
 
         adapter = new FirestoreRecyclerAdapter<explore_model, ExploreViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ExploreViewHolder holder , int position, @NonNull explore_model productModel) {
+            protected void onBindViewHolder(@NonNull final ExploreViewHolder holder , int position,
+                                            @NonNull explore_model productModel) {
                 holder.setTitle(productModel.getTitle());
                 holder.setShortDescription(productModel.getShort_description());
+
+                String doc_id = adapter.getSnapshots().getSnapshot(position).getId();
+                Log.d(TAG, "The id is: " + doc_id);
 
                 StorageReference spaceRef = storageRef.child("photos_delhi/" + productModel.getImage_name());
 
@@ -100,6 +106,7 @@ public class Explore extends AppCompatActivity {
 
     private class ExploreViewHolder extends RecyclerView.ViewHolder {
         private View view;
+        String id;
 
         ExploreViewHolder(View itemView) {
             super(itemView);

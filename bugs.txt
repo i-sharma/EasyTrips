@@ -1,0 +1,8 @@
+Explore:
+    1. images keep reloading
+    2. image size not uniform
+
+
+firestore:
+    1. priority should be int, now its a string
+        storage should be of correct type
