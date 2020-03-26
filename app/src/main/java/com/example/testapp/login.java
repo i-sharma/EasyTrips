@@ -11,8 +11,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class login extends AppCompatActivity {
     EditText pswd,usrusr;
-    TextView sup,lin;
+    TextView sup,lin, skip;
     private static final String TAG = "login";
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -25,6 +26,7 @@ public class login extends AppCompatActivity {
         usrusr = (EditText) findViewById(R.id.usrusr);
         pswd = (EditText) findViewById(R.id.pswrdd);
         sup = (TextView) findViewById(R.id.sup);
+        skip = findViewById(R.id.login_skip);
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/LatoLight.ttf");
         Typeface custom_font1 = Typeface.createFromAsset(getAssets(), "fonts/LatoRegular.ttf");
         lin.setTypeface(custom_font1);
@@ -40,7 +42,7 @@ public class login extends AppCompatActivity {
                 startActivity(it);
             }
         });
-        lin.setOnClickListener(new View.OnClickListener()
+        skip.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)

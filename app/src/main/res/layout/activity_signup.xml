@@ -20,7 +20,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:visibility="gone">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -37,7 +38,7 @@
                     android:letterSpacing="0.1"
                     android:textSize="16dp"
                     android:inputType="text"
-                    android:textColor="#fff"
+                    android:textColor="#000000"
                     />
             </LinearLayout>
             <LinearLayout
@@ -48,7 +49,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:id="@+id/username_fragment"
+                android:visibility="gone">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -65,7 +68,7 @@
                     android:letterSpacing="0.1"
                     android:textSize="16dp"
                     android:inputType="text"
-                    android:textColor="#fff"
+                    android:textColor="#000000"
                     />
             </LinearLayout>
             <LinearLayout
@@ -76,7 +79,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:visibility="gone">
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -93,7 +97,7 @@
                     android:inputType="textPassword"
                     android:letterSpacing="0.1"
                     android:textSize="16dp"
-                    android:textColor="#fff"
+                    android:textColor="#000000"
                     />
             </LinearLayout>
             <LinearLayout
@@ -104,7 +108,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:id="@+id/phone_fragment"
+                >
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
@@ -157,7 +163,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
 
-            android:text="Already have an Account ?"
+            android:text="Don't Want to SignUp ?"
             android:textColor="#000000"
             android:letterSpacing="0.1"/>
     </LinearLayout>

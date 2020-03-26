@@ -32,16 +32,29 @@ public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
     private FirestoreRecyclerAdapter<explore_model, ExploreViewHolder> adapter;
     final long ONE_MEGABYTE = 1024 * 1024;
+
+
+    private FirebaseFirestore rootRef;
+    LinearLayoutManager linearLayoutManager;
+    RecyclerView recyclerView;
+    FirebaseStorage storage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        FirebaseFirestore rootRef = FirebaseFirestore.getInstance();
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        final StorageReference storageRef = storage.getReference();
+//        init();
+
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        if(recyclerView != null) {
+            Log.d(TAG, "here we are sirjhgj");
+            recyclerView.setLayoutManager(linearLayoutManager);
+        }
+        rootRef = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+//        getTsList();
 
         Query query = rootRef.collection("ts_data")
                 .document("delhi")
@@ -53,6 +66,8 @@ public class Explore extends AppCompatActivity {
                 .setQuery(query, explore_model.class)
                 .build();
 
+
+        final StorageReference storageRef = storage.getReference();
         adapter = new FirestoreRecyclerAdapter<explore_model, ExploreViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull final ExploreViewHolder holder , int position,
@@ -85,9 +100,24 @@ public class Explore extends AppCompatActivity {
                 return new ExploreViewHolder(view);
             }
         };
-        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        if(recyclerView != null)
+            recyclerView.setAdapter(adapter);
+
 
     }
+
+    private void init() {
+
+    }
+
+
+    private void getTsList() {
+
+    }
+
+
+
 
     @Override
     protected void onStart() {

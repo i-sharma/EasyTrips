@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/grdnt">
@@ -34,7 +35,7 @@
                     android:letterSpacing="0.1"
                     android:textSize="16dp"
                     android:inputType="text"
-                    android:textColor="#fff"
+                    android:textColor="#000000"
                     />
             </LinearLayout>
             <LinearLayout
@@ -62,13 +63,14 @@
                     android:inputType="textPassword"
                     android:letterSpacing="0.1"
                     android:textSize="16dp"
-                    android:textColor="#fff"/>
+                    android:textColor="#000000"/>
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#4a5a71"></LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -77,13 +79,26 @@
         android:paddingRight="60dp"
         android:orientation="vertical"
         android:gravity="bottom"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="30dp">
         <TextView
             android:id="@+id/lin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#000000"
             android:text="Login"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_gravity="bottom"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp"
+            android:letterSpacing="0.2"/>
+        <TextView
+            android:id="@+id/login_skip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:text="Skip For Now"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:gravity="center"
