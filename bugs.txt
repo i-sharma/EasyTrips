@@ -6,3 +6,6 @@ Explore:
 firestore:
     1. priority should be int, now its a string
         storage should be of correct type
+
+signup:
+    1. add resend verification code fuctionality

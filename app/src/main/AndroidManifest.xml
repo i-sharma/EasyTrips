@@ -11,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".tsDetails"></activity>
+        <activity android:name=".yuHi"></activity>
+        <activity android:name=".userName" />
+        <activity android:name=".tsDetails" />
         <activity android:name=".Explore" />
         <activity
             android:name=".SplashScreen"
