@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -60,6 +61,9 @@ public class googleSignIn extends AppCompatActivity implements
 
         gSignIn = findViewById(R.id.gSignInButton);
         gSignIn.setOnClickListener(this);
+
+        Button sign_out = findViewById(R.id.signOutButton);
+        sign_out.setOnClickListener(this);
 
     }
 
@@ -164,6 +168,23 @@ public class googleSignIn extends AppCompatActivity implements
         switch (v.getId()){
             case R.id.gSignInButton:
                 signIn();
+            case R.id.signOutButton:
+                signOut();
         }
     }
+
+    private void signOut() {
+        // Firebase sign out
+        mAuth.signOut();
+
+        // Google sign out
+        mGoogleSignInClient.signOut().addOnCompleteListener(this,
+                new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        updateUI(null);
+                    }
+                });
+    }
 }
+
