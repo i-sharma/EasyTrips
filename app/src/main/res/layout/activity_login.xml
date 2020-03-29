@@ -4,72 +4,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/grdnt">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:orientation="vertical"
         android:paddingLeft="60dp"
         android:paddingRight="60dp">
-        <LinearLayout
+        <TextView
+            android:id="@+id/welcome_msg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/usrusr"
-                    android:layout_gravity="center"/>
-                <EditText
-                    android:id="@+id/usrusr"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Username"
-                    android:textColorHint="#000000"
-                    android:layout_marginLeft="15dp"
-                    android:background="#00000000"
-                    android:letterSpacing="0.1"
-                    android:textSize="16dp"
-                    android:inputType="text"
-                    android:textColor="#000000"
-                    />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#4a5a71"></LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp">
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/pswrd"
-                    android:layout_gravity="center"/>
-                <EditText
-                    android:id="@+id/pswrdd"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Password"
-                    android:textColorHint="#000000"
-                    android:layout_marginLeft="15dp"
-                    android:background="#00000000"
-                    android:inputType="textPassword"
-                    android:letterSpacing="0.1"
-                    android:textSize="16dp"
-                    android:textColor="#000000"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#4a5a71"></LinearLayout>
-        </LinearLayout>
+            android:layout_marginBottom="5dp"
+            android:gravity="center"
+            android:text="WELCOME"
+            android:textColor="#000000"
+            android:letterSpacing="0.1"
+            android:textSize="20dp"/>
 
     </LinearLayout>
     <LinearLayout
@@ -79,13 +31,13 @@
         android:paddingRight="60dp"
         android:orientation="vertical"
         android:gravity="bottom"
-        android:layout_marginBottom="30dp">
+        android:layout_marginBottom="100dp">
         <TextView
-            android:id="@+id/lin"
+            android:id="@+id/google_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#000000"
-            android:text="Login"
+            android:text="Google Sign In"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:gravity="center"
@@ -94,11 +46,11 @@
             android:layout_marginBottom="20dp"
             android:letterSpacing="0.2"/>
         <TextView
-            android:id="@+id/login_skip"
+            android:id="@+id/phone_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#000000"
-            android:text="Skip For Now"
+            android:text="Phone Sign In"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:gravity="center"
@@ -106,12 +58,21 @@
             android:padding="16dp"
             android:layout_marginBottom="50dp"
             android:letterSpacing="0.2"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="60dp"
+        android:paddingRight="60dp"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:layout_marginBottom="20dp">
         <TextView
-            android:id="@+id/sup"
+            android:id="@+id/login_skip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Create Account ? Signup"
+            android:text="Skip For Now"
             android:textColor="#000000"
             android:letterSpacing="0.1"/>
     </LinearLayout>

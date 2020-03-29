@@ -10,8 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class login extends AppCompatActivity {
-    EditText pswd,usrusr;
-    TextView sup,lin, skip;
+    TextView google_signin,phone_signin, skip, welcome;
     private static final String TAG = "login";
 
     @Override
@@ -22,23 +21,22 @@ public class login extends AppCompatActivity {
 
 
         //login functionality
-        lin = (TextView) findViewById(R.id.lin);
-        usrusr = (EditText) findViewById(R.id.usrusr);
-        pswd = (EditText) findViewById(R.id.pswrdd);
-        sup = (TextView) findViewById(R.id.sup);
+        google_signin = (TextView) findViewById(R.id.google_login);
+        phone_signin = (TextView) findViewById(R.id.phone_login);
         skip = findViewById(R.id.login_skip);
+        welcome = findViewById(R.id.welcome_msg);
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/LatoLight.ttf");
         Typeface custom_font1 = Typeface.createFromAsset(getAssets(), "fonts/LatoRegular.ttf");
-        lin.setTypeface(custom_font1);
-        sup.setTypeface(custom_font);
-        usrusr.setTypeface(custom_font);
-        pswd.setTypeface(custom_font);
-        sup.setOnClickListener(new View.OnClickListener()
+        google_signin.setTypeface(custom_font1);
+        phone_signin.setTypeface(custom_font1);
+        skip.setTypeface(custom_font);
+        welcome.setTypeface(custom_font);
+        phone_signin.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Intent it = new Intent(login.this, signup.class);
+                Intent it = new Intent(login.this, phoneAuth.class);
                 startActivity(it);
             }
         });
@@ -48,6 +46,15 @@ public class login extends AppCompatActivity {
             public void onClick(View v)
             {
                 Intent it = new Intent(login.this, Explore.class);
+                startActivity(it);
+            }
+        });
+        google_signin.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                Intent it = new Intent(login.this, googleSignIn.class);
                 startActivity(it);
             }
         });

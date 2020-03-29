@@ -25,14 +25,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-public class signup extends AppCompatActivity implements View.OnClickListener{
-    private EditText mail, mophone, pswd, usrusr;
+public class phoneAuth extends AppCompatActivity implements View.OnClickListener{
+    private EditText mophone, pswd;
     TextView lin, sup;
     private FirebaseAuth mAuth;
     private static final String TAG = "signup";
@@ -57,9 +56,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
         //Layout rendering
         sup = (TextView) findViewById(R.id.sup);
         lin = (TextView) findViewById(R.id.lin);
-        usrusr = (EditText) findViewById(R.id.usrusr);
         pswd = (EditText) findViewById(R.id.pswrdd);
-        mail = (EditText) findViewById(R.id.mail);
         mophone = (EditText) findViewById(R.id.mobphone);
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/LatoLight.ttf");
         Typeface custom_font1 = Typeface.createFromAsset(getAssets(), "fonts/LatoRegular.ttf");
@@ -67,8 +64,6 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
         sup.setTypeface(custom_font1);
         pswd.setTypeface(custom_font);
         lin.setTypeface(custom_font);
-        usrusr.setTypeface(custom_font);
-        mail.setTypeface(custom_font);
 
         rootRef = FirebaseFirestore.getInstance();
 
@@ -146,14 +141,14 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
 //
                 user = mAuth.getCurrentUser();
                 if(user!=null)
-                    Toast.makeText(signup.this, user.getDisplayName(),
+                    Toast.makeText(phoneAuth.this, user.getDisplayName(),
                             Toast.LENGTH_SHORT).show();
                 else
-                    Toast.makeText(signup.this, "Something's not quite right",
+                    Toast.makeText(phoneAuth.this, "Something's not quite right",
                             Toast.LENGTH_SHORT).show();
                 break;
             case STATE_SIGNIN_FAILED:
-                Toast.makeText(signup.this, "SignIn Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(phoneAuth.this, "SignIn Failed", Toast.LENGTH_SHORT).show();
                 break;
             case STATE_VERIFY_SUCCESS:
 //                pswd.setText();
@@ -196,7 +191,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.lin:
-                Intent it = new Intent(signup.this, login.class);
+                Intent it = new Intent(phoneAuth.this, login.class);
                 startActivity(it);
                 break;
             case R.id.sup:
@@ -215,7 +210,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
                     startPhoneNumberVerification(mophone.getText().toString());
                 }
                 else{
-                    Toast.makeText(signup.this, "Tumse na ho paaega",
+                    Toast.makeText(phoneAuth.this, "Tumse na ho paaega",
                             Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -240,6 +235,7 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
                             FirebaseUser user = task.getResult().getUser();
 
                             if(user!=null) {
+                                Toast.makeText(phoneAuth.this, "yooo " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
                                 Log.d(TAG, "here we are sir");
                                 if(rootRef == null)
                                     return;
@@ -258,16 +254,16 @@ public class signup extends AppCompatActivity implements View.OnClickListener{
                                                     if (document.exists()) {
                                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                                         if(document.get("name").toString() == null || document.get("name").toString() == "") {
-                                                            i = new Intent(signup.this, userName.class);
+                                                            i = new Intent(phoneAuth.this, userName.class);
                                                             startActivity(i);
                                                         }
                                                         else{
-                                                            i = new Intent(signup.this, Explore.class);
+                                                            i = new Intent(phoneAuth.this, Explore.class);
                                                             startActivity(i);
                                                         }
                                                     } else {
                                                         Log.d(TAG, "No such document");
-                                                        i = new Intent(signup.this, userName.class);
+                                                        i = new Intent(phoneAuth.this, userName.class);
                                                         startActivity(i);
                                                     }
                                                 } else {

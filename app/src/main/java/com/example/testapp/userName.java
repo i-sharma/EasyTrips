@@ -3,6 +3,7 @@ package com.example.testapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,7 +22,7 @@ import java.util.Map;
 public class userName extends AppCompatActivity implements View.OnClickListener {
 
     EditText name;
-    TextView skip_button, start_explore_button;
+    TextView skip_button, start_explore_button, ask_name;
     FirebaseAuth mAuth;
     private static final String TAG = "userName";
     private FirebaseFirestore rootRef;
@@ -31,9 +32,20 @@ public class userName extends AppCompatActivity implements View.OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_name);
 
+        Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/LatoLight.ttf");
+        Typeface custom_font1 = Typeface.createFromAsset(getAssets(), "fonts/LatoRegular.ttf");
+
+
         name = findViewById(R.id.name);
         skip_button = findViewById(R.id.username_skip);
         start_explore_button = findViewById(R.id.button_start_explore);
+        ask_name = findViewById(R.id.ask_for_name);
+
+        name.setTypeface(custom_font);
+        skip_button.setTypeface(custom_font);
+        start_explore_button.setTypeface(custom_font1);
+        ask_name.setTypeface(custom_font);
+
 
         skip_button.setOnClickListener(this);
         start_explore_button.setOnClickListener(this);
