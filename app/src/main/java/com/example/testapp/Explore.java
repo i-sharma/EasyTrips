@@ -1,6 +1,7 @@
 package com.example.testapp;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -30,32 +31,26 @@ import com.google.firebase.storage.StorageReference;
 
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
-    private FirestoreRecyclerAdapter<explore_model, ExploreViewHolder> adapter;
-    final long ONE_MEGABYTE = 1024 * 1024;
-
 
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
     RecyclerView recyclerView;
-    FirebaseStorage storage;
+//    FirebaseStorage storage;
+
+    private ExploreAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
 
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-//        init();
-
-        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
-        if(recyclerView != null) {
-            Log.d(TAG, "here we are sirjhgj");
-            recyclerView.setLayoutManager(linearLayoutManager);
-        }
         rootRef = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-//        getTsList();
 
+        setUpRecyclerView();
+
+    }
+
+    private void setUpRecyclerView() {
         Query query = rootRef.collection("ts_data")
                 .document("delhi")
                 .collection("delhi_data")
@@ -66,58 +61,17 @@ public class Explore extends AppCompatActivity {
                 .setQuery(query, explore_model.class)
                 .build();
 
+        adapter = new ExploreAdapter(options, getResources());
 
-        final StorageReference storageRef = storage.getReference();
-        adapter = new FirestoreRecyclerAdapter<explore_model, ExploreViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull final ExploreViewHolder holder , int position,
-                                            @NonNull explore_model productModel) {
-                holder.setTitle(productModel.getTitle());
-                holder.setShortDescription(productModel.getShort_description());
+        recyclerView = findViewById(R.id.recycler_view);
+//        recyclerView.setHasFixedSize(true);
 
-                String doc_id = adapter.getSnapshots().getSnapshot(position).getId();
-                Log.d(TAG, "The id is: " + doc_id);
+        linearLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(linearLayoutManager);
 
-                StorageReference spaceRef = storageRef.child("photos_delhi/" + productModel.getImage_name());
-
-                spaceRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                    @Override
-                    public void onSuccess(byte[] bytes) {
-                        holder.setImage(bytes);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        // Handle any errors
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public ExploreViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_explore_item, parent, false);
-                return new ExploreViewHolder(view);
-            }
-        };
-        adapter.notifyDataSetChanged();
-        if(recyclerView != null)
-            recyclerView.setAdapter(adapter);
-
+        recyclerView.setAdapter(adapter);
 
     }
-
-    private void init() {
-
-    }
-
-
-    private void getTsList() {
-
-    }
-
-
-
 
     @Override
     protected void onStart() {
@@ -128,37 +82,8 @@ public class Explore extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
         if (adapter != null) {
             adapter.stopListening();
-        }
-    }
-
-    private class ExploreViewHolder extends RecyclerView.ViewHolder {
-        private View view;
-        String id;
-
-        ExploreViewHolder(View itemView) {
-            super(itemView);
-            view = itemView;
-        }
-
-        void setTitle(String title) {
-            TextView textView = view.findViewById(R.id.ts_name);
-            textView.setText(title);
-        }
-
-        void setShortDescription(String short_descr){
-            TextView textView = view.findViewById(R.id.ts_description);
-            textView.setText(short_descr);
-        }
-
-        void setImage(byte[] data){
-            ImageView imageView = view.findViewById(R.id.ts_image);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            RoundedBitmapDrawable drawable = RoundedBitmapDrawableFactory.create(getResources(),bitmap);
-            drawable.setCornerRadius(100);
-            imageView.setImageDrawable(drawable);
         }
     }
 
