@@ -37,7 +37,7 @@ public class tsDetails extends AppCompatActivity {
 
 
 
-        Toast.makeText(tsDetails.this, obj.getShort_description(),
+        Toast.makeText(tsDetails.this, obj.getNearest_metro_station(),
                 Toast.LENGTH_SHORT).show();
 
     }
