@@ -15,12 +15,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+
+import java.io.Serializable;
 
 public class tsDetails extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore rootRef;
     TextView text;
-
+    private static final String TAG = "tsDetails";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,36 +31,16 @@ public class tsDetails extends AppCompatActivity {
 
         text = findViewById(R.id.yuHiname);
 
-        mAuth = FirebaseAuth.getInstance();
-        rootRef = FirebaseFirestore.getInstance();
+        Intent it = getIntent();
+        String doc_id = it.getStringExtra("ID");
+        explore_model obj = (explore_model) it.getSerializableExtra("snapshot");
 
-        FirebaseUser user = mAuth.getCurrentUser();
 
-        if(user != null){
-            Toast.makeText(this, "here " + user.getUid(), Toast.LENGTH_SHORT).show();
-            setName(user.getUid());
-        }
 
+        Toast.makeText(tsDetails.this, obj.getShort_description(),
+                Toast.LENGTH_SHORT).show();
 
     }
 
-    private void setName(String uid) {
-        String result = "Hey man";
-        rootRef.collection("users")
-                .document(uid)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        Intent i;
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                text.setText(document.get("name").toString());
-                            }
-                        }
-                    }
-                });
-    }
 }

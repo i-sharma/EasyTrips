@@ -23,10 +23,12 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
 
 
 public class Explore extends AppCompatActivity {
@@ -71,6 +73,19 @@ public class Explore extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
 
+        adapter.setOnClickListener(new ExploreAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
+                Intent it = new Intent(Explore.this, tsDetails.class);
+                Log.d(TAG, "onItemClick: " + documentSnapshot.getData());
+//                it.putExtra("ID", documentSnapshot.getId());
+//                it.putExtra("name", documentSnapshot.get("title").toString());
+                it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
+
+                startActivity(it);
+            }
+        });
+
     }
 
     @Override
@@ -87,9 +102,5 @@ public class Explore extends AppCompatActivity {
         }
     }
 
-    public void clicked_item(View view) {
-        Log.d(TAG, "we are here");
-        Intent it = new Intent(Explore.this, tsDetails.class);
-        startActivity(it);
-    }
+
 }

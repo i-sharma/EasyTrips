@@ -19,6 +19,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -28,6 +29,8 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     final StorageReference storageRef;
     final long ONE_MEGABYTE = 1024 * 1024;
     Resources resources;
+
+    private OnItemClickListener listener;
 
 
     public ExploreAdapter(@NonNull FirestoreRecyclerOptions<explore_model> options, Resources res) {
@@ -60,6 +63,11 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
         });
     }
 
+    public String getID(int position){
+        String doc_id = getSnapshots().getSnapshot(position).getId();
+        return doc_id;
+    }
+
     @NonNull
     @Override
     public ExploreViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -74,7 +82,19 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
         ExploreViewHolder(View itemView) {
             super(itemView);
             view = itemView;
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if(position!=RecyclerView.NO_POSITION && listener != null){
+                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
+                    }
+                }
+            });
         }
+
+
 
         void setTitle(String title) {
             TextView textView = view.findViewById(R.id.ts_name);
@@ -93,5 +113,13 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
             drawable.setCornerRadius(100);
             imageView.setImageDrawable(drawable);
         }
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    }
+
+    public void setOnClickListener(OnItemClickListener listener){
+        this.listener = listener;
     }
 }
