@@ -12,7 +12,7 @@ public class explore_model implements Serializable {
 
 
     public explore_model(long priority, String title, String short_description,
-                         String image_name, String openingHours, String Tip,
+                         String image_name, String opening_hours, String Tip,
                          String description, String distance_from_delhi_airport, String entry_fee,
                          String few_essential_tips, String formatted_address, String must_visit,
                          String n_ratings, String nearest_metro_station, String rating) {
@@ -23,7 +23,7 @@ public class explore_model implements Serializable {
         this.distance_from_delhi_airport = distance_from_delhi_airport;
         this.short_description = short_description;
         this.image_name = image_name;
-        this.opening_hours = openingHours;
+        this.opening_hours = opening_hours;
         this.entry_fee = entry_fee;
         this.few_essential_tips = few_essential_tips;
         this.formatted_address = formatted_address;
@@ -77,10 +77,6 @@ public class explore_model implements Serializable {
         return rating;
     }
 
-
-    public String getOpeningHours() {
-        return opening_hours;
-    }
 
 
     public long getPriority() {

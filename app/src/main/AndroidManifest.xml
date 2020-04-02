@@ -13,14 +13,18 @@
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity android:name=".yuHi" />
         <activity android:name=".userName" />
-        <activity android:name=".tsDetails" />
+        <activity android:name=".tsDetails"
+            android:parentActivityName=".Explore" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".Explore" />
+        </activity>
         <activity android:name=".Explore" />
         <activity
             android:name=".SplashScreen"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

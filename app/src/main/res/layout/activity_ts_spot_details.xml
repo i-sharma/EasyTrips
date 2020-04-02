@@ -1,97 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/colorDark">
+    android:background="@color/colorDark"
+    android:orientation="vertical"
+    android:weightSum="100">
 
-    <LinearLayout
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/ts_details_scroll_view"
+        android:layout_weight="80">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+
+            >
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:id="@+id/ts_details_photo"
+                android:layout_gravity="top"
+                android:adjustViewBounds="true"
+                android:padding="10dp"
+                android:src="@drawable/loading"/>
+            <TextView
+                android:id="@+id/ts_details_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:textSize="22sp"
+                android:padding="3dp"
+                android:typeface="sans"
+                android:textStyle="bold"
+                android:gravity="center_horizontal"
+                android:textColor="#A9DFBF"/>
+            <TextView
+                android:id="@+id/ts_details_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center_horizontal"
+                android:textColor="#F1948A"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:padding="3dp"
+                android:drawableStart="@drawable/ic_star_black_24dp"
+                android:drawableLeft="@drawable/ic_star_black_24dp"
+                />
+            <TextView
+                android:id="@+id/ts_details_description"
+                style="@style/ts_details_content"
+                />
+            <TextView
+                android:id="@+id/ts_details_address_heading"
+                style="@style/ts_details_heading"
+                android:text="Address"/>
+            <TextView
+                android:id="@+id/ts_details_address_content"
+                style="@style/ts_details_content"
+                />
+            <TextView
+                android:id="@+id/ts_details_opening_hours_heading"
+                style="@style/ts_details_heading"
+                android:text="Opening Hours"/>
+            <TextView
+                android:id="@+id/ts_details_opening_hours_content"
+                style="@style/ts_details_content"/>
+                />
+            <TextView
+                android:id="@+id/ts_details_entry_fee_heading"
+                style="@style/ts_details_heading"
+                android:text="Entry Fee"/>
+            <TextView
+                android:id="@+id/ts_details_entry_fee_content"
+                style="@style/ts_details_content"
+                />
+            <TextView
+                android:id="@+id/ts_details_tips_heading"
+                style="@style/ts_details_heading"
+                android:text="Few Tips for You"/>
+            <TextView
+                android:id="@+id/ts_details_tips_content"
+                style="@style/ts_details_content"
+                />
+            <TextView
+                android:id="@+id/ts_details_distance_from_airport_heading"
+                style="@style/ts_details_heading"
+                android:text="Distance from Airport"/>
+            <TextView
+                android:id="@+id/ts_details_distance_from_airport_content"
+                style="@style/ts_details_content"
+                />
+            <TextView
+                android:id="@+id/ts_details_must_visit_heading"
+                style="@style/ts_details_heading"
+                android:text="Must Visit"
+            />
+            <TextView
+                android:id="@+id/ts_details_must_visit_content"
+                style="@style/ts_details_content"
+                />
+        </LinearLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/ts_details_button_add_to_trip"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_weight="20"
+        android:text="Add To Trip"
+        android:textStyle="bold"
+        android:textSize="19dp"
+        android:textColor="@color/colorDark"
+        android:background="#F1C40F"
+        android:layout_margin="8dp"/>
 
-        >
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/ts_details_photo"
-            android:layout_gravity="top"
-            android:adjustViewBounds="true"
-            android:src="@drawable/delhi_1"
-            android:padding="10dp"/>
-        <TextView
-            android:id="@+id/ts_details_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="22sp"
-            android:padding="3dp"
-            android:typeface="sans"
-            android:textStyle="bold"
-            android:gravity="center_horizontal"
-            android:text="Red Fort - Pride of Mughal Dynasty"
-            android:textColor="#A9DFBF"/>
-        <TextView
-            android:id="@+id/ts_details_rating"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="Rating: 4.4"
-            android:textColor="#F1948A"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:padding="3dp"
-            />
-        <TextView
-            android:id="@+id/ts_details_description"
-            style="@style/ts_details_content"
-            android:text="The Red Fort is an epitome of the Mughal era in India and is the face of tourist attractions in Delhi. Built in 1638, it is an outstanding marvel of Mughal architecture made of red sandstone and is one of the famous tourist places in Delhi. Within its magnanimous walls, the chhata bazaar and every evening sound and light show are special attractions. If you are interested in the history of Red Fort, you will be thrilled to know that the Fort was built when Mughal Emperor, Shah Jahan shifted his capital to Delhi. In 2007, this Fort has declared a UNESCO World Heritage. It is one of the most famous places in Delhi."
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Address"/>
-        <TextView
-            android:id="@+id/ts_details_address"
-            style="@style/ts_details_content"
-            android:text="Netaji Subhash Marg, Lal Qila, Chandni Chowk, New Delhi, Delhi 110006, India"
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Opening Hours"/>
-        <TextView
-            android:id="@+id/ts_details_opening_hours"
-            style="@style/ts_details_content"
-            android:text="9 AM to 6 PM. Closed on Mondays"
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Entry Fee"/>
-        <TextView
-            android:id="@+id/ts_details_entry_fee"
-            style="@style/ts_details_content"
-            android:text="Free for children under 15, INR 10 for Indians, and INR 250 for foreigners"
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Special Tips for You"/>
-        <TextView
-            android:id="@+id/ts_details_tips"
-            style="@style/ts_details_content"
-            android:text="This place has many tourists visiting during the peak season and there might be a long queue for the tickets."
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Distance from Delhi Airport"/>
-        <TextView
-            android:id="@+id/ts_details_distance_from_airport"
-            style="@style/ts_details_content"
-            android:text="20 km"
-            />
-        <TextView
-            style="@style/ts_details_heading"
-            android:text="Must visit these Places Nearby"/>
-        <TextView
-            android:id="@+id/ts_details_must_visit"
-            style="@style/ts_details_content"
-            android:text="Digambar Jain Mandir, Sis Ganj Gurudwara and Paranthe Wali Gali nearby"
-            />
-    </LinearLayout>
-</ScrollView>
+
+</LinearLayout>

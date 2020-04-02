@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -37,7 +39,7 @@ public class Explore extends AppCompatActivity {
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
     RecyclerView recyclerView;
-//    FirebaseStorage storage;
+
 
     private ExploreAdapter adapter;
 
@@ -66,7 +68,6 @@ public class Explore extends AppCompatActivity {
         adapter = new ExploreAdapter(options, getResources());
 
         recyclerView = findViewById(R.id.recycler_view);
-//        recyclerView.setHasFixedSize(true);
 
         linearLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -77,16 +78,14 @@ public class Explore extends AppCompatActivity {
             @Override
             public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
                 Intent it = new Intent(Explore.this, tsDetails.class);
-                Log.d(TAG, "onItemClick: " + documentSnapshot.getData());
-//                it.putExtra("ID", documentSnapshot.getId());
-//                it.putExtra("name", documentSnapshot.get("title").toString());
                 it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
-
                 startActivity(it);
             }
         });
 
     }
+
+
 
     @Override
     protected void onStart() {
