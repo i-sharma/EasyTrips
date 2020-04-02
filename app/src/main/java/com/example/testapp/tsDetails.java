@@ -29,7 +29,6 @@ public class tsDetails extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ts_spot_details);
 
-        text = findViewById(R.id.yuHiname);
 
         Intent it = getIntent();
         String doc_id = it.getStringExtra("ID");
