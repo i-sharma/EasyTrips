@@ -19,6 +19,7 @@
         android:padding="6dp"
         android:adjustViewBounds="true"/>
 
+
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

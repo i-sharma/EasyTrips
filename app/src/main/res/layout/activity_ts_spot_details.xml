@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorDark"
     android:orientation="vertical"
     android:weightSum="100">
@@ -115,7 +116,7 @@
         android:textStyle="bold"
         android:textSize="19dp"
         android:textColor="@color/colorDark"
-        android:background="#F1C40F"
+        android:background="@color/yellow"
         android:layout_margin="8dp"/>
 
 

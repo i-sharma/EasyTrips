@@ -1,36 +1,18 @@
 package com.example.testapp;
 
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.gson.Gson;
 
 
 public class Explore extends AppCompatActivity {
@@ -76,11 +58,19 @@ public class Explore extends AppCompatActivity {
 
         adapter.setOnClickListener(new ExploreAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
+            public void onViewClick(DocumentSnapshot documentSnapshot, int position) {
                 Intent it = new Intent(Explore.this, tsDetails.class);
                 it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
                 startActivity(it);
             }
+
+            @Override
+            public void onButtonClick(int position) {
+                Toast.makeText(Explore.this, "Heres the position: " +
+                        position, Toast.LENGTH_SHORT).show();
+
+            }
+
         });
 
     }

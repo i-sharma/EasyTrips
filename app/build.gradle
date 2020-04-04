@@ -12,6 +12,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary=true
     }
 
     buildTypes {
@@ -21,6 +22,12 @@ android {
         }
     }
 
+}
+
+repositories {
+    maven {
+        url 'https://dl.bintray.com/spark/maven'
+    }
 }
 
 dependencies {
@@ -53,4 +60,8 @@ dependencies {
 
     //multidex
     implementation 'com.android.support:multidex:1.0.3'
+
+    //SubmitButton
+    implementation 'me.spark:submitbutton:1.0.1'
+
 }

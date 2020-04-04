@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,10 +45,6 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     protected void onBindViewHolder(@NonNull final ExploreViewHolder holder, int position, @NonNull explore_model model) {
         holder.setTitle(model.getTitle());
         holder.setShortDescription(model.getShort_description());
-
-//        String doc_id = adapter.getSnapshots().getSnapshot(position).getId();
-//        Log.d(TAG, "The id is: " + doc_id);
-
         StorageReference spaceRef = storageRef.child("photos_delhi/" + model.getImage_name());
 
         spaceRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
@@ -63,11 +60,6 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
         });
     }
 
-    public String getID(int position){
-        String doc_id = getSnapshots().getSnapshot(position).getId();
-        return doc_id;
-    }
-
     @NonNull
     @Override
     public ExploreViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -78,6 +70,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     class ExploreViewHolder extends RecyclerView.ViewHolder {
         private View view;
         String id;
+        Button bt;
 
         ExploreViewHolder(View itemView) {
             super(itemView);
@@ -88,10 +81,23 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position!=RecyclerView.NO_POSITION && listener != null){
-                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
+                        listener.onViewClick(getSnapshots().getSnapshot(position), position);
                     }
                 }
             });
+
+            bt = view.findViewById(R.id.btn);
+            bt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if(position!=RecyclerView.NO_POSITION && listener != null){
+                        listener.onButtonClick(position);
+                    }
+                }
+            });
+
+
         }
 
 
@@ -116,7 +122,9 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     }
 
     public interface OnItemClickListener{
-        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+        void onViewClick(DocumentSnapshot documentSnapshot, int position);
+
+        void onButtonClick(int position);
     }
 
     public void setOnClickListener(OnItemClickListener listener){
