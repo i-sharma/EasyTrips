@@ -1,13 +1,18 @@
 package com.example.testapp;
 
 import android.content.Intent;
+import android.graphics.drawable.AnimatedVectorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -21,6 +26,9 @@ public class Explore extends AppCompatActivity {
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
     RecyclerView recyclerView;
+
+    AnimatedVectorDrawable avd2 ;
+    AnimatedVectorDrawableCompat avd;
 
 
     private ExploreAdapter adapter;
@@ -64,10 +72,22 @@ public class Explore extends AppCompatActivity {
                 startActivity(it);
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
-            public void onButtonClick(int position) {
+            public void onButtonClick(int position, ImageView done) {
                 Toast.makeText(Explore.this, "Heres the position: " +
                         position, Toast.LENGTH_SHORT).show();
+                Drawable drawable = done.getDrawable();
+
+                if(drawable instanceof AnimatedVectorDrawableCompat){
+                    avd = (AnimatedVectorDrawableCompat) drawable;
+                    avd.start();
+                }
+                else if(drawable instanceof AnimatedVectorDrawable){
+                    avd2 = (AnimatedVectorDrawable) drawable;
+                    avd2.start();
+
+                }
 
             }
 

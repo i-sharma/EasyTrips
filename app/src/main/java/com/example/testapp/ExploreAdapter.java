@@ -3,6 +3,7 @@ package com.example.testapp;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -71,6 +72,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
         private View view;
         String id;
         Button bt;
+        ImageView imageView;
 
         ExploreViewHolder(View itemView) {
             super(itemView);
@@ -87,12 +89,14 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
             });
 
             bt = view.findViewById(R.id.btn);
+            imageView = view.findViewById(R.id.done);
             bt.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if(position!=RecyclerView.NO_POSITION && listener != null){
-                        listener.onButtonClick(position);
+                        listener.onButtonClick(position, imageView);
                     }
                 }
             });
@@ -124,7 +128,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     public interface OnItemClickListener{
         void onViewClick(DocumentSnapshot documentSnapshot, int position);
 
-        void onButtonClick(int position);
+        void onButtonClick(int position, ImageView done);
     }
 
     public void setOnClickListener(OnItemClickListener listener){
