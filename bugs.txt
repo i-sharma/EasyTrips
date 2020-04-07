@@ -1,6 +1,6 @@
 Explore:
     1. images keep reloading
-    2. image size not uniform
+    2.trip gets destroyed if you leave activity
 
 
 firestore:

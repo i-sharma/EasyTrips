@@ -1,7 +1,9 @@
 package com.example.testapp;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -45,7 +47,6 @@ public class Explore extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_explore);
-
         rootRef = FirebaseFirestore.getInstance();
 
         setUpRecyclerView();
@@ -113,6 +114,7 @@ public class Explore extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+
         if (requestCode == BOOL_ADD_TO_TRIP) {
             if(resultCode == Activity.RESULT_OK){
                 int add_to_trip_value = data.getIntExtra("add_to_trip_value", 0);
@@ -122,7 +124,9 @@ public class Explore extends AppCompatActivity {
                         trip_indices.add(last_click_position);
                 }
                 if(remove_from_trip == 1){
-                    trip_indices.remove(last_click_position);
+                if(remove_from_trip == 1){
+                    trip_indices.remove(Integer.valueOf(last_click_position));
+
                 }
             }
             if (resultCode == Activity.RESULT_CANCELED) {
