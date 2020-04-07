@@ -110,14 +110,46 @@
     <Button
         android:id="@+id/ts_details_button_add_to_trip"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/ts_details_add_button_height"
         android:layout_weight="20"
         android:text="Add To Trip"
         android:textStyle="bold"
         android:textSize="19dp"
         android:textColor="@color/colorDark"
-        android:background="@color/yellow"
-        android:layout_margin="8dp"/>
+        android:background="@drawable/rounded_button_yellow"
+        android:layout_margin="8dp"
+        android:visibility="gone"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:paddingBottom="10dp"
+        android:id="@+id/ts_details_added_button_layout">
+
+
+        <Button
+            android:id="@+id/ts_details_button_already_added"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/ts_details_added_button_height"
+            android:layout_weight="3"
+            android:text="Added To Trip"
+            android:textStyle="bold"
+            android:textSize="19dp"
+            android:textColor="@color/colorDark"
+            android:background="@drawable/rounded_button_green"
+            android:layout_margin="8dp"
+            />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/ts_details_added_button_height"
+            android:id="@+id/ts_details_delete_button"
+            app:srcCompat="@drawable/delete_button"
+            android:layout_marginTop="7dp"
+            android:layout_weight="10"
+            android:clickable="true"/>
+    </LinearLayout>
 
 </LinearLayout>

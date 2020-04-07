@@ -1,10 +1,13 @@
 package com.example.testapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,6 +22,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.ArrayList;
+
 
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
@@ -30,7 +35,10 @@ public class Explore extends AppCompatActivity {
     AnimatedVectorDrawable avd2 ;
     AnimatedVectorDrawableCompat avd;
 
+    int BOOL_ADD_TO_TRIP = 1;
+    int last_click_position;
 
+    private ArrayList<Integer> trip_indices = new ArrayList<Integer>();
     private ExploreAdapter adapter;
 
     @Override
@@ -67,9 +75,14 @@ public class Explore extends AppCompatActivity {
         adapter.setOnClickListener(new ExploreAdapter.OnItemClickListener() {
             @Override
             public void onViewClick(DocumentSnapshot documentSnapshot, int position) {
+                last_click_position = position;
                 Intent it = new Intent(Explore.this, tsDetails.class);
                 it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
-                startActivity(it);
+                if(trip_indices.contains(position))
+                    it.putExtra("already_present_in_trip", 1);
+                else
+                    it.putExtra("already_present_in_trip", 0);
+                startActivityForResult(it, BOOL_ADD_TO_TRIP);
             }
 
 //            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -96,6 +109,28 @@ public class Explore extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == BOOL_ADD_TO_TRIP) {
+            if(resultCode == Activity.RESULT_OK){
+                int add_to_trip_value = data.getIntExtra("add_to_trip_value", 0);
+                int remove_from_trip = data.getIntExtra("remove_from_trip", 0);
+                if(add_to_trip_value == 1){
+                    if(!trip_indices.contains(last_click_position))
+                        trip_indices.add(last_click_position);
+                }
+                if(remove_from_trip == 1){
+                    trip_indices.remove(last_click_position);
+                }
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }
+
 
     @Override
     protected void onStart() {
@@ -112,4 +147,7 @@ public class Explore extends AppCompatActivity {
     }
 
 
+    public void show_trip(View view) {
+        Log.d(TAG, "show_trip: " + trip_indices);
+    }
 }

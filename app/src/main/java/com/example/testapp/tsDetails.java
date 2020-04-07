@@ -1,15 +1,19 @@
 package com.example.testapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,17 +27,30 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-public class tsDetails extends AppCompatActivity {
+public class tsDetails extends AppCompatActivity implements View.OnClickListener{
     private FirebaseAuth mAuth;
     private FirebaseFirestore rootRef;
     TextView title, rating, description, address_heading, address_content, opening_hours_content;
     TextView opening_hours_heading, entry_fee_content, entry_fee_heading, tips_content, tips_heading;
     TextView airport_distance_content, airport_distance_heading, must_visit_content, must_visit_heading;
-    Button add_to_trip;
-    ImageView photo;
+    Button add_to_trip, added_to_trip;
+    ImageView photo, delete_button;
+    LinearLayout added_linear_layout;
     private static final String TAG = "tsDetails";
     StorageReference storageRef = FirebaseStorage.getInstance().getReference();
     final long ONE_MEGABYTE = 1024 * 1024;
+
+    int add_to_trip_value = 0;
+    int already_present_in_trip, remove_from_trip = 0;
+
+
+    private final int START_NOT_ALREADY_ADDED = 0;
+    private final int START_ALREADY_ADDED = 1;
+    private final int IN_ACTIVITY_ADD_BUTTON_CLICKED = 2;
+    private final int IN_ACTIVITY_DELETE_BUTTON_CLICKED = 3;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,15 +72,53 @@ public class tsDetails extends AppCompatActivity {
         must_visit_content = findViewById(R.id.ts_details_must_visit_content);
         must_visit_heading = findViewById(R.id.ts_details_must_visit_heading);
         add_to_trip = findViewById(R.id.ts_details_button_add_to_trip);
+        added_to_trip = findViewById(R.id.ts_details_button_already_added);
         photo = findViewById(R.id.ts_details_photo);
+        added_linear_layout = findViewById(R.id.ts_details_added_button_layout);
+        delete_button = findViewById(R.id.ts_details_delete_button);
 
         Intent it = getIntent();
         explore_model obj = (explore_model) it.getSerializableExtra("snapshot");
-
+        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
+        updateButtonUI(already_present_in_trip);
 
         set_content(obj);
+        add_to_trip.setOnClickListener(this);
+        delete_button.setOnClickListener(this);
 
 
+    }
+
+
+
+    private void updateButtonUI(int already_present_in_trip) {
+        switch (already_present_in_trip){
+            case START_ALREADY_ADDED:
+                added_linear_layout.setVisibility(View.VISIBLE);
+                break;
+            case START_NOT_ALREADY_ADDED:
+                add_to_trip.setVisibility(View.VISIBLE);
+                break;
+            case IN_ACTIVITY_ADD_BUTTON_CLICKED:
+                add_to_trip.setVisibility(View.GONE);
+                added_linear_layout.setVisibility(View.VISIBLE);
+                break;
+            case IN_ACTIVITY_DELETE_BUTTON_CLICKED:
+                added_linear_layout.setVisibility(View.GONE);
+                add_to_trip.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("add_to_trip_value",add_to_trip_value);
+        returnIntent.putExtra("remove_from_trip",remove_from_trip);
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
+        return super.onKeyDown(keyCode, event);
     }
 
     private void set_content(explore_model obj) {
@@ -138,4 +193,20 @@ public class tsDetails extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.ts_details_button_add_to_trip:
+                add_to_trip_value = 1;
+                updateButtonUI(IN_ACTIVITY_ADD_BUTTON_CLICKED);
+                break;
+            case R.id.ts_details_delete_button:
+                add_to_trip_value = 0;
+                if(already_present_in_trip == 1){
+                    remove_from_trip = 1;
+                }
+                updateButtonUI(IN_ACTIVITY_DELETE_BUTTON_CLICKED);
+                break;
+        }
+    }
 }
