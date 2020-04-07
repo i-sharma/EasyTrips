@@ -70,9 +70,9 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
 
     class ExploreViewHolder extends RecyclerView.ViewHolder {
         private View view;
-        String id;
-        Button bt;
-        ImageView imageView;
+//        String id;
+//        Button bt;
+//        ImageView imageView;
 
         ExploreViewHolder(View itemView) {
             super(itemView);
@@ -88,18 +88,18 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
                 }
             });
 
-            bt = view.findViewById(R.id.btn);
-            imageView = view.findViewById(R.id.done);
-            bt.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if(position!=RecyclerView.NO_POSITION && listener != null){
-                        listener.onButtonClick(position, imageView);
-                    }
-                }
-            });
+//            bt = view.findViewById(R.id.btn);
+//            imageView = view.findViewById(R.id.done);
+//            bt.setOnClickListener(new View.OnClickListener() {
+//
+//                @Override
+//                public void onClick(View v) {
+//                    int position = getAdapterPosition();
+//                    if(position!=RecyclerView.NO_POSITION && listener != null){
+//                        listener.onButtonClick(position, imageView);
+//                    }
+//                }
+//            });
 
 
         }
@@ -128,7 +128,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     public interface OnItemClickListener{
         void onViewClick(DocumentSnapshot documentSnapshot, int position);
 
-        void onButtonClick(int position, ImageView done);
+//        void onButtonClick(int position, ImageView done);
     }
 
     public void setOnClickListener(OnItemClickListener listener){

@@ -72,24 +72,24 @@ public class Explore extends AppCompatActivity {
                 startActivity(it);
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void onButtonClick(int position, ImageView done) {
-                Toast.makeText(Explore.this, "Heres the position: " +
-                        position, Toast.LENGTH_SHORT).show();
-                Drawable drawable = done.getDrawable();
-
-                if(drawable instanceof AnimatedVectorDrawableCompat){
-                    avd = (AnimatedVectorDrawableCompat) drawable;
-                    avd.start();
-                }
-                else if(drawable instanceof AnimatedVectorDrawable){
-                    avd2 = (AnimatedVectorDrawable) drawable;
-                    avd2.start();
-
-                }
-
-            }
+//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+//            @Override
+//            public void onButtonClick(int position, ImageView done) {
+//                Toast.makeText(Explore.this, "Heres the position: " +
+//                        position, Toast.LENGTH_SHORT).show();
+//                Drawable drawable = done.getDrawable();
+//
+//                if(drawable instanceof AnimatedVectorDrawableCompat){
+//                    avd = (AnimatedVectorDrawableCompat) drawable;
+//                    avd.start();
+//                }
+//                else if(drawable instanceof AnimatedVectorDrawable){
+//                    avd2 = (AnimatedVectorDrawable) drawable;
+//                    avd2.start();
+//
+//                }
+//
+//            }
 
         });
 
