@@ -61,7 +61,7 @@ dependencies {
     //multidex
     implementation 'com.android.support:multidex:1.0.3'
 
-    //SubmitButton
-    implementation 'me.spark:submitbutton:1.0.1'
+    //bottom bar
+    implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7'
 
 }

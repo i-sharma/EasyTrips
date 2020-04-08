@@ -26,9 +26,13 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 
+import me.ibrahimsn.lib.OnItemSelectedListener;
+
 
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
+
+    me.ibrahimsn.lib.SmoothBottomBar bottomBar;
 
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
@@ -49,6 +53,7 @@ public class Explore extends AppCompatActivity {
         setContentView(R.layout.activity_explore);
         rootRef = FirebaseFirestore.getInstance();
 
+        bottomBar = findViewById(R.id.exploreBottomBar);
         setUpRecyclerView();
 
     }
@@ -107,6 +112,13 @@ public class Explore extends AppCompatActivity {
 
         });
 
+        bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelect(int i) {
+                Toast.makeText(Explore.this, "Here: " + i, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 
@@ -116,23 +128,25 @@ public class Explore extends AppCompatActivity {
 
 
         if (requestCode == BOOL_ADD_TO_TRIP) {
-            if(resultCode == Activity.RESULT_OK){
+            if (resultCode == Activity.RESULT_OK) {
                 int add_to_trip_value = data.getIntExtra("add_to_trip_value", 0);
                 int remove_from_trip = data.getIntExtra("remove_from_trip", 0);
-                if(add_to_trip_value == 1){
-                    if(!trip_indices.contains(last_click_position))
+                if (add_to_trip_value == 1) {
+                    if (!trip_indices.contains(last_click_position))
                         trip_indices.add(last_click_position);
                 }
-                if(remove_from_trip == 1){
-                if(remove_from_trip == 1){
-                    trip_indices.remove(Integer.valueOf(last_click_position));
+                if (remove_from_trip == 1) {
+                    if (remove_from_trip == 1) {
+                        trip_indices.remove(Integer.valueOf(last_click_position));
 
+                    }
+                }
+                if (resultCode == Activity.RESULT_CANCELED) {
+                    //Write your code if there's no result
                 }
             }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
         }
+
     }
 
 

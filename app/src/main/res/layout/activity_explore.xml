@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#070707"
-    android:id="@+id/explore_parent_layout">
+    android:id="@+id/explore_parent_layout"
+    android:weightSum="100">
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/city_holder">
+        android:id="@+id/city_holder"
+        android:layout_weight="10">
 
     <ImageView
         android:layout_width="match_parent"
@@ -18,19 +21,22 @@
         android:layout_marginTop="0dp"
         android:padding="6dp"
         android:adjustViewBounds="true"/>
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="show trip"
-            android:id="@+id/show_trip_button"
-            android:onClick="show_trip"
-            />
+
 
 
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_weight="75"/>
+    <me.ibrahimsn.lib.SmoothBottomBar
+        android:id="@+id/exploreBottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:padding="16dp"
+        app:backgroundColor="@color/colorDark"
+        app:menu="@menu/menu_bottom"
+        android:layout_weight="15"/>
 </LinearLayout>
 
