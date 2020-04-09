@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,7 +32,6 @@ import java.util.List;
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
 
-    me.ibrahimsn.lib.SmoothBottomBar bottomBar;
 
     private static final String TAG = "MainActivity";
     ViewPager viewPager;
@@ -41,26 +42,44 @@ public class CurrentTripActivity extends AppCompatActivity {
     private int[] ids = new int[]{12,1,13,2,4,5,6};
     Button route;
 
+    BottomNavigationView navigation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
 
         route = findViewById(R.id.showRoute);
-        bottomBar = findViewById(R.id.currentTripBottomBar);
-
-        bottomBar.setActiveItem(1);
 
         createStorageReference("delhi");
 
-//        route.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent(getBaseContext(), MapsActivity.class);
-//                startActivity(intent);
-//            }
-//        });
+        bottomNavigation();
 
+    }
+
+    private void bottomNavigation() {
+        navigation = (BottomNavigationView) findViewById(R.id.navigation_bar);
+        navigation.getMenu().findItem(R.id.menu_item1).setChecked(true);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.menu_item0:
+                        Intent a = new Intent(CurrentTripActivity.this, Explore.class);
+                        startActivity(a);
+
+                        break;
+                    case R.id.menu_item1:
+                        break;
+                    case R.id.menu_item2:
+                        Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
+                        startActivity(b);
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private HashMap<Integer, DocumentReference> CreateDocReference(String... cities) {

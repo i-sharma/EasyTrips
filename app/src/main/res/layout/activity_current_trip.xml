@@ -32,13 +32,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <me.ibrahimsn.lib.SmoothBottomBar
-        android:id="@+id/currentTripBottomBar"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation_bar"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:padding="16dp"
-        app:backgroundColor="@color/colorDark"
+        android:layout_height="wrap_content"
+        android:background="@color/colorDark"
         app:menu="@menu/menu_bottom"
-        android:layout_alignParentBottom="true"/>
+        android:layout_alignParentBottom="true"
+        app:itemTextColor="@drawable/selector"
+        app:itemIconTint="@drawable/selector"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        />
+
 
 </RelativeLayout>

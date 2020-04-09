@@ -9,10 +9,12 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,7 +35,6 @@ import me.ibrahimsn.lib.OnItemSelectedListener;
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
 
-    me.ibrahimsn.lib.SmoothBottomBar bottomBar;
 
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
@@ -46,16 +48,41 @@ public class Explore extends AppCompatActivity {
 
     private ArrayList<Integer> trip_indices = new ArrayList<Integer>();
     private ExploreAdapter adapter;
+    BottomNavigationView navigation;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_explore);
         rootRef = FirebaseFirestore.getInstance();
 
-        bottomBar = findViewById(R.id.exploreBottomBar);
         setUpRecyclerView();
+        bottomNavigation();
 
+    }
+
+    private void bottomNavigation() {
+        navigation = (BottomNavigationView) findViewById(R.id.navigation_bar);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.menu_item0:
+                        break;
+                    case R.id.menu_item1:
+                        Intent a = new Intent(Explore.this, CurrentTripActivity.class);
+                        startActivity(a);
+                        break;
+                    case R.id.menu_item2:
+                        Intent b = new Intent(Explore.this, AccountActivity.class);
+                        startActivity(b);
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private void setUpRecyclerView() {
@@ -112,16 +139,7 @@ public class Explore extends AppCompatActivity {
 
         });
 
-        bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
-            @Override
-            public void onItemSelect(int i) {
-                switch (i){
-                    case 1:
-                        Intent intent = new Intent(Explore.this, CurrentTripActivity.class);
-                        startActivity(intent);
-                }
-            }
-        });
+
 
     }
 
