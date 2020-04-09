@@ -2,6 +2,7 @@ package com.example.testapp;
 
 import android.animation.ArgbEvaluator;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +25,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,16 +43,21 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<CurrentTripModel> models = new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-    private int[] ids = new int[]{12,1,13,2,4,5,6};
+//    private int[] ids = new int[]{12,1,13,2,4,5,6};
     Button route;
 
     BottomNavigationView navigation;
+    ArrayList<Integer> ids;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
+
+//        ids = (ArrayList<Integer>) getIntent().getSerializableExtra("trip_indices");
+        loadData();
 
         route = findViewById(R.id.showRoute);
 
@@ -64,6 +73,17 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("trip_indices", null);
+        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
+        ids = gson.fromJson(json, type);
+        if(ids == null){
+            ids = new ArrayList<Integer>();
+        }
     }
 
     private void bottomNavigation() {
