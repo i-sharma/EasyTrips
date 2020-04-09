@@ -56,6 +56,14 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         bottomNavigation();
 
+        route.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getBaseContext(), MapsActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     private void bottomNavigation() {

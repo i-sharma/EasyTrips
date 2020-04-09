@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.testapp">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+
+
 
     <application
         android:allowBackup="true"
@@ -11,8 +15,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
         <activity android:name=".AccountActivity"></activity>
         <activity android:name=".MainActivity" />
+
         <activity android:name=".userName" />
         <activity
             android:name=".tsDetails"
@@ -32,6 +41,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".login" />
+        <activity android:name=".MapsActivity"/>
         <activity android:name=".phoneAuth" />
         <activity android:name=".CurrentTripActivity" />
     </application>
