@@ -115,7 +115,11 @@ public class Explore extends AppCompatActivity {
         bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelect(int i) {
-                Toast.makeText(Explore.this, "Here: " + i, Toast.LENGTH_SHORT).show();
+                switch (i){
+                    case 1:
+                        Intent intent = new Intent(Explore.this, CurrentTripActivity.class);
+                        startActivity(intent);
+                }
             }
         });
 

@@ -11,10 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".yuHi" />
+        <activity android:name=".MainActivity"></activity>
         <activity android:name=".userName" />
-        <activity android:name=".tsDetails"
-            android:parentActivityName=".Explore" >
+        <activity
+            android:name=".tsDetails"
+            android:parentActivityName=".Explore">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".Explore" />
@@ -25,11 +26,13 @@
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".login" />
         <activity android:name=".phoneAuth" />
+        <activity android:name=".CurrentTripActivity" />
     </application>
 
 </manifest>
