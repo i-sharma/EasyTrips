@@ -2,6 +2,7 @@ package com.example.testapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PorterDuff;
@@ -26,6 +27,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public class tsDetails extends AppCompatActivity implements View.OnClickListener{
     private FirebaseAuth mAuth;
@@ -41,8 +47,11 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
     final long ONE_MEGABYTE = 1024 * 1024;
 
     int add_to_trip_value = 0;
-    int already_present_in_trip, remove_from_trip = 0;
+    int already_present_in_trip;
+    explore_model obj;
+    int click_position;
 
+    private ArrayList<Integer> trip_indices;
 
     private final int START_NOT_ALREADY_ADDED = 0;
     private final int START_ALREADY_ADDED = 1;
@@ -78,9 +87,12 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         delete_button = findViewById(R.id.ts_details_delete_button);
 
         Intent it = getIntent();
-        explore_model obj = (explore_model) it.getSerializableExtra("snapshot");
+        obj = (explore_model) it.getSerializableExtra("snapshot");
         already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
+        click_position = it.getIntExtra("click_position", -1);
         updateButtonUI(already_present_in_trip);
+
+        loadData();
 
         set_content(obj);
         add_to_trip.setOnClickListener(this);
@@ -110,12 +122,32 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    private void saveData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(trip_indices);
+        editor.putString("trip_indices", json);
+        editor.apply();
+    }
+
+    private void loadData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("trip_indices", null);
+        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
+        trip_indices = gson.fromJson(json, type);
+        if(trip_indices == null){
+            trip_indices = new ArrayList<Integer>();
+        }
+    }
+
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         Intent returnIntent = new Intent();
         returnIntent.putExtra("add_to_trip_value",add_to_trip_value);
-        returnIntent.putExtra("remove_from_trip",remove_from_trip);
+//        returnIntent.putExtra("remove_from_trip",remove_from_trip);
         setResult(Activity.RESULT_OK,returnIntent);
         finish();
         return super.onKeyDown(keyCode, event);
@@ -202,9 +234,8 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
                 break;
             case R.id.ts_details_delete_button:
                 add_to_trip_value = 0;
-                if(already_present_in_trip == 1){
-                    remove_from_trip = 1;
-                }
+                trip_indices.remove(Integer.valueOf(click_position + 1));
+                saveData();
                 updateButtonUI(IN_ACTIVITY_DELETE_BUTTON_CLICKED);
                 break;
         }

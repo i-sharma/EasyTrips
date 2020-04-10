@@ -116,6 +116,7 @@ public class Explore extends AppCompatActivity {
                 last_click_position = position;
                 Intent it = new Intent(Explore.this, tsDetails.class);
                 it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
+                it.putExtra("click_position", position);
                 if(trip_indices.contains(position+1))
                     it.putExtra("already_present_in_trip", 1);
                 else
@@ -176,18 +177,12 @@ public class Explore extends AppCompatActivity {
 
         if (requestCode == BOOL_ADD_TO_TRIP) {
             if (resultCode == Activity.RESULT_OK) {
+                loadData();
                 int add_to_trip_value = data.getIntExtra("add_to_trip_value", 0);
-                int remove_from_trip = data.getIntExtra("remove_from_trip", 0);
                 if (add_to_trip_value == 1) {
                     if (!trip_indices.contains(last_click_position + 1))
                         trip_indices.add(last_click_position + 1);
 
-                }
-                if (remove_from_trip == 1) {
-                    if (remove_from_trip == 1) {
-                        trip_indices.remove(Integer.valueOf(last_click_position));
-
-                    }
                 }
                 saveData();
                 if (resultCode == Activity.RESULT_CANCELED) {
