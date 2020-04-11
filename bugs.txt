@@ -14,7 +14,7 @@ signup:
 ts_Details:
     1.some fields show not found (See page for Tamra la)
     --- 2. on pressing back button, we are taken to explore view start
-
+    --- 3. Tip gaayab kar diya hai maine.. use vaapas laana hai.
 
 bottom nav:
     --- 1. On changing activities, they get recreated.

@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimatedVectorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,6 +53,8 @@ public class Explore extends AppCompatActivity {
     private ArrayList<Integer> trip_indices;
     private ExploreAdapter adapter;
     BottomNavigationView navigation;
+    Parcelable mListState;
+    String LIST_STATE_KEY = "9718";
 
 
     @Override
@@ -63,8 +66,19 @@ public class Explore extends AppCompatActivity {
 
         loadData();
         setUpRecyclerView();
+        adapter.startListening();
         bottomNavigation();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        adapter.stopListening();
     }
 
     private void bottomNavigation() {
@@ -174,8 +188,6 @@ public class Explore extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-
         if (requestCode == BOOL_ADD_TO_TRIP) {
             if (resultCode == Activity.RESULT_OK) {
                 loadData();
@@ -183,7 +195,6 @@ public class Explore extends AppCompatActivity {
                 if (add_to_trip_value == 1) {
                     if (!trip_indices.contains(last_click_position + 1))
                         trip_indices.add(last_click_position + 1);
-
                 }
                 saveData();
                 if (resultCode == Activity.RESULT_CANCELED) {
@@ -195,19 +206,19 @@ public class Explore extends AppCompatActivity {
     }
 
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (adapter != null) {
-            adapter.stopListening();
-        }
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        adapter.startListening();
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        if (adapter != null) {
+//            adapter.stopListening();
+//        }
+//    }
 
 
     public void show_trip(View view) {
