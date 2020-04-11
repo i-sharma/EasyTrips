@@ -1,5 +1,5 @@
 Explore:
-    1. images keep reloading
+    --- 1. images keep reloading
     2.trip gets destroyed if you leave activity
 
 
@@ -13,4 +13,8 @@ signup:
 
 ts_Details:
     1.some fields show not found (See page for Tamra la)
-    2. on pressing back button, we are taken to explore view start
+    --- 2. on pressing back button, we are taken to explore view start
+
+
+bottom nav:
+    --- 1. On changing activities, they get recreated.

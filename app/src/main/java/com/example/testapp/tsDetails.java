@@ -186,11 +186,11 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
             entry_fee_content.setText(obj.getEntry_fee());
             entry_fee_heading.setVisibility(View.VISIBLE);
         }
-        if(obj.getTip() != "Not found" && obj.getTip() != ""){
-            tips_content.setVisibility(View.VISIBLE);
-            tips_content.setText(obj.getTip());
-            tips_heading.setVisibility(View.VISIBLE);
-        }
+//        if(obj.getTip() != "Not found" && obj.getTip() != ""){
+//            tips_content.setVisibility(View.VISIBLE);
+//            tips_content.setText(obj.getTip());
+//            tips_heading.setVisibility(View.VISIBLE);
+//        }
 
         if(obj.getDistance_from_delhi_airport() != "Not found" && obj.getDistance_from_delhi_airport() != ""){
             airport_distance_content.setVisibility(View.VISIBLE);

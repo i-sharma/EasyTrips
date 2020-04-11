@@ -109,6 +109,7 @@ public class Explore extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
         adapter.setOnClickListener(new ExploreAdapter.OnItemClickListener() {
             @Override

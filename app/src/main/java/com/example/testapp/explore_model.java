@@ -3,22 +3,22 @@ package com.example.testapp;
 import java.io.Serializable;
 
 public class explore_model implements Serializable {
-    private long priority;
-    private String title, short_description, image_name, opening_hours;
-    private String Tip, description, distance_from_delhi_airport, entry_fee, few_essential_tips;
-    private String formatted_address, must_visit, n_ratings, nearest_metro_station, rating;
+    public String title, short_description, image_name, opening_hours;
+    public String description, distance_from_delhi_airport, fb_img_url, entry_fee, few_essential_tips;
+    public String formatted_address, must_visit, n_ratings, nearest_metro_station, rating;
 
     public explore_model() {}
 
 
-    public explore_model(long priority, String title, String short_description,
-                         String image_name, String opening_hours, String Tip,
+
+
+    public explore_model(String title, String short_description,
+                         String image_name, String opening_hours, String fb_img_url,
                          String description, String distance_from_delhi_airport, String entry_fee,
                          String few_essential_tips, String formatted_address, String must_visit,
                          String n_ratings, String nearest_metro_station, String rating) {
-        this.priority = priority;
         this.title = title;
-        this.Tip = Tip;
+//        this.Tip = Tip;
         this.description = description;
         this.distance_from_delhi_airport = distance_from_delhi_airport;
         this.short_description = short_description;
@@ -31,15 +31,20 @@ public class explore_model implements Serializable {
         this.n_ratings = n_ratings;
         this.nearest_metro_station = nearest_metro_station;
         this.rating = rating;
+        this.fb_img_url = fb_img_url;
+    }
+
+    public String getFb_image_url() {
+        return fb_img_url;
     }
 
     public String getOpening_hours() {
         return opening_hours;
     }
 
-    public String getTip() {
-        return Tip;
-    }
+//    public String getTip() {
+//        return Tip;
+//    }
 
     public String getDescription() {
         return description;
@@ -77,11 +82,6 @@ public class explore_model implements Serializable {
         return rating;
     }
 
-
-
-    public long getPriority() {
-        return priority;
-    }
 
     public String getShort_description() {
         return short_description;
