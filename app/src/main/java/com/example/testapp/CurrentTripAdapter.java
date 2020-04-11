@@ -6,10 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
@@ -19,10 +21,9 @@ import java.util.List;
 public class CurrentTripAdapter extends PagerAdapter {
 
     private List<CurrentTripModel> models;
-    private LayoutInflater layoutInflater;
     private Context context;
-    ImageView imageView;
-    TextView title, desc;
+    private ImageView imageView;
+    private TextView title, desc;
 
     public CurrentTripAdapter(List<CurrentTripModel> models, Context context) {
         this.models = models;
@@ -42,29 +43,29 @@ public class CurrentTripAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
-        layoutInflater = LayoutInflater.from(context);
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view = layoutInflater.inflate(R.layout.layout_current_trip_item, container, false);
 
 
         imageView = view.findViewById(R.id.image);
         title = view.findViewById(R.id.title);
         desc = view.findViewById(R.id.desc);
+        CardView cardView = view.findViewById(R.id.cardView);
 
         Log.d("title is","" + models.get(position).getTitle());
 
         updateView(position,container);
 
-        //imageView.setImageResource(models.get(position).getImage());
-
-//        view.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(context, DetailActivity.class);
-//                intent.putExtra("param", models.get(position).getTitle());
-//                context.startActivity(intent);
-//                // finish();
-//            }
-//        });
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("clicked:","cardview");
+                Intent intent = new Intent(context, tsDetails.class);
+                intent.putExtra("param", models.get(position).getTitle());
+                context.startActivity(intent);
+                // finish();
+            }
+        });
 
         container.addView(view, 0);
 
@@ -79,10 +80,7 @@ public class CurrentTripAdapter extends PagerAdapter {
                 .load(models.get(position).getImage())
                 .placeholder(R.drawable.wait)
                 .into(imageView);
-//        GlideApp.with(context)
-//                .load(models.get(position).getImage())
-//                .placeholder(R.drawable.wfi)
-//                .into(imageView);
+
         startUpdate(container);
 
         notifyDataSetChanged();
