@@ -11,14 +11,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -29,7 +26,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +34,6 @@ import java.util.List;
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
 
-
     private static final String TAG = "MainActivity";
     private ArrayList<Integer> trip_indices;
     ViewPager viewPager;
@@ -46,12 +41,9 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<CurrentTripModel> models = new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-//    private int[] ids = new int[]{12,1,13,2,4,5,6};
     Button route;
     LinearLayout removeItem;
-
     BottomNavigationView navigation;
-    ArrayList<Integer> ids;
 
 
     @Override
@@ -59,27 +51,13 @@ public class CurrentTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
-
-        Integer[] colors_temp = {
-                getResources().getColor(R.color.color7),
-                getResources().getColor(R.color.color9),
-                getResources().getColor(R.color.color10),
-                getResources().getColor(R.color.color11),
-                getResources().getColor(R.color.color12),
-                getResources().getColor(R.color.color13),
-                getResources().getColor(R.color.color14),
-                getResources().getColor(R.color.color15),
-                getResources().getColor(R.color.color16)
-        };
-
-        colors = colors_temp;
-
-//        ids = (ArrayList<Integer>) getIntent().getSerializableExtra("trip_indices");
         loadTripData();
 
         route = findViewById(R.id.showRoute);
         viewPager = findViewById(R.id.viewPager);
         removeItem = findViewById(R.id.removeItemFromTrip);
+
+        setViewPagerBackground();
 
         createStorageReference("delhi");
 
@@ -88,6 +66,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         route.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadTripData();
                 Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                 startActivity(intent);
             }
@@ -96,11 +75,24 @@ public class CurrentTripActivity extends AppCompatActivity {
         removeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                loadTripData();
                 removeFromModel();
                 saveTripData();
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadTripData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadTripData();
     }
 
     private void saveTripData(){
@@ -117,14 +109,15 @@ public class CurrentTripActivity extends AppCompatActivity {
         Gson gson = new Gson();
         String json = sharedPreferences.getString("trip_indices", null);
         Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
-        ids = gson.fromJson(json, type);
-        if(ids == null){
-            ids = new ArrayList<Integer>();
+        trip_indices = gson.fromJson(json, type);
+        if(trip_indices == null){
+            trip_indices = new ArrayList<Integer>();
         }
     }
 
     private void bottomNavigation() {
-        navigation = (BottomNavigationView) findViewById(R.id.navigation_bar);
+        loadTripData();
+        navigation = findViewById(R.id.navigation_bar);
         navigation.getMenu().findItem(R.id.menu_item1).setChecked(true);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -133,7 +126,6 @@ public class CurrentTripActivity extends AppCompatActivity {
                     case R.id.menu_item0:
                         Intent a = new Intent(CurrentTripActivity.this, Explore.class);
                         startActivity(a);
-
                         break;
                     case R.id.menu_item1:
                         break;
@@ -152,7 +144,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
         HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
 
-        for (int id : ids) {
+        for (int id : trip_indices) {
             String tourist_places_id = cities[0] + "::" + id;
             tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
         }
@@ -160,6 +152,21 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void setViewPagerBackground() {
+
+        Integer[] colors_temp = {
+                getResources().getColor(R.color.color7),
+                getResources().getColor(R.color.color9),
+                getResources().getColor(R.color.color10),
+                getResources().getColor(R.color.color11),
+                getResources().getColor(R.color.color12),
+                getResources().getColor(R.color.color13),
+                getResources().getColor(R.color.color14),
+                getResources().getColor(R.color.color15),
+                getResources().getColor(R.color.color16)
+        };
+
+        colors = colors_temp;
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -202,7 +209,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
         final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
-        for(final int id : ids){
+        for(final int id : trip_indices){
 
             tp.get(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -240,27 +247,32 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     public void removeFromModel() {
-        Log.d("deleting:",""+viewPager.getCurrentItem());
-        int position = viewPager.getCurrentItem();
 
-        models.remove(position);
+        if(trip_indices.isEmpty()){
+            Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
+        }else{
+            Log.d("deleting:",""+viewPager.getCurrentItem());
+            int position = viewPager.getCurrentItem();
+            int curr_id = models.get(position).getId();
+            trip_indices.remove(Integer.valueOf(curr_id));
+            models.remove(position);
 
-        adapter = new CurrentTripAdapter(models, this);
-        viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(position);
-        viewPager.setPadding(100, 0, 100, 0);
-        setViewPagerBackground();
+            adapter = new CurrentTripAdapter(models, this);
+            viewPager.setAdapter(adapter);
+            viewPager.setCurrentItem(position);
+            viewPager.setPadding(100, 0, 100, 0);
+        }
+
     }
 
     private void addToModel(Uri result, String title, String short_description, int id) {
-        models.add(new CurrentTripModel(result,title,short_description));
-        Log.d("model contains ",""+id);
+        models.add(new CurrentTripModel(result,title,short_description,id));
+        Log.d("model contains ",""+title);
 
         adapter = new CurrentTripAdapter(models, this);
         viewPager.setAdapter(adapter);
         viewPager.setPadding(130, 0, 130, 0);
 
-        setViewPagerBackground();
     }
 
 }

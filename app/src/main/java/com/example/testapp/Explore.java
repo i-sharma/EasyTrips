@@ -39,7 +39,6 @@ import me.ibrahimsn.lib.OnItemSelectedListener;
 public class Explore extends AppCompatActivity {
     private static final String TAG = "Explore";
 
-
     private FirebaseFirestore rootRef;
     LinearLayoutManager linearLayoutManager;
     RecyclerView recyclerView;
@@ -71,8 +70,15 @@ public class Explore extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        loadData();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        loadData();
     }
 
     @Override
@@ -82,6 +88,7 @@ public class Explore extends AppCompatActivity {
     }
 
     private void bottomNavigation() {
+        loadData();
         navigation = (BottomNavigationView) findViewById(R.id.navigation_bar);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override

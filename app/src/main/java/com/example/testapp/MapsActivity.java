@@ -3,21 +3,21 @@ package com.example.testapp;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,18 +34,17 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-
-import com.example.testapp.MapsDataParser;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
@@ -55,41 +54,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Boolean optimization = true;
     private GoogleMap map;
     private StringBuffer waypoints_coordinates;
-    private int[] ids = new int[]{3,1,2,4,5};
+    private ArrayList<Integer> trip_indices;
+    private SupportMapFragment mapFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        loadMapsData();
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
         fetchLocation();
 
-        getWaypointsCoordinates("delhi");
-
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        Switch optimize_switch = findViewById(R.id.optimize_switch);
+        getWaypointsCoordinates("delhi");
 
-        optimize_switch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                optimization = isChecked;
-                while(true){
-                    if (origin == null || destination == null) {
-                    } else {
-                        String url = getUrl(origin,destination,optimization);
-                        DownloadTask task = new DownloadTask();
-                        task.execute(url);
-                        break;
-                    }
+        final Switch optimize_switch = findViewById(R.id.optimize_switch);
+
+        optimize_switch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                optimization = optimize_switch.isChecked();
+                Toast.makeText(getApplicationContext(), "" + optimization, Toast.LENGTH_SHORT).show();
+                while (origin == null || destination == null) {
                 }
+
+                map.clear();
+
+                String url = getUrl(origin, destination, optimization);
+                DownloadTask task = new DownloadTask();
+                task.execute(url);
+
             }
         });
 
+    }
+
+    private void saveMapsData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(trip_indices);
+        editor.putString("trip_indices", json);
+        editor.apply();
+    }
+
+    private void loadMapsData(){
+        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = sharedPreferences.getString("trip_indices", null);
+        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
+        trip_indices = gson.fromJson(json, type);
+        if(trip_indices == null){
+            trip_indices = new ArrayList<Integer>();
+        }
     }
 
     @Override
@@ -164,8 +188,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 lon1 = location.getLongitude();*/
 
                                 hotel_lat1 = 28.651685;
-                                hotel_lon1 = 77.217220  ;
-                                lat2 = 28.5932848; //humayu's tomb lat
+                                hotel_lon1 = 77.217220;
+                                lat2 = trip_indices.get(trip_indices.size()-1); //humayu's tomb lat
                                 lon2 = 77.2507492; //humayu's tomb lon
 
                                 /*lat2 = hotel_lat1;
@@ -341,7 +365,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String output = "json";
 
         //API KEY
-        String apiKey ="key="+"***REMOVED***" ;
+        String apiKey ="key="+"YOUR_API_KEY" ;
 
         return directions_api+output+"?"+parameters+"&"+apiKey+"\n";
     }
@@ -357,7 +381,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
         HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
 
-        for (int id : ids) {
+        for (int id : trip_indices) {
             String tourist_places_id = cities[0] + "::" + id;
             tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
         }
@@ -368,8 +392,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
         if (tp != null) {
             final StringBuffer tmp = new StringBuffer("");
-            for(final int id : ids){
-                Objects.requireNonNull(tp.get(id)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            for(final int id : trip_indices){
+                tp.get(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -381,7 +405,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                                 tmp.append("|").append(document.get("lat")).append(",").append(document.get("long"));
 
-                                if(id == ids[ids.length - 1]){
+                                if(id == trip_indices.get(trip_indices.size() - 1)){
                                     setWaypointsCoordinates(tmp);
                                 }
 
@@ -394,57 +418,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
-    /*private class FirestoreDatabase extends AsyncTask<String, Void, HashMap<Integer, DocumentReference>> {
-
-        //ids need to be modified according to user preference
-
-        @Override
-        protected HashMap<Integer, DocumentReference> doInBackground(String... cities) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
-            HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
-
-            for (int id : ids) {
-                String tourist_places_id = cities[0] + "::" + id;
-                tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
-            }
-
-            return tourist_places;
-        }
-
-        @Override
-        protected void onPostExecute(HashMap<Integer, DocumentReference> tp) {
-            super.onPostExecute(tp);
-            if (tp != null) {
-                final StringBuffer tmp = new StringBuffer("");
-                for(final int id : ids){
-                    Objects.requireNonNull(tp.get(id)).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                assert document != null;
-                                if (!document.exists()) Log.d("existence: ", "No such document");
-                                else {
-                                    //Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                    tmp.append("|").append(document.get("lat")).append(",").append(document.get("long"));
-
-                                    if(id == ids[ids.length - 1]){
-                                        setWaypointsCoordinates(tmp);
-                                    }
-
-                                }
-                            } else {
-                                Log.d("error: ", "got failed with ", task.getException());
-                            }
-                        }
-                    });
-                }
-            }
-        }
-    }*/
 
     private void setWaypointsCoordinates(StringBuffer tmp) {
         waypoints_coordinates = tmp;

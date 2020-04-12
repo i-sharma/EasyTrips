@@ -7,13 +7,15 @@ public class CurrentTripModel {
     private Uri image;
     private String title;
     private String desc;
+    private int id;
 
     public CurrentTripModel(){};
 
-    public CurrentTripModel(Uri image, String title, String desc) {
+    public CurrentTripModel(Uri image, String title, String desc,int id) {
         this.image = image;
         this.title = title;
         this.desc = desc;
+        this.id = id;
     }
 
     public Uri getImage() {
@@ -39,4 +41,6 @@ public class CurrentTripModel {
     public void setDesc(String desc) {
         this.desc = desc;
     }
+
+    public int getId(){return id;}
 }
