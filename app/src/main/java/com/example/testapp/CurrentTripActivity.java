@@ -19,6 +19,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,6 +43,9 @@ import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
+
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser currentUser;
 
     private static final String TAG = "MainActivity";
     ViewPager viewPager;
@@ -95,6 +100,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        currentUser = mAuth.getCurrentUser();
         loadTripData();
     }
 
@@ -146,8 +152,14 @@ public class CurrentTripActivity extends AppCompatActivity {
                     case R.id.menu_item1:
                         break;
                     case R.id.menu_item2:
-                        Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
-                        startActivity(b);
+                        if(currentUser != null){
+                            Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
+                            startActivity(b);
+                        }
+                        else {
+                            Intent b = new Intent(CurrentTripActivity.this, login.class);
+                            startActivity(b);
+                        }
                         break;
                 }
                 return false;

@@ -1,5 +1,6 @@
 package com.example.testapp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ import java.util.Map;
 public class login extends AppCompatActivity implements View.OnClickListener{
     TextView google_signin,phone_signin, skip, welcome;
     private static final String TAG = "login";
+    public static Activity activity;
 
 
     private static final int RC_SIGN_IN = 9001;
@@ -51,6 +53,7 @@ public class login extends AppCompatActivity implements View.OnClickListener{
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        activity = this;
 
         //Google Signin
 
@@ -92,6 +95,7 @@ public class login extends AppCompatActivity implements View.OnClickListener{
             {
                 Intent it = new Intent(login.this, Explore.class);
                 startActivity(it);
+                finish();
             }
         });
         google_signin.setOnClickListener(this);
@@ -181,7 +185,10 @@ public class login extends AppCompatActivity implements View.OnClickListener{
 
     private void updateUI(FirebaseUser user) {
         if (user != null){
-            Toast.makeText(login.this, user.getDisplayName() + " Signed In", Toast.LENGTH_SHORT).show();
+            Toast.makeText(login.this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(login.this, Explore.class);
+            startActivity(intent);
+            finish();
         }
         else{
             Toast.makeText(login.this, "Not Signed In", Toast.LENGTH_SHORT).show();

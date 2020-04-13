@@ -68,6 +68,9 @@ public class userName extends AppCompatActivity implements View.OnClickListener 
                 Log.d(TAG, "here we are");
                 it1 = new Intent(userName.this, Explore.class);
                 startActivity(it1);
+                finish();
+                login.activity.finish();
+                phoneAuth.activity.finish();
                 break;
             case R.id.button_start_explore:
                 Map<String, Object> data = new HashMap<>();
@@ -77,6 +80,9 @@ public class userName extends AppCompatActivity implements View.OnClickListener 
                         .set(data, SetOptions.merge());
                 it2 = new Intent(userName.this, Explore.class);
                 startActivity(it2);
+                finish();
+                login.activity.finish();
+                phoneAuth.activity.finish();
         }
     }
 }

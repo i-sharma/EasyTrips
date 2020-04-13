@@ -1,6 +1,7 @@
 package com.example.testapp;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -47,11 +48,15 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 
     private FirebaseFirestore rootRef;
 
+    public static Activity activity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_auth);
+
+        activity = this;
 
         //Layout rendering
         sup = (TextView) findViewById(R.id.sup);
@@ -192,6 +197,8 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
             case R.id.phone_auth_skip:
                 Intent it = new Intent(phoneAuth.this, Explore.class);
                 startActivity(it);
+                finish();
+                login.activity.finish();
                 break;
             case R.id.resend_token:
                 resendVerificationCode(mophone.getText().toString(), mResendToken);
@@ -270,6 +277,8 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                                                         else{
                                                             i = new Intent(phoneAuth.this, Explore.class);
                                                             startActivity(i);
+                                                            finish();
+                                                            login.activity.finish();
                                                         }
                                                     } else {
                                                         Log.d(TAG, "No such document");
