@@ -1,20 +1,16 @@
 package com.example.testapp;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,19 +19,19 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class tsDetails extends AppCompatActivity implements View.OnClickListener{
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore rootRef;
     TextView title, rating, description, address_heading, address_content, opening_hours_content;
     TextView opening_hours_heading, entry_fee_content, entry_fee_heading, tips_content, tips_heading;
     TextView airport_distance_content, airport_distance_heading, must_visit_content, must_visit_heading;
@@ -46,17 +42,16 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
     StorageReference storageRef = FirebaseStorage.getInstance().getReference();
     final long ONE_MEGABYTE = 1024 * 1024;
 
-    int add_to_trip_value = 0;
     int already_present_in_trip;
     explore_model obj;
     int click_position;
-
-    private ArrayList<Integer> trip_indices;
 
     private final int START_NOT_ALREADY_ADDED = 0;
     private final int START_ALREADY_ADDED = 1;
     private final int IN_ACTIVITY_ADD_BUTTON_CLICKED = 2;
     private final int IN_ACTIVITY_DELETE_BUTTON_CLICKED = 3;
+
+    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
 
 
 
@@ -88,11 +83,12 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
 
         Intent it = getIntent();
         obj = (explore_model) it.getSerializableExtra("snapshot");
-        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
+//        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
         click_position = it.getIntExtra("click_position", -1);
+        loadData();
         updateButtonUI(already_present_in_trip);
 
-        loadData();
+
 
         set_content(obj);
         add_to_trip.setOnClickListener(this);
@@ -122,34 +118,44 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-    private void saveData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(trip_indices);
-        editor.putString("trip_indices", json);
-        editor.apply();
+    private void saveData() throws IOException {
+        Log.d(TAG, "saveData: " + trip_data);
+        File file = new File(getDir("data", MODE_PRIVATE), "map");
+        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+        outputStream.writeObject(trip_data);
+        outputStream.flush();
+        outputStream.close();
     }
 
-    private void loadData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("trip_indices", null);
-        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
-        trip_indices = gson.fromJson(json, type);
-        if(trip_indices == null){
-            trip_indices = new ArrayList<Integer>();
+    private void loadData() {
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            trip_data = (LinkedHashMap) ois.readObject();
+            if(trip_data.keySet().contains(click_position)) {
+                already_present_in_trip = 1;
+                Log.d(TAG, "loadData: here we are");
+            }
+            else
+                already_present_in_trip = 0;
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e){
+            trip_data = new LinkedHashMap<>();
         }
     }
 
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("add_to_trip_value",add_to_trip_value);
-//        returnIntent.putExtra("remove_from_trip",remove_from_trip);
-        setResult(Activity.RESULT_OK,returnIntent);
-        finish();
+        try {
+            saveData();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return super.onKeyDown(keyCode, event);
     }
 
@@ -188,11 +194,11 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
             entry_fee_content.setText(obj.getEntry_fee());
             entry_fee_heading.setVisibility(View.VISIBLE);
         }
-//        if(obj.getTip() != "Not found" && obj.getTip() != ""){
-//            tips_content.setVisibility(View.VISIBLE);
-//            tips_content.setText(obj.getTip());
-//            tips_heading.setVisibility(View.VISIBLE);
-//        }
+        if(obj.getTip() != "Not found" && obj.getTip() != ""){
+            tips_content.setVisibility(View.VISIBLE);
+            tips_content.setText(obj.getTip());
+            tips_heading.setVisibility(View.VISIBLE);
+        }
 
         if(obj.getDistance_from_delhi_airport() != "Not found" && obj.getDistance_from_delhi_airport() != ""){
             airport_distance_content.setVisibility(View.VISIBLE);
@@ -226,18 +232,23 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         }
     }
 
+    private HashMap get_lat_long(){
+        HashMap<String,String> lat_long = new HashMap<>();
+        lat_long.put("lat", obj.getLat());
+        lat_long.put("lon",obj.getLon());
+        return lat_long;
+    }
+
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ts_details_button_add_to_trip:
-                add_to_trip_value = 1;
+                trip_data.put(click_position, get_lat_long());
                 updateButtonUI(IN_ACTIVITY_ADD_BUTTON_CLICKED);
                 break;
             case R.id.ts_details_delete_button:
-                add_to_trip_value = 0;
-                trip_indices.remove(Integer.valueOf(click_position + 1));
-                saveData();
+                trip_data.remove(click_position);
                 updateButtonUI(IN_ACTIVITY_DELETE_BUTTON_CLICKED);
                 break;
         }

@@ -94,6 +94,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
                 }
             });
 
+
 //            bt = view.findViewById(R.id.btn);
 //            imageView = view.findViewById(R.id.done);
 //            bt.setOnClickListener(new View.OnClickListener() {
