@@ -365,7 +365,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String output = "json";
 
         //API KEY
-        String apiKey ="key="+"YOUR_API_KEY" ;
+        String apiKey ="key="+"***REMOVED***" ;
 
         return directions_api+output+"?"+parameters+"&"+apiKey+"\n";
     }

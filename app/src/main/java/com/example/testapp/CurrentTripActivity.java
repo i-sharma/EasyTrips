@@ -4,6 +4,7 @@ import android.animation.ArgbEvaluator;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,9 +36,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -290,5 +298,80 @@ public class CurrentTripActivity extends AppCompatActivity {
         viewPager.setPadding(130, 0, 130, 0);
 
     }
+
+    private String getUrl(LatLng origin, LatLng dest, Boolean opt) {
+
+        //Directions API URL
+        String directions_api = "https://maps.googleapis.com/maps/api/directions/";
+
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+
+        /*String LLR = "22.321917,87.303345";
+        String MAIN_BUILDING = "22.320256,87.310077";
+
+        String waypoints_coordinates = "|" + MAIN_BUILDING + "|" + LLR;*/
+
+        // Sensor enabled
+        String sensor = "sensor=true";
+
+        String waypoints;
+
+        while(true){
+            if (waypoints_coordinates == null) {
+            } else{
+                waypoints = "waypoints=optimize:" + opt + waypoints_coordinates.toString();
+                break;
+            }
+        }
+
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + waypoints;
+
+        // Output format
+        String output = "json";
+
+        //API KEY
+        String apiKey ="key="+"***REMOVED***" ;
+
+        return directions_api+output+"?"+parameters+"&"+apiKey+"\n";
+    }
+
+    private class DownloadTask extends AsyncTask<String,Void,String> {
+
+        @Override
+        protected String doInBackground(String... urls) {
+            URL url;
+            StringBuilder result = new StringBuilder();
+            try {
+                url = new URL(urls[0]);
+                InputStream in = url.openStream();
+                InputStreamReader reader = new InputStreamReader(in);
+                char[] buffer = new char[1024];
+                int bytesRead = reader.read(buffer);
+                while(bytesRead != -1){
+
+                    result.append(buffer,0,bytesRead);
+                    bytesRead = reader.read(buffer);
+
+                }
+                return result.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "not posibble";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            Log.i("json response is ",result);
+
+    }
+    }
+
 
 }

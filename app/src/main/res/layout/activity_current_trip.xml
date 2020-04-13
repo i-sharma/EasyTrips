@@ -14,9 +14,20 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:foregroundGravity="center"
-        android:overScrollMode="never">
+        android:overScrollMode="never"/>
 
-    </androidx.viewpager.widget.ViewPager>
+    <Switch
+        android:id="@+id/optimize_switch"
+        android:text="OPTIMIZE"
+        android:checked="false"
+        android:textColor="#faecec"
+        android:textSize="22sp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="20dp"
+        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </Switch>
 
     <LinearLayout
         android:id="@+id/removeItemFromTrip"
