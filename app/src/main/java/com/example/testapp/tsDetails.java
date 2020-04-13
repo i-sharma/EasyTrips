@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -53,8 +52,6 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
 
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +82,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         obj = (explore_model) it.getSerializableExtra("snapshot");
 //        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
         click_position = it.getIntExtra("click_position", -1);
-        loadData();
+        loadTripData();
         updateButtonUI(already_present_in_trip);
 
 
@@ -118,8 +115,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         }
     }
 
-    private void saveData() throws IOException {
-        Log.d(TAG, "saveData: " + trip_data);
+    private void saveTripData() throws IOException {
         File file = new File(getDir("data", MODE_PRIVATE), "map");
         ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
         outputStream.writeObject(trip_data);
@@ -127,14 +123,13 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         outputStream.close();
     }
 
-    private void loadData() {
+    private void loadTripData() {
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
             trip_data = (LinkedHashMap) ois.readObject();
             if(trip_data.keySet().contains(click_position)) {
                 already_present_in_trip = 1;
-                Log.d(TAG, "loadData: here we are");
             }
             else
                 already_present_in_trip = 0;
@@ -151,7 +146,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         try {
-            saveData();
+            saveTripData();
         } catch (IOException e) {
             e.printStackTrace();
         }

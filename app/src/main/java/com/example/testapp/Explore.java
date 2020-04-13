@@ -53,7 +53,7 @@ public class Explore extends AppCompatActivity {
         setContentView(R.layout.activity_explore);
         rootRef = FirebaseFirestore.getInstance();
 
-        loadData();
+        loadTripData();
         setUpRecyclerView();
         adapter.startListening();
         bottomNavigation();
@@ -62,13 +62,13 @@ public class Explore extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        loadData();
+        loadTripData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadData();
+        loadTripData();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class Explore extends AppCompatActivity {
     }
 
     private void bottomNavigation() {
-        loadData();
+        loadTripData();
         navigation = (BottomNavigationView) findViewById(R.id.navigation_bar);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -157,7 +157,7 @@ public class Explore extends AppCompatActivity {
     }
 
 
-    private void loadData() {
+    private void loadTripData() {
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));

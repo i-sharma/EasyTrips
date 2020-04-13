@@ -26,16 +26,23 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    private ArrayList<Integer> trip_indices;
     ViewPager viewPager;
     CurrentTripAdapter adapter;
     List<CurrentTripModel> models = new ArrayList<>();
@@ -44,6 +51,8 @@ public class CurrentTripActivity extends AppCompatActivity {
     Button route;
     LinearLayout removeItem;
     BottomNavigationView navigation;
+
+    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
 
 
     @Override
@@ -96,25 +105,32 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void saveTripData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(trip_indices);
-        editor.putString("trip_indices", json);
-        editor.apply();
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(trip_data);
+            outputStream.flush();
+            outputStream.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
     }
 
-    private void loadTripData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("trip_indices", null);
-        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
-        trip_indices = gson.fromJson(json, type);
-        if(trip_indices == null){
-            trip_indices = new ArrayList<Integer>();
+    private void loadTripData() {
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            trip_data = (LinkedHashMap) ois.readObject();
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e){
+            trip_data = new LinkedHashMap<>();
         }
     }
-
     private void bottomNavigation() {
         loadTripData();
         navigation = findViewById(R.id.navigation_bar);
@@ -144,7 +160,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
         HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
 
-        for (int id : trip_indices) {
+        for (int id : trip_data.keySet()) {
             String tourist_places_id = cities[0] + "::" + id;
             tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
         }
@@ -209,7 +225,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
         final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
-        for(final int id : trip_indices){
+        for(final int id : trip_data.keySet()){
 
             tp.get(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 
@@ -248,13 +264,13 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     public void removeFromModel() {
 
-        if(trip_indices.isEmpty()){
+        if(trip_data.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
         }else{
             Log.d("deleting:",""+viewPager.getCurrentItem());
             int position = viewPager.getCurrentItem();
             int curr_id = models.get(position).getId();
-            trip_indices.remove(Integer.valueOf(curr_id));
+            trip_data.remove(Integer.valueOf(curr_id));
             models.remove(position);
 
             adapter = new CurrentTripAdapter(models, this);
