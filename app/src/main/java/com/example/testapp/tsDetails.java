@@ -154,6 +154,8 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
     }
 
     private void set_content(explore_model obj) {
+        if(obj == null)
+            return;
         if(obj.getTitle() != "Not found" && obj.getTitle() != ""){
             title.setVisibility(View.VISIBLE);
             title.setText(obj.getTitle());

@@ -56,16 +56,16 @@ public class CurrentTripAdapter extends PagerAdapter {
 
         updateView(position,container);
 
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("clicked:","cardview");
-                Intent intent = new Intent(context, tsDetails.class);
-                intent.putExtra("param", models.get(position).getTitle());
-                context.startActivity(intent);
-                // finish();
-            }
-        });
+//        cardView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Log.d("clicked:","cardview");
+//                Intent intent = new Intent(context, tsDetails.class);
+//                intent.putExtra("param", models.get(position).getTitle());
+//                context.startActivity(intent);
+//                // finish();
+//            }
+//        });
 
         container.addView(view, 0);
 
