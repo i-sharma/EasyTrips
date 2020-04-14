@@ -3,6 +3,7 @@ package com.example.testapp;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -38,8 +39,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
@@ -48,13 +54,11 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-    private FusedLocationProviderClient mFusedLocationClient;
-    LatLng origin, destination;
-    Boolean optimization = true;
+    LatLng origin,destination;
+    Boolean optimization;
+    Switch optimize_switch;
+    String opt_off,opt_on;
     private GoogleMap map;
-    private StringBuffer waypoints_coordinates;
-    private ArrayList<Integer> trip_indices;
     private SupportMapFragment mapFragment;
 
     @Override
@@ -62,58 +66,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        loadMapsData();
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        fetchLocation();
+        Intent it = getIntent();
+        optimization = it.getExtras().getBoolean("optimization");
+        origin = it.getParcelableExtra("origin");
+        destination = it.getParcelableExtra("destination");
+        loadApiResult(optimization);
+
+        optimize_switch = findViewById(R.id.optimize_switch);
+        optimize_switch.setChecked(optimization);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        getWaypointsCoordinates("delhi");
-
-        final Switch optimize_switch = findViewById(R.id.optimize_switch);
+        plotMap(optimization);
 
         optimize_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 optimization = optimize_switch.isChecked();
-                Toast.makeText(getApplicationContext(), "" + optimization, Toast.LENGTH_SHORT).show();
-                while (origin == null || destination == null) {
-                }
-
+                loadApiResult(optimization);
                 map.clear();
-
-                String url = getUrl(origin, destination, optimization);
-                DownloadTask task = new DownloadTask();
-                task.execute(url);
-
+                plotMap(optimization);
             }
         });
 
-    }
-
-    private void saveMapsData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        Gson gson = new Gson();
-        String json = gson.toJson(trip_indices);
-        editor.putString("trip_indices", json);
-        editor.apply();
-    }
-
-    private void loadMapsData(){
-        SharedPreferences sharedPreferences = getSharedPreferences("shared_preferences", MODE_PRIVATE);
-        Gson gson = new Gson();
-        String json = sharedPreferences.getString("trip_indices", null);
-        Type type = new TypeToken<ArrayList<Integer>>() {}.getType();
-        trip_indices = gson.fromJson(json, type);
-        if(trip_indices == null){
-            trip_indices = new ArrayList<Integer>();
-        }
     }
 
     @Override
@@ -122,141 +101,62 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                 .getString(R.string.style_json)));
 
+        if(origin != null && map != null){
+            map.addMarker(new MarkerOptions().position(origin).title("your location"));
+            map.addMarker(new MarkerOptions().position(destination).title("destination"));
+            map.moveCamera(CameraUpdateFactory.newLatLng(origin));
+            map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+        }else{
+            Log.e("map null", "onMapReady: kya ho rha h?");
+        }
+
         if (!success) {
             Log.e("changing ui", "Style parsing failed.");
         }
     }
 
-    private void fetchLocation() {
+    private void plotMap(Boolean optimization) {
 
-        if (ContextCompat.checkSelfPermission(MapsActivity.this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MapsActivity.this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                new AlertDialog.Builder(this)
-                        .setTitle("Required Location Permission")
-                        .setMessage("Give permission to access this feature")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(MapsActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .create()
-                        .show();
-
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(MapsActivity.this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
-                            if (location != null) {
-                                // Logic to handle location object
-
-                                double lat1,lon1,lat2,lon2;
-                                double hotel_lat1,hotel_lon1;
-                                /*lat1 = location.getLatitude();
-                                lon1 = location.getLongitude();*/
-
-                                hotel_lat1 = 28.651685;
-                                hotel_lon1 = 77.217220;
-                                lat2 = trip_indices.get(trip_indices.size()-1); //humayu's tomb lat
-                                lon2 = 77.2507492; //humayu's tomb lon
-
-                                /*lat2 = hotel_lat1;
-                                lon2 = hotel_lon1;*/
-
-                                //**********Remember to change origin to lat1 and lat2.
-                                origin = new LatLng(hotel_lat1,hotel_lon1);
-                                destination = new LatLng(lat2,lon2);
-                                //Toast.makeText(MapsActivity.this, "latitude is"+origin.latitude+"\nlongitude is"+origin.longitude, Toast.LENGTH_LONG).show();
-
-                            }
-                        }
-                    });
-
+        if(optimization){
+            ParserTask parserTask = new ParserTask();
+            parserTask.execute(opt_on);
+        }
+        else{
+            ParserTask parserTask = new ParserTask();
+            parserTask.execute(opt_off);
         }
     }
 
-    private class DownloadTask extends AsyncTask<String,Void,String>{
-
-        @Override
-        protected String doInBackground(String... urls) {
-            URL url;
-            StringBuilder result = new StringBuilder();
+    private void loadApiResult(Boolean opt) {
+        if (opt) {
             try {
-                url = new URL(urls[0]);
-                InputStream in = url.openStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                char[] buffer = new char[1024];
-                int bytesRead = reader.read(buffer);
-                while(bytesRead != -1){
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                opt_on = (String) ois.readObject();
 
-                    result.append(buffer,0,bytesRead);
-                    bytesRead = reader.read(buffer);
-
-                }
-                return result.toString();
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                opt_on = "";
             }
-            return "not posibble";
-        }
+        }else{
+            try {
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                opt_off = (String) ois.readObject();
 
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.i("json response is ",result);
-
-            if(origin != null){
-                map.addMarker(new MarkerOptions().position(origin).title("your location"));
-                map.addMarker(new MarkerOptions().position(destination).title("destination"));
-                map.moveCamera(CameraUpdateFactory.newLatLng(origin));
-                map.animateCamera(CameraUpdateFactory.zoomTo(12));
-            }else{
-                Log.e("originNull", "onMapReady: kya ho rha h?");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                opt_off = "";
             }
-
-            ParserTask parserTask = new ParserTask();
-
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
-
         }
     }
 
     private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         // Parsing the data in non-ui thread
+
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
 
@@ -276,7 +176,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             return routes;
         }
-
         // Executes in UI thread, after the parsing process
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
@@ -327,101 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
         }
-    }
 
-    private String getUrl(LatLng origin, LatLng dest,Boolean opt) {
-
-        //Directions API URL
-        String directions_api = "https://maps.googleapis.com/maps/api/directions/";
-
-        // Origin of route
-        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
-
-        // Destination of route
-        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
-
-        /*String LLR = "22.321917,87.303345";
-        String MAIN_BUILDING = "22.320256,87.310077";
-
-        String waypoints_coordinates = "|" + MAIN_BUILDING + "|" + LLR;*/
-
-        // Sensor enabled
-        String sensor = "sensor=true";
-
-        String waypoints;
-
-        while(true){
-            if (waypoints_coordinates == null) {
-            } else{
-                waypoints = "waypoints=optimize:" + opt + waypoints_coordinates.toString();
-                break;
-            }
-        }
-
-        // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + waypoints;
-
-        // Output format
-        String output = "json";
-
-        //API KEY
-        String apiKey ="key="+"***REMOVED***" ;
-
-        return directions_api+output+"?"+parameters+"&"+apiKey+"\n";
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-    }
-
-    private HashMap<Integer, DocumentReference> CreateDocReference(String... cities) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
-        HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
-
-        for (int id : trip_indices) {
-            String tourist_places_id = cities[0] + "::" + id;
-            tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
-        }
-        return tourist_places;
-    }
-
-    private void getWaypointsCoordinates(String... cities) {
-        HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
-        if (tp != null) {
-            final StringBuffer tmp = new StringBuffer("");
-            for(final int id : trip_indices){
-                tp.get(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            assert document != null;
-                            if (!document.exists()) Log.d("existence: ", "No such document");
-                            else {
-
-                                tmp.append("|").append(document.get("lat")).append(",").append(document.get("long"));
-
-                                if(id == trip_indices.get(trip_indices.size() - 1)){
-                                    setWaypointsCoordinates(tmp);
-                                }
-
-                            }
-                        } else {
-                            Log.d("error: ", "got failed with ", task.getException());
-                        }
-                    }
-                });
-            }
-        }
-    }
-
-    private void setWaypointsCoordinates(StringBuffer tmp) {
-        waypoints_coordinates = tmp;
-        Log.d("waypoints in setWay ","" + waypoints_coordinates);
     }
 
 }

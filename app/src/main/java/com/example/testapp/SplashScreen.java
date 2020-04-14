@@ -26,9 +26,6 @@ public class SplashScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash_screen);
 
-
-
-
         timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
