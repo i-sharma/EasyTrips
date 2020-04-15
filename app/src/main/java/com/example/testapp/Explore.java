@@ -69,7 +69,7 @@ public class Explore extends AppCompatActivity {
         setContentView(R.layout.activity_explore);
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        fetchLocation();
+        //fetchLocation();
 
         rootRef = FirebaseFirestore.getInstance();
 

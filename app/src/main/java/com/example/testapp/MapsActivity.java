@@ -60,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String opt_off,opt_on;
     private GoogleMap map;
     private SupportMapFragment mapFragment;
+    ArrayList<Integer> waypoint_order;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,11 +167,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 jObject = new JSONObject(jsonData[0]);
 
-                MapsDataParser parser = new MapsDataParser();
+                MapsDataParser parser = new MapsDataParser(jObject);
 
                 // Starts parsing data
-                routes = parser.parse(jObject);
-
+                routes = parser.parse();
+                waypoint_order = parser.get_waypoint_order();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -219,6 +220,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 else {
                     Log.d("onPostExecute","without Polylines drawn");
                 }
+
+                Log.d("waypoints ",waypoint_order+"");
             }
 
             else{

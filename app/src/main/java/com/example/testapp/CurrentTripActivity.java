@@ -95,7 +95,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         setViewPagerBackground();
 
-        //if(trip_data.keySet().size() > 1)  optimizeRoute();
+        if(trip_data.keySet().size() > 1)  optimizeRoute();
 
         createStorageReference("delhi");
 
@@ -487,7 +487,10 @@ public class CurrentTripActivity extends AppCompatActivity {
         //API KEY
         String apiKey ="key="+"***REMOVED***" ;
 
-        return directions_api+output+"?"+parameters+"&"+apiKey+"\n";
+        //url
+        String url = directions_api+output+"?"+parameters+"&"+apiKey+"\n";
+        Log.d("url is ",url);
+        return url;
     }
 
     private class DownloadTask extends AsyncTask<String,Void,String> {
