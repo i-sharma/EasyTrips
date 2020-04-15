@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.testapp"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -75,6 +75,7 @@ dependencies {
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
-
+    //Polyline animation
+    implementation 'com.github.tintinscorpion:Dual-color-Polyline-Animation:1.0'
 
 }

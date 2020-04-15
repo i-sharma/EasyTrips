@@ -37,6 +37,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.logicbeanzs.uberpolylineanimation.MapAnimator;
 
 import org.json.JSONObject;
 
@@ -209,13 +210,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     lineOptions.width(10);
                     lineOptions.color(Color.YELLOW);
 
+                    MapAnimator.getInstance().animateRoute(map,points);
+
                     Log.d("onPostExecute","onPostExecute lineoptions decoded");
 
                 }
 
                 // Drawing polyline in the Google Map for the i-th route
                 if(lineOptions != null) {
-                    map.addPolyline(lineOptions);
+                    //map.addPolyline(lineOptions);
                 }
                 else {
                     Log.d("onPostExecute","without Polylines drawn");
