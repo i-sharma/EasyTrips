@@ -75,6 +75,9 @@ dependencies {
     //Gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
+    //circular image for profile
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
 
 
 }
