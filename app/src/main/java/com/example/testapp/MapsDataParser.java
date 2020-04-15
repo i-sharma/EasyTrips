@@ -77,7 +77,7 @@ public class MapsDataParser {
     public ArrayList<Integer> get_waypoint_order() {
             ArrayList<Integer> arrayList = new ArrayList<>();
             try {
-                if (jObject.get("status").toString() == "OK"){
+                if (jObject.get("status").toString().equals("OK")){
                     JSONArray jRoutes = jObject.getJSONArray("routes");
                     JSONArray waypoint_order = ((JSONObject)jRoutes.get(0)).getJSONArray("waypoint_order");
                     for (int i=0;i<waypoint_order.length();i++){

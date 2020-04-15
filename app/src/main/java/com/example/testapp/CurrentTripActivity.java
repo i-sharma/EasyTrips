@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -28,6 +29,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -37,6 +39,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.logicbeanzs.uberpolylineanimation.MapAnimator;
+
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -71,7 +77,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     BottomNavigationView navigation;
     String opt_off,opt_on;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
-
+    ArrayList<Integer> waypoint_order;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,11 +126,15 @@ public class CurrentTripActivity extends AppCompatActivity {
         removeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(trip_data.keySet().size() >= 1) {
+                    opt_off = opt_on = "";
+                    optimizeRoute();
+                }
                 loadTripData();
-                removeFromModel(optimization);
-                saveTripData();
-
+                optimization = false;
                 opt_switch.setChecked(false); //because it may not be optimized.
+                removeFromModel();
+                saveTripData();
             }
         });
 
@@ -138,6 +148,14 @@ public class CurrentTripActivity extends AppCompatActivity {
                             if(trip_data.keySet().size() > 1){
                                 loadApiResult(optimization);
                                 //opt_on has response //create new model as model_opt_on
+                                JSONObject jObject;
+                                try {
+                                    jObject = new JSONObject(opt_on);
+                                    MapsDataParser parser = new MapsDataParser(jObject);
+                                    waypoint_order = parser.get_waypoint_order();
+                                    Log.d("waypoints ",waypoint_order+"");
+                                    applyModel_opt_on();
+                                }catch (Exception e){e.printStackTrace();}
                             }else{
                                 Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                             }
@@ -150,6 +168,15 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void applyModel_opt_on() {
+        // waypoint (0,3,1,2)    (0,1,2,3)
+        model_opt_on = new ArrayList<>();
+        for(int index:waypoint_order){
+            model_opt_on.add(model_opt_off.get(index));
+        }
+        updateModel(0);
     }
 
     private void optimizeRoute() {
@@ -404,22 +431,18 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-    public void removeFromModel(Boolean optimization) {
+    public void removeFromModel() {
 
         if(trip_data.isEmpty()){
-            Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
         }else{
+            if(!model_opt_on.isEmpty())  model_opt_off = model_opt_on;
             Log.d("deleting:",""+viewPager.getCurrentItem());
             int position = viewPager.getCurrentItem();
             int curr_id = model_opt_off.get(position).getId();
             trip_data.remove(curr_id);
-            if(!optimization){
-                model_opt_off.remove(position);
-                updateModel(position);
-            }else{
-                model_opt_on.remove(position);
-                updateModel(position);
-            }
+            model_opt_off.remove(position);
+            updateModel(position);
         }
 
     }
@@ -540,4 +563,34 @@ public class CurrentTripActivity extends AppCompatActivity {
       return waypoints_coordinates;
     }
 
+    /*private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+        // Parsing the data in non-ui thread
+
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+
+                MapsDataParser parser = new MapsDataParser(jObject);
+
+                waypoint_order = parser.get_waypoint_order();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            }
+
+        }
+*/
 }
+
+
+

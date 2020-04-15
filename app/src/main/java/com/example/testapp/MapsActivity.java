@@ -172,7 +172,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 // Starts parsing data
                 routes = parser.parse();
-                waypoint_order = parser.get_waypoint_order();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -224,7 +223,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.d("onPostExecute","without Polylines drawn");
                 }
 
-                Log.d("waypoints ",waypoint_order+"");
             }
 
             else{
