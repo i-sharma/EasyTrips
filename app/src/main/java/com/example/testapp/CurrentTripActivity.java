@@ -61,6 +61,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     ViewPager viewPager;
     CurrentTripAdapter adapter;
     List<CurrentTripModel> model_opt_off = new ArrayList<>();
+    List<CurrentTripModel> model_opt_on =  new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
     Button route;
@@ -71,12 +72,17 @@ public class CurrentTripActivity extends AppCompatActivity {
     String opt_off,opt_on;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
         loadTripData();
+
+        for(int id:trip_data.keySet()){
+            Log.d("original sent trip_data",id+"");
+        }
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -89,7 +95,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         setViewPagerBackground();
 
-        if(trip_data.keySet().size() > 1)  optimizeRoute();
+        //if(trip_data.keySet().size() > 1)  optimizeRoute();
 
         createStorageReference("delhi");
 
@@ -98,12 +104,16 @@ public class CurrentTripActivity extends AppCompatActivity {
         route.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadTripData();
-                Intent intent = new Intent(getBaseContext(), MapsActivity.class);
-                intent.putExtra("optimization",optimization);
-                intent.putExtra("origin",origin);
-                intent.putExtra("destination",destination);
-                startActivity(intent);
+                if(trip_data.keySet().size() > 0){
+                    loadTripData();
+                    Intent intent = new Intent(getBaseContext(), MapsActivity.class);
+                    intent.putExtra("optimization",optimization);
+                    intent.putExtra("origin",origin);
+                    intent.putExtra("destination",destination);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -111,50 +121,42 @@ public class CurrentTripActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 loadTripData();
-                removeFromModel();
+                removeFromModel(optimization);
                 saveTripData();
 
-                if(trip_data.keySet().size() > 1) optimizeRoute();
+                opt_switch.setChecked(false); //because it may not be optimized.
             }
         });
 
         opt_switch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                    @Override
+                    public void onClick(View view) {
 
-                optimization = opt_switch.isChecked();
-                Toast.makeText(getApplicationContext(), "" + optimization, Toast.LENGTH_SHORT).show();
+                        optimization = opt_switch.isChecked();
 
-                if(optimization){
-                    if(trip_data.keySet().size() > 1){
-                        loadApiResult(optimization);
-                        //opt_on has response //create new model as model_opt_on
-                    }else{
-                        Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    if(trip_data.keySet().size() > 1) {
-                        adapter = new CurrentTripAdapter(model_opt_off, getBaseContext());
-                        viewPager.setAdapter(adapter);
-                        viewPager.setPadding(130, 0, 130, 0);
-                    }
-                }
+                        if(optimization){
+                            if(trip_data.keySet().size() > 1){
+                                loadApiResult(optimization);
+                                //opt_on has response //create new model as model_opt_on
+                            }else{
+                                Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
+                            }
+                        }else{
+                            if(trip_data.keySet().size() > 1) {
+                                updateModel(0);
+                            }
+                        }
 
             }
         });
 
     }
 
-
     private void optimizeRoute() {
 
-        StringBuffer waypoints_coordinates = new StringBuffer("");
+        StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
 
-        /*double origin_lat = Double.parseDouble(trip_data.get(0).get("lat"));
-        double origin_lon = Double.parseDouble(trip_data.get(0).get("lon"));
-        double destination_lat = Double.parseDouble(trip_data.get(ids.size() - 1).get("lat"));
-        double destination_lon = Double.parseDouble(trip_data.get(ids.size() - 1).get("lon"));*/
         double hotel_lat = 28.651685;
         double hotel_lon = 77.217220;
 
@@ -373,43 +375,36 @@ public class CurrentTripActivity extends AppCompatActivity {
         final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
         for(final int id : trip_data.keySet()){
+            Log.d("proper id is",id+"");
 
-            tp.get(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            tp.get(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
 
                 @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        assert document != null;
-                        if (!document.exists()) {
-                            Log.d("existence: ", "No such document");
-                        } else {
-                            String img_name = "" + document.get("image_name");
-                            Log.d("img_name is ",img_name);
-                            final String title = "" + document.get("title");
-                            final String short_description = "" + document.get("short_description");
-                            StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
-                            Log.d("spaceRef is",spaceRef.getName());
-                            spaceRef.getDownloadUrl()
-                                    .addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Uri> task) {
-                                            if(task.isSuccessful()) {
-                                                addToModel(task.getResult(),title,short_description,id);
-                                            } else Toast.makeText(getApplicationContext(),"Check Internet",Toast.LENGTH_SHORT);
-                                        }
-                                    });
-                        }
+                public void onSuccess(DocumentSnapshot document) {
+
+                    assert document != null;
+                    if (!document.exists()) {
+                        Log.d("existence: ", "No such document");
                     } else {
-                        Log.d("error: ", "got failed with ", task.getException());
+                        String img_name = "" + document.get("image_name");
+                        Log.d("img_name is ",img_name);
+                        final String title = "" + document.get("title");
+                        final String short_description = "" + document.get("short_description");
+                        StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
+                        Log.d("spaceRef is",spaceRef.getName());
+                        spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                addTo_Model_opt_off(uri,title,short_description,id);
+                            }
+                        });
                     }
                 }
             });
         }
-
     }
 
-    public void removeFromModel() {
+    public void removeFromModel(Boolean optimization) {
 
         if(trip_data.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
@@ -418,23 +413,52 @@ public class CurrentTripActivity extends AppCompatActivity {
             int position = viewPager.getCurrentItem();
             int curr_id = model_opt_off.get(position).getId();
             trip_data.remove(curr_id);
-            model_opt_off.remove(position);
-
-            adapter = new CurrentTripAdapter(model_opt_off, this);
-            viewPager.setAdapter(adapter);
-            viewPager.setCurrentItem(position);
-            viewPager.setPadding(100, 0, 100, 0);
+            if(!optimization){
+                model_opt_off.remove(position);
+                updateModel(position);
+            }else{
+                model_opt_on.remove(position);
+                updateModel(position);
+            }
         }
 
     }
 
-    private void addToModel(Uri result, String title, String short_description, int id) {
-        model_opt_off.add(new CurrentTripModel(result,title,short_description,id));
-        Log.d("model contains ",""+title);
+    private void updateModel(int start_position) {
+        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off, this);
+        else                adapter = new CurrentTripAdapter(model_opt_on , this);
 
-        adapter = new CurrentTripAdapter(model_opt_off, this);
         viewPager.setAdapter(adapter);
-        viewPager.setPadding(130, 0, 130, 0);
+        adapter.notifyDataSetChanged();
+        viewPager.setCurrentItem(start_position);
+        viewPager.setPadding(100, 0, 100, 0);
+        saveTripData();
+    }
+
+    private void addTo_Model_opt_off(Uri result, String title, String short_description, int id) {
+
+        /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
+
+       */
+        model_opt_off.add(new CurrentTripModel(result,title,short_description,id));
+
+        if(model_opt_off.size() == trip_data.keySet().size()){
+            int size = model_opt_off.size();
+            ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
+            List<CurrentTripModel> proper_model = new ArrayList<>();
+            for(int i=0;i<size;i++){
+                proper_model.add(new CurrentTripModel());
+            }
+            for(int i=0;i<size;i++){
+                CurrentTripModel curr_model = model_opt_off.get(i);
+                int curr_id = model_opt_off.get(i).getId();
+                Log.d("curr_id is ",curr_id+"");
+                int index = ids.indexOf(curr_id);
+                proper_model.set(index,curr_model);
+            }
+            model_opt_off = proper_model;
+            updateModel(0);
+        }
 
     }
 

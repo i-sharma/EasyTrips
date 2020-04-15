@@ -16,6 +16,7 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CurrentTripAdapter extends PagerAdapter {
@@ -50,22 +51,10 @@ public class CurrentTripAdapter extends PagerAdapter {
         imageView = view.findViewById(R.id.image);
         title = view.findViewById(R.id.title);
         desc = view.findViewById(R.id.desc);
-        CardView cardView = view.findViewById(R.id.cardView);
 
         Log.d("title is","" + models.get(position).getTitle());
 
         updateView(position,container);
-
-//        cardView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Log.d("clicked:","cardview");
-//                Intent intent = new Intent(context, tsDetails.class);
-//                intent.putExtra("param", models.get(position).getTitle());
-//                context.startActivity(intent);
-//                // finish();
-//            }
-//        });
 
         container.addView(view, 0);
 
@@ -84,11 +73,6 @@ public class CurrentTripAdapter extends PagerAdapter {
         startUpdate(container);
 
         notifyDataSetChanged();
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        super.notifyDataSetChanged();
     }
 
     @Override
