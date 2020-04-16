@@ -102,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        
+
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                 .getString(R.string.style_json)));
 
