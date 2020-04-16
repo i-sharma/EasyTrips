@@ -51,6 +51,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -128,8 +129,9 @@ public class CurrentTripActivity extends AppCompatActivity {
             public void onClick(View view) {
                 loadTripData();
                 optimization = false;
+                boolean was_checked = opt_switch.isChecked();
                 opt_switch.setChecked(false); //because it may not be optimized.
-                removeFromModel();
+                removeFromModel(was_checked);
                 saveTripData();
                 if(trip_data.keySet().size() >= 1) {
                     opt_off = opt_on = "";
@@ -154,6 +156,24 @@ public class CurrentTripActivity extends AppCompatActivity {
                                     MapsDataParser parser = new MapsDataParser(jObject);
                                     waypoint_order = parser.get_waypoint_order();
                                     Log.d("waypoints ",waypoint_order+"");
+                                    if(waypoint_order.size() == trip_data.keySet().size()){
+                                        boolean same = true;
+                                        ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
+                                        for(int i = 0; i < waypoint_order.size(); i++){
+                                            trip_data_array.add(i);
+                                        }
+                                        Log.d(TAG, "check toast " + trip_data_array + "----" + waypoint_order);
+                                        for(int i = 0; i < waypoint_order.size(); i++){
+                                            if(waypoint_order.get(i) != trip_data_array.get(i)){
+                                                same = false;
+                                            }
+                                        }
+                                        if(same){
+                                            Toast.makeText(CurrentTripActivity.this,
+                                                    "Trip Already Optimized", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
                                     applyModel_opt_on();
                                 }catch (Exception e){e.printStackTrace();}
                             }else{
@@ -431,18 +451,28 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-    public void removeFromModel() {
-
+    public void removeFromModel(boolean was_checked) {
+        int curr_id;
         if(trip_data.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
         }else{
-            Log.d("deleting:",""+viewPager.getCurrentItem());
-            if(model_opt_on.isEmpty())  model_opt_on = model_opt_off;
+
             int position = viewPager.getCurrentItem();
-            int curr_id = model_opt_on.get(position).getId();
+            if(!was_checked){
+                curr_id = model_opt_off.get(position).getId();
+                model_opt_off.remove(position);
+            }else{
+                curr_id = model_opt_on.get(position).getId();
+                model_opt_on.remove(position);
+                for(int i = 0; i < model_opt_off.size(); i++){
+                    if(model_opt_off.get(i).getId() == curr_id){
+                        model_opt_off.remove(i);
+                    }
+                }
+            }
+
+            Log.d("deleting:",""+viewPager.getCurrentItem());
             trip_data.remove(curr_id);
-            model_opt_on.remove(position);
-            model_opt_off = model_opt_on;
             updateModel(position);
         }
 
