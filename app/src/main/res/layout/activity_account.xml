@@ -26,7 +26,7 @@
             android:gravity="center"
             android:id="@+id/user_name"
             android:layout_below="@id/profile_picture"
-            android:text="My name"
+            tools:text="My name"
             android:maxLines="2"
             android:ellipsize="end"
             android:textSize="25sp"
@@ -97,40 +97,87 @@
             android:background="@drawable/profile_design"
             android:layout_below="@id/user_name_edit_layout"
             />
-        <TextView
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="100dp"
-            android:id="@+id/edit_name_button"
-            android:text="Edit Name"
-            android:gravity="center_vertical"
+            android:id="@+id/edit_name_button_layout"
             android:layout_marginLeft="25dp"
             android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"
             android:layout_below="@id/profile_design"
-            />
-        <TextView
-            android:layout_width="match_parent"
+            >
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:id="@+id/edit_name_button_image"
+                android:background="@drawable/ic_edit_black"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/edit_name_button"
+                android:layout_toRightOf="@id/edit_name_button_image"
+                android:text="Edit Name"
+                android:gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#000"
+                android:paddingStart="10dp"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="100dp"
-            android:id="@+id/my_trips_button"
-            android:layout_below="@id/edit_name_button"
-            android:text="Your Trips"
-            android:gravity="center_vertical"
+            android:id="@+id/your_trips_button_layout"
             android:layout_marginLeft="25dp"
             android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"/>
-        <TextView
-            android:layout_width="match_parent"
+            android:layout_below="@id/edit_name_button_layout"
+            >
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:id="@+id/your_trips_button_image"
+                android:src="@drawable/ic_trip"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/your_trips_button"
+                android:text="Your Trips"
+                android:gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#000"
+                android:layout_toRightOf="@id/your_trips_button_image"
+                android:paddingStart="10dp"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
             android:layout_height="100dp"
-            android:id="@+id/logout_button"
-            android:layout_below="@id/my_trips_button"
-            android:text="Logout"
-            android:gravity="center_vertical"
+            android:id="@+id/logout_button_layout"
             android:layout_marginLeft="25dp"
             android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"/>
+            android:layout_below="@id/your_trips_button_layout"
+            >
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:id="@+id/logout_button_image"
+                android:background="@drawable/ic_logout"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:id="@+id/logout_button"
+                android:text="Logout"
+                android:layout_toRightOf="@id/logout_button_image"
+                android:gravity="center_vertical"
+                android:textSize="20sp"
+                android:textColor="#000"
+                android:paddingStart="10dp"/>
+        </RelativeLayout>
+
     </RelativeLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bar"
