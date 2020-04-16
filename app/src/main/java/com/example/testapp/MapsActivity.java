@@ -51,6 +51,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
@@ -61,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String opt_off,opt_on;
     private GoogleMap map;
     private SupportMapFragment mapFragment;
+    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order;
 
     @Override
@@ -68,11 +70,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        loadTripData();
         Intent it = getIntent();
         optimization = it.getExtras().getBoolean("optimization");
         origin = it.getParcelableExtra("origin");
         destination = it.getParcelableExtra("destination");
+        waypoint_order = it.getIntegerArrayListExtra("waypoints");
         loadApiResult(optimization);
 
         optimize_switch = findViewById(R.id.optimize_switch);
@@ -90,7 +93,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
                 optimization = optimize_switch.isChecked();
                 loadApiResult(optimization);
-                map.clear();
                 plotMap(optimization);
             }
         });
@@ -100,6 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                 .getString(R.string.style_json)));
 
@@ -108,12 +111,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map.addMarker(new MarkerOptions().position(destination).title("destination"));
             map.moveCamera(CameraUpdateFactory.newLatLng(origin));
             map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+            for(int id:trip_data.keySet()){
+                double lat = Double.parseDouble(trip_data.get(id).get("lat"));
+                double lon = Double.parseDouble(trip_data.get(id).get("lon"));
+                map.addMarker(new MarkerOptions().position(new LatLng(lat,lon)));
+            }
         }else{
             Log.e("map null", "onMapReady: kya ho rha h?");
         }
 
         if (!success) {
             Log.e("changing ui", "Style parsing failed.");
+        }
+    }
+
+    private void loadTripData() {
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            trip_data = (LinkedHashMap) ois.readObject();
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e){
+            trip_data = new LinkedHashMap<>();
         }
     }
 
@@ -181,13 +204,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points;
-            PolylineOptions lineOptions = null;
+            //PolylineOptions lineOptions = null;
 
             if(result != null){
                 // Traversing through all the routes
                 for (int i = 0; i < result.size(); i++) {
                     points = new ArrayList<>();
-                    lineOptions = new PolylineOptions();
+                    //lineOptions = new PolylineOptions();
 
                     // Fetching i-th route
                     List<HashMap<String, String>> path = result.get(i);
@@ -205,9 +228,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
 
                     // Adding all the points in the route to LineOptions
-                    lineOptions.addAll(points);
+                    /*lineOptions.addAll(points);
                     lineOptions.width(10);
-                    lineOptions.color(Color.YELLOW);
+                    lineOptions.color(Color.YELLOW);*/
 
                     MapAnimator.getInstance().animateRoute(map,points);
 
@@ -216,12 +239,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 // Drawing polyline in the Google Map for the i-th route
-                if(lineOptions != null) {
-                    //map.addPolyline(lineOptions);
+                /*if(lineOptions != null) {
+                    map.addPolyline(lineOptions);
                 }
                 else {
                     Log.d("onPostExecute","without Polylines drawn");
-                }
+                }*/
 
             }
 

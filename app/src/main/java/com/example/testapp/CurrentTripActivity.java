@@ -117,6 +117,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     intent.putExtra("optimization",optimization);
                     intent.putExtra("origin",origin);
                     intent.putExtra("destination",destination);
+                    intent.putExtra("waypoints",waypoint_order);
                     startActivity(intent);
                 }else{
                     Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
@@ -141,52 +142,54 @@ public class CurrentTripActivity extends AppCompatActivity {
         });
 
         opt_switch.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
 
-                        optimization = opt_switch.isChecked();
+                optimization = opt_switch.isChecked();
 
-                        if(optimization){
-                            if(trip_data.keySet().size() > 1){
-                                loadApiResult(optimization);
-                                //opt_on has response //create new model as model_opt_on
-                                JSONObject jObject;
-                                try {
-                                    jObject = new JSONObject(opt_on);
-                                    MapsDataParser parser = new MapsDataParser(jObject);
-                                    waypoint_order = parser.get_waypoint_order();
-                                    Log.d("waypoints ",waypoint_order+"");
-                                    if(waypoint_order.size() == trip_data.keySet().size()){
-                                        boolean same = true;
-                                        ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
-                                        for(int i = 0; i < waypoint_order.size(); i++){
-                                            trip_data_array.add(i);
-                                        }
-                                        Log.d(TAG, "check toast " + trip_data_array + "----" + waypoint_order);
-                                        for(int i = 0; i < waypoint_order.size(); i++){
-                                            if(waypoint_order.get(i) != trip_data_array.get(i)){
-                                                same = false;
-                                            }
-                                        }
-                                        if(same){
-                                            Toast.makeText(CurrentTripActivity.this,
-                                                    "Trip Already Optimized", Toast.LENGTH_SHORT).show();
-                                        }
+                if(optimization){
+                    if(trip_data.keySet().size() > 1){
+                        loadApiResult(optimization);
+                        //opt_on has response //create new model as model_opt_on
+                        JSONObject jObject;
+                        try {
+                            jObject = new JSONObject(opt_on);
+                            MapsDataParser parser = new MapsDataParser(jObject);
+                            waypoint_order = parser.get_waypoint_order();
+                            Log.d("waypoints ",waypoint_order+"");
+                            if(waypoint_order.size() == trip_data.keySet().size()){
+                                boolean same = true;
+                                ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
+                                for(int i = 0; i < waypoint_order.size(); i++){
+                                    trip_data_array.add(i);
+                                }
+                                Log.d(TAG, "check toast " + trip_data_array + "----" + waypoint_order);
+                                for(int i = 0; i < waypoint_order.size(); i++){
+                                    if(waypoint_order.get(i) != trip_data_array.get(i)){
+                                        same = false;
                                     }
-
+                                }
+                                if(same){
+                                    Toast.makeText(CurrentTripActivity.this,
+                                            "Trip Already Optimized", Toast.LENGTH_SHORT).show();
+                                }else{
                                     applyModel_opt_on();
-                                }catch (Exception e){e.printStackTrace();}
-                            }else{
-                                Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        }else{
-                            if(trip_data.keySet().size() > 1) {
-                                updateModel(0);
-                            }
-                        }
 
-            }
-        });
+
+                        }catch (Exception e){e.printStackTrace();}
+                    }else{
+                        Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+                    if(trip_data.keySet().size() > 1) {
+                        updateModel(0);
+                    }
+                }
+
+    }
+});
 
     }
 
