@@ -126,15 +126,15 @@ public class CurrentTripActivity extends AppCompatActivity {
         removeItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(trip_data.keySet().size() >= 1) {
-                    opt_off = opt_on = "";
-                    optimizeRoute();
-                }
                 loadTripData();
                 optimization = false;
                 opt_switch.setChecked(false); //because it may not be optimized.
                 removeFromModel();
                 saveTripData();
+                if(trip_data.keySet().size() >= 1) {
+                    opt_off = opt_on = "";
+                    optimizeRoute();
+                }
             }
         });
 
@@ -436,12 +436,13 @@ public class CurrentTripActivity extends AppCompatActivity {
         if(trip_data.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
         }else{
-            if(!model_opt_on.isEmpty())  model_opt_off = model_opt_on;
             Log.d("deleting:",""+viewPager.getCurrentItem());
+            if(model_opt_on.isEmpty())  model_opt_on = model_opt_off;
             int position = viewPager.getCurrentItem();
-            int curr_id = model_opt_off.get(position).getId();
+            int curr_id = model_opt_on.get(position).getId();
             trip_data.remove(curr_id);
-            model_opt_off.remove(position);
+            model_opt_on.remove(position);
+            model_opt_off = model_opt_on;
             updateModel(position);
         }
 
@@ -563,33 +564,6 @@ public class CurrentTripActivity extends AppCompatActivity {
       return waypoints_coordinates;
     }
 
-    /*private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
-
-        // Parsing the data in non-ui thread
-
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-
-            try {
-                jObject = new JSONObject(jsonData[0]);
-
-                MapsDataParser parser = new MapsDataParser(jObject);
-
-                waypoint_order = parser.get_waypoint_order();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return routes;
-        }
-        // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            }
-
-        }
-*/
 }
 
 
