@@ -27,10 +27,10 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     private static final String TAG = "AccountActivity";
 
-    ImageView edit_image,clear_button, profile_picture;
+    ImageView clear_button, profile_picture;
     EditText edit_name;
-    RelativeLayout user_name_layout, user_name_edit_layout;
-    TextView user_name, logout;
+    RelativeLayout user_name_edit_layout;
+    TextView user_name,edit_name_button, logout;
     Button save,cancel;
 
 
@@ -53,9 +53,8 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
         currentUser = mAuth.getCurrentUser();
 
-        edit_image = findViewById(R.id.edit_image);
+        edit_name_button = findViewById(R.id.edit_name_button);
         edit_name = findViewById(R.id.user_name_edit);
-        user_name_layout = findViewById(R.id.account_name_holder);
         user_name = findViewById(R.id.user_name);
         logout = findViewById(R.id.logout_button);
         clear_button = findViewById(R.id.clear_button);
@@ -82,7 +81,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
         }
 
-        edit_image.setOnClickListener(this);
+        edit_name_button.setOnClickListener(this);
         logout.setOnClickListener(this);
         clear_button.setOnClickListener(this);
         cancel.setOnClickListener(this);
@@ -97,12 +96,12 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case EDIT_TEXT_SET_NAME:
                 edit_name.setText(user_name_string);
-                user_name_layout.setVisibility(View.GONE);
+                user_name.setVisibility(View.GONE);
                 user_name_edit_layout.setVisibility(View.VISIBLE);
                 break;
             case NEW_NAME_SAVED:
                 user_name.setText(user_name_string);
-                user_name_layout.setVisibility(View.VISIBLE);
+                user_name.setVisibility(View.VISIBLE);
                 user_name_edit_layout.setVisibility(View.GONE);
                 break;
             case SIGNED_OUT:
@@ -164,16 +163,11 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.edit_image:
+            case R.id.edit_name_button:
                 handle_user_name(EDIT_TEXT_SET_NAME);
                 break;
             case R.id.logout_button:

@@ -97,40 +97,13 @@
             android:background="@drawable/profile_design"
             android:layout_below="@id/user_name_edit_layout"
             />
-        <TextView
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:id="@+id/edit_name_button"
             android:text="Edit Name"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"
             android:layout_below="@id/profile_design"
             />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:id="@+id/my_trips_button"
-            android:layout_below="@id/edit_name_button"
-            android:text="Your Trips"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:id="@+id/logout_button"
-            android:layout_below="@id/my_trips_button"
-            android:text="Logout"
-            android:gravity="center_vertical"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"
-            android:textSize="20sp"
-            android:textColor="#000"/>
     </RelativeLayout>
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bar"
