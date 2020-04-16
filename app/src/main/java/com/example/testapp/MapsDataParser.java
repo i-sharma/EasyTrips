@@ -1,5 +1,7 @@
 package com.example.testapp;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -12,9 +14,16 @@ import java.util.List;
 
 public class MapsDataParser {
 
-// Receives a JSONObject and returns a list of lists containing latitude and longitude
+    private static final String TAG = "MapsDataParser";
+    private JSONObject jObject;
 
-    public List<List<HashMap<String,String>>> parse(JSONObject jObject){
+    public MapsDataParser(JSONObject jObject) {
+        this.jObject = jObject;
+    }
+
+    // Receives a JSONObject and returns a list of lists containing latitude and longitude
+
+    public List<List<HashMap<String,String>>> parse(){
 
         List<List<HashMap<String, String>>> routes = new ArrayList<>() ;
         JSONArray jRoutes;
@@ -64,6 +73,24 @@ public class MapsDataParser {
 
         return routes;
     }
+
+    public ArrayList<Integer> get_waypoint_order() {
+            ArrayList<Integer> arrayList = new ArrayList<>();
+            try {
+                if (jObject.get("status").toString().equals("OK")){
+                    JSONArray jRoutes = jObject.getJSONArray("routes");
+                    JSONArray waypoint_order = ((JSONObject)jRoutes.get(0)).getJSONArray("waypoint_order");
+                    for (int i=0;i<waypoint_order.length();i++){
+                        arrayList.add(waypoint_order.getInt(i));
+                    }
+                }
+            }
+            catch (JSONException e){
+                Log.d(TAG, "get_waypoint_order: " + e.getStackTrace());
+            }
+            return arrayList;
+    }
+
 
 
 //

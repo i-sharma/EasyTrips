@@ -16,7 +16,6 @@
     <Switch
         android:id="@+id/optimize_switch"
         android:text="OPTIMIZE"
-        android:checked="true"
         android:textColor="#faecec"
         android:textSize="22sp"
         android:layout_alignParentBottom="true"
