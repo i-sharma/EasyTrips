@@ -99,6 +99,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     LinkedHashMap<Integer, HashMap<String, String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order;
     private ProgressBar progressBar;
+    private String city_name = "delhi";
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,16 +124,13 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         setViewPagerBackground();
 
-        if (trip_data.keySet().size() > 1) optimizeRoute();
-
-        JSONObject jObject = null;
-        try {
-            jObject = new JSONObject(opt_on);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (trip_data.keySet().size() > 1){
+            optimizeRoute();
+            populate_waypoint_order();
         }
-        MapsDataParser parser = new MapsDataParser(jObject);
-        waypoint_order = parser.get_waypoint_order();
+
+
+//
 
         createStorageReference("delhi");
 
@@ -164,7 +162,10 @@ public class CurrentTripActivity extends AppCompatActivity {
                 if (trip_data.keySet().size() >= 1) {
                     opt_off = opt_on = "";
                     optimizeRoute();
+                    populate_waypoint_order();
                 }
+
+
             }
         });
 
@@ -222,6 +223,18 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     }
 
+    private void populate_waypoint_order() {
+        JSONObject jObject = null;
+        try {
+            jObject = new JSONObject(opt_on);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        MapsDataParser parser = new MapsDataParser(jObject);
+        waypoint_order = parser.get_waypoint_order();
+
+    }
+
     private class UploadTrip extends AsyncTask<Integer, Void, Void> {
         @Override
         protected void onPreExecute() {
@@ -232,24 +245,26 @@ public class CurrentTripActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Integer... integers) {
             loadTripData();
-            ArrayList<Integer> opt_on = new ArrayList<>();
-            ArrayList<Integer> opt_off = new ArrayList<Integer>(trip_data.keySet());
-            for (Integer integer: waypoint_order){
-                opt_on.add(opt_off.get(integer));
+            final ArrayList<String> opt_on = new ArrayList<>();
+            final ArrayList<String> opt_off = new ArrayList<>();
+            for(Integer integer1: trip_data.keySet()){
+                opt_off.add("db_location_"+city_name+"::"+integer1);
+            }
+            for (Integer integer2 : waypoint_order) {
+                opt_on.add(opt_off.get(integer2));
             }
 
             final Boolean[] data_uploaded = {false};
             final Map<String, Object> data = new HashMap<>();
             data.put("timestamp", Timestamp.now());
-            data.put("city", "delhi");
+            data.put("city", city_name);
             data.put("opt_on_trip_indices", opt_on);
-            data.put("opt_off_trip_indices",opt_off);
+            data.put("opt_off_trip_indices", opt_off);
 
 
             final CollectionReference collectionReference = db.collection("users")
                     .document(currentUser.getUid())
                     .collection("trip_history");
-
 
 
             collectionReference
@@ -270,37 +285,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                                 Log.d(TAG, "Error getting documents: ", task.getException());
                             }
                         }
-                    })
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                }
-            });
-
-            Log.d(TAG, "doInBackground: bool -- " + data_uploaded[0]);
-
-            if(data_uploaded[0]) {
-                return null;
-            }
-
-            Log.d(TAG, "doInBackground: we are here");
-            collectionReference.whereEqualTo("opt_off_trip_indices", opt_off)
-                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "onComplete: " + task.getResult().size());
-                        if (task.getResult().size() == 0) {
-                            collectionReference.document()
-                                    .set(data, SetOptions.merge());
-                            data_uploaded[0] = true;
-                        }
-                    } else {
-                        Log.d(TAG, "Error getting documents: ", task.getException());
-                    }
-                }
-            });
+                    });
 
             return null;
         }

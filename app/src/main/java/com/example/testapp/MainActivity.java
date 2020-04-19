@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity{
@@ -56,14 +57,14 @@ public class MainActivity extends AppCompatActivity{
         rootRef.collection("users")
                 .document(currentUser.getUid())
                 .collection("trip_history")
-                .orderBy("timestamp")
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
                             for(DocumentSnapshot document: task.getResult()){
-                                Log.d(TAG, "onCompletehere: " + document.getId() + "--- " + document.get("trip_indices"));
+                                Log.d(TAG, "onCompletehere: " + document.getId() + "--- " + document.get("opt_on_trip_indices"));
                             }
                         }
                     }
