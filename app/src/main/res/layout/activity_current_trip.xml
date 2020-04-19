@@ -8,6 +8,8 @@
     tools:context=".CurrentTripActivity"
     android:background="#fff">
 
+
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
@@ -15,6 +17,15 @@
         android:clipToPadding="false"
         android:foregroundGravity="center"
         android:overScrollMode="never"/>
+
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/curr_trip_progress_bar"
+        android:layout_above="@id/removeItemFromTrip"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
 
     <Switch
         android:id="@+id/optimize_switch"

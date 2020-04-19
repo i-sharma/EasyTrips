@@ -78,4 +78,7 @@ dependencies {
     //Polyline animation
     implementation 'com.github.tintinscorpion:Dual-color-Polyline-Animation:1.0'
 
+    //Progressbar
+    implementation 'com.github.ybq:Android-SpinKit:1.4.0'
+
 }

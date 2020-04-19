@@ -1,8 +1,10 @@
 package com.example.testapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,9 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -39,19 +45,29 @@ public class MainActivity extends AppCompatActivity{
     final static int SIGNED_OUT = 3;
     final static int NEW_NAME_SAVED = 4;
 
+    private static final String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account_new);
+        setContentView(R.layout.activity_main);
 
-        imageView = findViewById(R.id.profile_picture);
-        edit_name_button = findViewById(R.id.edit_name_button);
-
-        Glide.with(this)
-                .load(R.drawable.default_avatar)
-                .circleCrop()
-                .into(imageView);
-
+        currentUser = mAuth.getCurrentUser();
+        rootRef.collection("users")
+                .document(currentUser.getUid())
+                .collection("trip_history")
+                .orderBy("timestamp")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+                            for(DocumentSnapshot document: task.getResult()){
+                                Log.d(TAG, "onCompletehere: " + document.getId() + "--- " + document.get("trip_indices"));
+                            }
+                        }
+                    }
+                });
     }
 
 
