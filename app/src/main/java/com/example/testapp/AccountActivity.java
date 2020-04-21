@@ -182,8 +182,9 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
                 updateUI(NEW_NAME_SAVED);
                 break;
             case R.id.your_trips_button_layout:
-                Intent intent = new Intent(AccountActivity.this, MainActivity.class);
+                Intent intent = new Intent(AccountActivity.this, YourTripsActivity.class);
                 startActivity(intent);
+
                 break;
             case R.id.clear_button:
                 edit_name.setText("");

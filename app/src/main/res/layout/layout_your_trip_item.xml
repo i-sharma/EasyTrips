@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="180dp"
+    android:layout_margin="2dp"
+    xmlns:tools="http://schemas.android.com/tools">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#fff"
+        >
+        <TextView
+            android:layout_width="10dp"
+            android:layout_height="match_parent"
+            android:background="@color/red"
+            android:layout_margin="10dp"
+            android:id="@+id/color_strip"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Red Fort"
+            android:gravity="center"
+            android:layout_marginTop="20dp"
+            android:id="@+id/your_trip_start"
+            android:layout_toRightOf="@id/color_strip"
+            android:textColor="@color/colorDark"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="to"
+            android:id="@+id/to_text"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_below="@id/your_trip_start"
+            android:layout_toRightOf="@id/color_strip"
+            android:textColor="@color/colorDark"
+            android:textSize="20dp"
+            android:textStyle="italic"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="India Gate"
+            android:gravity="center"
+            android:id="@+id/your_trip_end"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/color_strip"
+            android:layout_below="@id/to_text"
+            android:textColor="@color/colorDark"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+4 stops"
+            android:gravity="center"
+            android:id="@+id/n_stops"
+            android:layout_marginTop="5dp"
+            android:layout_toRightOf="@id/color_strip"
+            android:layout_below="@id/your_trip_end"
+            android:textColor="@color/colorDark"
+            android:textSize="20dp"
+            android:textStyle="italic"
+            />
+
+    </RelativeLayout>
+
+
+
+
+</androidx.cardview.widget.CardView>

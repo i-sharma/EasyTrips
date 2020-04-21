@@ -107,9 +107,9 @@ public class CurrentTripActivity extends AppCompatActivity {
         setContentView(R.layout.activity_current_trip);
         loadTripData();
 
-        for (int id : trip_data.keySet()) {
-            Log.d("original sent trip_data", id + "");
-        }
+//        for (int id : trip_data.keySet()) {
+//            Log.d("original sent trip_data", id + "");
+//        }
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
