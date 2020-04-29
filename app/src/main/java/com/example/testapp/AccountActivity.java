@@ -29,7 +29,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
     ImageView clear_button, profile_picture;
     EditText edit_name;
-    RelativeLayout user_name_edit_layout, your_trips_button_layout;
+    RelativeLayout user_name_edit_layout;
     TextView user_name,edit_name_button, logout;
     Button save,cancel;
 
@@ -55,7 +55,6 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
 
         edit_name_button = findViewById(R.id.edit_name_button);
         edit_name = findViewById(R.id.user_name_edit);
-        your_trips_button_layout = findViewById(R.id.your_trips_button_layout);
         user_name = findViewById(R.id.user_name);
         logout = findViewById(R.id.logout_button);
         clear_button = findViewById(R.id.clear_button);
@@ -85,7 +84,6 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
         edit_name_button.setOnClickListener(this);
         logout.setOnClickListener(this);
         clear_button.setOnClickListener(this);
-        your_trips_button_layout.setOnClickListener(this);
         cancel.setOnClickListener(this);
         save.setOnClickListener(this);
         bottomNavigation();
@@ -180,11 +178,6 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
                 user_name_string = edit_name.getText().toString();
                 save_user_name();
                 updateUI(NEW_NAME_SAVED);
-                break;
-            case R.id.your_trips_button_layout:
-                Intent intent = new Intent(AccountActivity.this, YourTripsActivity.class);
-                startActivity(intent);
-
                 break;
             case R.id.clear_button:
                 edit_name.setText("");

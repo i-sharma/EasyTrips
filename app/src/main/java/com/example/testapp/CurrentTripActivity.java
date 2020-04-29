@@ -17,10 +17,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,32 +26,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
-import com.github.ybq.android.spinkit.sprite.Sprite;
-import com.github.ybq.android.spinkit.style.DoubleBounce;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -67,11 +56,9 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
@@ -79,15 +66,14 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     private static final String TAG = "MainActivity";
 
-    LatLng origin, destination;
+    LatLng origin,destination;
     ViewPager viewPager;
     CurrentTripAdapter adapter;
     List<CurrentTripModel> model_opt_off = new ArrayList<>();
-    List<CurrentTripModel> model_opt_on = new ArrayList<>();
+    List<CurrentTripModel> model_opt_on =  new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
     Button route;
@@ -95,21 +81,20 @@ public class CurrentTripActivity extends AppCompatActivity {
     Boolean optimization = false;
     LinearLayout removeItem;
     BottomNavigationView navigation;
-    String opt_off, opt_on;
-    LinkedHashMap<Integer, HashMap<String, String>> trip_data = new LinkedHashMap<>();
+    String opt_off,opt_on;
+    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order;
-    private ProgressBar progressBar;
-    private String city_name = "delhi";
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
         loadTripData();
 
-//        for (int id : trip_data.keySet()) {
-//            Log.d("original sent trip_data", id + "");
-//        }
+        for(int id:trip_data.keySet()){
+            Log.d("original sent trip_data",id+"");
+        }
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -119,33 +104,28 @@ public class CurrentTripActivity extends AppCompatActivity {
         route = findViewById(R.id.showRoute);
         viewPager = findViewById(R.id.viewPager);
         removeItem = findViewById(R.id.removeItemFromTrip);
-        progressBar = findViewById(R.id.curr_trip_progress_bar);
-
 
         setViewPagerBackground();
 
-        if (trip_data.keySet().size() > 1){
-            optimizeRoute();
-            populate_waypoint_order();
-        }
-
-
-//
+        if(trip_data.keySet().size() > 1)  optimizeRoute();
 
         createStorageReference("delhi");
-
 
         bottomNavigation();
 
         route.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (trip_data.keySet().size() > 0) {
+                if(trip_data.keySet().size() > 0){
                     loadTripData();
-                    UploadTrip uploadTrip = new UploadTrip();
-                    uploadTrip.execute();
-                } else {
-                    Toast.makeText(getBaseContext(), "Trip size 0", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getBaseContext(), MapsActivity.class);
+                    intent.putExtra("optimization",optimization);
+                    intent.putExtra("origin",origin);
+                    intent.putExtra("destination",destination);
+                    intent.putExtra("waypoints",waypoint_order);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -159,13 +139,10 @@ public class CurrentTripActivity extends AppCompatActivity {
                 opt_switch.setChecked(false); //because it may not be optimized.
                 removeFromModel(was_checked);
                 saveTripData();
-                if (trip_data.keySet().size() >= 1) {
+                if(trip_data.keySet().size() >= 1) {
                     opt_off = opt_on = "";
                     optimizeRoute();
-                    populate_waypoint_order();
                 }
-
-
             }
         });
 
@@ -175,8 +152,8 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 optimization = opt_switch.isChecked();
 
-                if (optimization) {
-                    if (trip_data.keySet().size() > 1) {
+                if(optimization){
+                    if(trip_data.keySet().size() > 1){
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
                         JSONObject jObject;
@@ -184,137 +161,47 @@ public class CurrentTripActivity extends AppCompatActivity {
                             jObject = new JSONObject(opt_on);
                             MapsDataParser parser = new MapsDataParser(jObject);
                             waypoint_order = parser.get_waypoint_order();
-                            Log.d("waypoints ", waypoint_order + "");
-                            if (waypoint_order.size() == trip_data.keySet().size()) {
+                            Log.d("waypoints ",waypoint_order+"");
+                            if(waypoint_order.size() == trip_data.keySet().size()){
                                 boolean same = true;
                                 ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
-                                for (int i = 0; i < waypoint_order.size(); i++) {
+                                for(int i = 0; i < waypoint_order.size(); i++){
                                     trip_data_array.add(i);
                                 }
                                 Log.d(TAG, "check toast " + trip_data_array + "----" + waypoint_order);
-                                for (int i = 0; i < waypoint_order.size(); i++) {
-                                    if (waypoint_order.get(i) != trip_data_array.get(i)) {
+                                for(int i = 0; i < waypoint_order.size(); i++){
+                                    if(waypoint_order.get(i) != trip_data_array.get(i)){
                                         same = false;
                                     }
                                 }
-                                if (same) {
+                                if(same){
                                     Toast.makeText(CurrentTripActivity.this,
                                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
-                                } else {
+                                }else{
                                     applyModel_opt_on();
                                 }
                             }
 
 
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        Toast.makeText(getBaseContext(), "No further optimization", Toast.LENGTH_SHORT).show();
+                        }catch (Exception e){e.printStackTrace();}
+                    }else{
+                        Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
-                } else {
-                    if (trip_data.keySet().size() > 1) {
+                }else{
+                    if(trip_data.keySet().size() > 1) {
                         updateModel(0);
                     }
                 }
 
-            }
-        });
+    }
+});
 
     }
-
-    private void populate_waypoint_order() {
-        JSONObject jObject = null;
-        try {
-            jObject = new JSONObject(opt_on);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        MapsDataParser parser = new MapsDataParser(jObject);
-        waypoint_order = parser.get_waypoint_order();
-
-    }
-
-    private class UploadTrip extends AsyncTask<Integer, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-            Log.d(TAG, "onPreExecute: ");
-        }
-
-        @Override
-        protected Void doInBackground(Integer... integers) {
-            loadTripData();
-            final ArrayList<String> opt_on = new ArrayList<>();
-            final ArrayList<String> opt_off = new ArrayList<>();
-            for(Integer integer1: trip_data.keySet()){
-                opt_off.add("db_location_"+city_name+"::"+integer1);
-            }
-            for (Integer integer2 : waypoint_order) {
-                opt_on.add(opt_off.get(integer2));
-            }
-
-            final Boolean[] data_uploaded = {false};
-            final Map<String, Object> data = new HashMap<>();
-            data.put("timestamp", Timestamp.now());
-            data.put("city", city_name);
-            data.put("opt_on_trip_indices", opt_on);
-            data.put("opt_off_trip_indices", opt_off);
-
-
-            final CollectionReference collectionReference = db.collection("users")
-                    .document(currentUser.getUid())
-                    .collection("trip_history");
-
-
-            collectionReference
-                    .whereEqualTo("opt_on_trip_indices", opt_on)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                Log.d(TAG, "onComplete: " + task.getResult().size());
-                                if (task.getResult().size() == 0) {
-                                    collectionReference.document()
-                                            .set(data, SetOptions.merge());
-                                    data_uploaded[0] = true;
-                                    Log.d(TAG, "doInBackground: inside " + data_uploaded[0]);
-                                }
-                            } else {
-                                Log.d(TAG, "Error getting documents: ", task.getException());
-                            }
-                        }
-                    });
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.d(TAG, "onPostExecute: ");
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(CurrentTripActivity.this, "Done", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(getBaseContext(), MapsActivity.class);
-//            intent.putExtra("optimization", optimization);
-//            intent.putExtra("origin", origin);
-//            intent.putExtra("destination", destination);
-//            intent.putExtra("waypoints", waypoint_order);
-//            startActivity(intent);
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-            super.onProgressUpdate(values);
-        }
-    }
-
 
     private void applyModel_opt_on() {
         // waypoint (0,3,1,2)    (0,1,2,3)
         model_opt_on = new ArrayList<>();
-        for (int index : waypoint_order) {
+        for(int index:waypoint_order){
             model_opt_on.add(model_opt_off.get(index));
         }
         updateModel(0);
@@ -322,22 +209,22 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void optimizeRoute() {
 
-        StringBuffer waypoints_coordinates;
+        StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
 
         double hotel_lat = 28.651685;
         double hotel_lon = 77.217220;
 
-        LatLng tmp_origin, tmp_destination;
-        tmp_origin = new LatLng(hotel_lat, hotel_lon);
+        LatLng tmp_origin,tmp_destination;
+        tmp_origin = new LatLng(hotel_lat,hotel_lon);
         tmp_destination = tmp_origin;
 
         //change this
         origin = tmp_origin;
         destination = tmp_destination;
 
-        String url_opt_is_false = getUrl(tmp_origin, tmp_destination, false, waypoints_coordinates);
-        String url_opt_is_true = getUrl(tmp_origin, tmp_destination, true, waypoints_coordinates);
+        String url_opt_is_false = getUrl(tmp_origin,tmp_destination,false,waypoints_coordinates);
+        String url_opt_is_true = getUrl(tmp_origin,tmp_destination,true,waypoints_coordinates);
 
         DownloadTask task_opt_is_false = new DownloadTask();
         task_opt_is_false.execute(url_opt_is_false);
@@ -358,25 +245,25 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-    private void saveApiResult(Boolean opt) {
-        if (!opt) {
+    private void saveApiResult(Boolean opt){
+        if(!opt){
             try {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
                 ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
                 outputStream.writeObject(opt_off);
                 outputStream.flush();
                 outputStream.close();
-            } catch (IOException e) {
+            }catch (IOException e){
                 e.printStackTrace();
             }
-        } else {
+        }else{
             try {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
                 ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
                 outputStream.writeObject(opt_on);
                 outputStream.flush();
                 outputStream.close();
-            } catch (IOException e) {
+            }catch (IOException e){
                 e.printStackTrace();
             }
         }
@@ -394,7 +281,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             } catch (ClassNotFoundException e) {
                 opt_on = "";
             }
-        } else {
+        }else{
             try {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
@@ -421,14 +308,14 @@ public class CurrentTripActivity extends AppCompatActivity {
         loadTripData();
     }
 
-    private void saveTripData() {
+    private void saveTripData(){
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "map");
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(trip_data);
             outputStream.flush();
             outputStream.close();
-        } catch (IOException e) {
+        }catch (IOException e){
             e.printStackTrace();
         }
 
@@ -440,9 +327,11 @@ public class CurrentTripActivity extends AppCompatActivity {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
             trip_data = (LinkedHashMap) ois.readObject();
 
-        } catch (IOException e) {
+        }
+        catch (IOException e){
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        }
+        catch (ClassNotFoundException e){
             trip_data = new LinkedHashMap<>();
         }
     }
@@ -462,10 +351,11 @@ public class CurrentTripActivity extends AppCompatActivity {
                     case R.id.menu_item1:
                         break;
                     case R.id.menu_item2:
-                        if (currentUser != null) {
+                        if(currentUser != null){
                             Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
                             startActivity(b);
-                        } else {
+                        }
+                        else {
                             Intent b = new Intent(CurrentTripActivity.this, login.class);
                             startActivity(b);
                         }
@@ -496,9 +386,9 @@ public class CurrentTripActivity extends AppCompatActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                if (adapter != null) {
+                if(adapter != null){
 
-                    if (position < (adapter.getCount() - 1) && position < (colors.length - 1)) {
+                    if (position < (adapter.getCount() -1) && position < (colors.length - 1)) {
                         viewPager.setBackgroundColor(
 
                                 (Integer) argbEvaluator.evaluate(
@@ -507,7 +397,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                                         colors[position + 1]
                                 )
                         );
-                    } else {
+                    }
+
+                    else {
                         viewPager.setBackgroundColor(colors[colors.length - 1]);
                     }
 
@@ -534,7 +426,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         for (int id : trip_data.keySet()) {
             String tourist_places_id = cities[0] + "::" + id;
-            tourist_places.put(id, city_reference.collection(cities[0] + "_data").document(tourist_places_id));
+            tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
         }
         return tourist_places;
     }
@@ -544,8 +436,8 @@ public class CurrentTripActivity extends AppCompatActivity {
         HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
         final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
-        for (final int id : trip_data.keySet()) {
-            Log.d("proper id is", id + "");
+        for(final int id : trip_data.keySet()){
+            Log.d("proper id is",id+"");
 
             tp.get(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
 
@@ -557,15 +449,15 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Log.d("existence: ", "No such document");
                     } else {
                         String img_name = "" + document.get("image_name");
-                        Log.d("img_name is ", img_name);
+                        Log.d("img_name is ",img_name);
                         final String title = "" + document.get("title");
                         final String short_description = "" + document.get("short_description");
-                        StorageReference spaceRef = storageReference.child("photos_delhi/" + img_name);
-                        Log.d("spaceRef is", spaceRef.getName());
+                        StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
+                        Log.d("spaceRef is",spaceRef.getName());
                         spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                addTo_Model_opt_off(uri, title, short_description, id);
+                                addTo_Model_opt_off(uri,title,short_description,id);
                             }
                         });
                     }
@@ -576,25 +468,25 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     public void removeFromModel(boolean was_checked) {
         int curr_id;
-        if (trip_data.isEmpty()) {
-            Toast.makeText(getBaseContext(), "Trip is Empty", Toast.LENGTH_SHORT).show();
-        } else {
+        if(trip_data.isEmpty()){
+            Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
+        }else{
 
             int position = viewPager.getCurrentItem();
-            if (!was_checked) {
+            if(!was_checked){
                 curr_id = model_opt_off.get(position).getId();
                 model_opt_off.remove(position);
-            } else {
+            }else{
                 curr_id = model_opt_on.get(position).getId();
                 model_opt_on.remove(position);
-                for (int i = 0; i < model_opt_off.size(); i++) {
-                    if (model_opt_off.get(i).getId() == curr_id) {
+                for(int i = 0; i < model_opt_off.size(); i++){
+                    if(model_opt_off.get(i).getId() == curr_id){
                         model_opt_off.remove(i);
                     }
                 }
             }
 
-            Log.d("deleting:", "" + viewPager.getCurrentItem());
+            Log.d("deleting:",""+viewPager.getCurrentItem());
             trip_data.remove(curr_id);
             updateModel(position);
         }
@@ -602,8 +494,8 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void updateModel(int start_position) {
-        if (!optimization) adapter = new CurrentTripAdapter(model_opt_off, this);
-        else adapter = new CurrentTripAdapter(model_opt_on, this);
+        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off, this);
+        else                adapter = new CurrentTripAdapter(model_opt_on , this);
 
         viewPager.setAdapter(adapter);
         adapter.notifyDataSetChanged();
@@ -616,23 +508,22 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
 
-         */
-        model_opt_off.add(new CurrentTripModel(result, title, short_description, id));
+       */
+        model_opt_off.add(new CurrentTripModel(result,title,short_description,id));
 
-        if (model_opt_off.size() == trip_data.keySet().size()) {
+        if(model_opt_off.size() == trip_data.keySet().size()){
             int size = model_opt_off.size();
-            loadTripData();
             ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
             List<CurrentTripModel> proper_model = new ArrayList<>();
-            for (int i = 0; i < size; i++) {
+            for(int i=0;i<size;i++){
                 proper_model.add(new CurrentTripModel());
             }
-            for (int i = 0; i < size; i++) {
+            for(int i=0;i<size;i++){
                 CurrentTripModel curr_model = model_opt_off.get(i);
                 int curr_id = model_opt_off.get(i).getId();
-                Log.d("curr_id is ", curr_id + "");
+                Log.d("curr_id is ",curr_id+"");
                 int index = ids.indexOf(curr_id);
-                proper_model.set(index, curr_model);
+                proper_model.set(index,curr_model);
             }
             model_opt_off = proper_model;
             updateModel(0);
@@ -640,7 +531,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     }
 
-    private String getUrl(LatLng origin, LatLng dest, Boolean opt, StringBuffer waypoints_coordinates) {
+    private String getUrl(LatLng origin, LatLng dest, Boolean opt,StringBuffer waypoints_coordinates) {
 
         //Directions API URL
         String directions_api = "https://maps.googleapis.com/maps/api/directions/";
@@ -663,15 +554,15 @@ public class CurrentTripActivity extends AppCompatActivity {
         String output = "json";
 
         //API KEY
-        String apiKey = "key=" + "***REMOVED***";
-        Log.d(TAG, "getUrl: " + apiKey);
+        String apiKey ="key="+"***REMOVED***" ;
+
         //url
-        String url = directions_api + output + "?" + parameters + "&" + apiKey + "\n";
-        Log.d("url is ", url);
+        String url = directions_api+output+"?"+parameters+"&"+apiKey+"\n";
+        Log.d("url is ",url);
         return url;
     }
 
-    private class DownloadTask extends AsyncTask<String, Void, String> {
+    private class DownloadTask extends AsyncTask<String,Void,String> {
 
         @Override
         protected String doInBackground(String... urls) {
@@ -683,9 +574,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 InputStreamReader reader = new InputStreamReader(in);
                 char[] buffer = new char[1024];
                 int bytesRead = reader.read(buffer);
-                while (bytesRead != -1) {
+                while(bytesRead != -1){
 
-                    result.append(buffer, 0, bytesRead);
+                    result.append(buffer,0,bytesRead);
                     bytesRead = reader.read(buffer);
 
                 }
@@ -706,7 +597,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         StringBuffer waypoints_coordinates = new StringBuffer("");
 
-        for (int id : trip_data.keySet()) {
+        for(int id:trip_data.keySet()){
 
             String lon = trip_data.get(id).get("lon");
             String lat = trip_data.get(id).get("lat");
@@ -714,8 +605,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             waypoints_coordinates.append("|").append(lat).append(",").append(lon);
 
         }
-        Log.d("waypoint is ", waypoints_coordinates + "");
-        return waypoints_coordinates;
+        Log.d("waypoint is ",waypoints_coordinates+"");
+      return waypoints_coordinates;
     }
 
 }
