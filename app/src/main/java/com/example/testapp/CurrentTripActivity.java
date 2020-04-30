@@ -1,13 +1,7 @@
 package com.example.testapp;
 
-import android.Manifest;
 import android.animation.ArgbEvaluator;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -22,17 +16,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,10 +27,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.logicbeanzs.uberpolylineanimation.MapAnimator;
-
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -53,7 +36,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -451,13 +433,28 @@ public class CurrentTripActivity extends AppCompatActivity {
                         String img_name = "" + document.get("image_name");
                         Log.d("img_name is ",img_name);
                         final String title = "" + document.get("title");
-                        final String short_description = "" + document.get("short_description");
+                        final String time_to_cover = "" + document.get("duration_required_to_visit");
+                        String[] parts = time_to_cover.split(":",2);
+                        int hour = Integer.parseInt(parts[0]);
+                        int min = Integer.parseInt(parts[1]);
+                        final String tot_time;
+                        if(hour > 0 && min > 0){
+                            tot_time = hour + " hrs " + min + " min";
+                        }
+                        else if (min > 0 && hour == 0){
+                            tot_time = min + " min";
+                        }
+                        else if(hour > 0 && min == 0){
+                            tot_time = hour + " hrs";
+                        }else {
+                            tot_time = "no estimate";
+                        }
                         StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
                         Log.d("spaceRef is",spaceRef.getName());
                         spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                addTo_Model_opt_off(uri,title,short_description,id);
+                                addTo_Model_opt_off(uri,title,tot_time,id);
                             }
                         });
                     }
@@ -504,12 +501,12 @@ public class CurrentTripActivity extends AppCompatActivity {
         saveTripData();
     }
 
-    private void addTo_Model_opt_off(Uri result, String title, String short_description, int id) {
+    private void addTo_Model_opt_off(Uri result, String title, String tot_time, int id) {
 
         /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
 
        */
-        model_opt_off.add(new CurrentTripModel(result,title,short_description,id));
+        model_opt_off.add(new CurrentTripModel(result,title,tot_time,id));
 
         if(model_opt_off.size() == trip_data.keySet().size()){
             int size = model_opt_off.size();

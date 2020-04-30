@@ -24,7 +24,7 @@ public class CurrentTripAdapter extends PagerAdapter {
     private List<CurrentTripModel> models;
     private Context context;
     private ImageView imageView;
-    private TextView title, desc;
+    private TextView title, time_to_cover;
 
     public CurrentTripAdapter(List<CurrentTripModel> models, Context context) {
         this.models = models;
@@ -50,7 +50,7 @@ public class CurrentTripAdapter extends PagerAdapter {
 
         imageView = view.findViewById(R.id.image);
         title = view.findViewById(R.id.title);
-        desc = view.findViewById(R.id.desc);
+        time_to_cover = view.findViewById(R.id.time_to_cover);
 
         Log.d("title is","" + models.get(position).getTitle());
 
@@ -63,7 +63,7 @@ public class CurrentTripAdapter extends PagerAdapter {
 
     private void updateView(int position,ViewGroup container) {
         title.setText(models.get(position).getTitle());
-        desc.setText(models.get(position).getDesc());
+        time_to_cover.setText(models.get(position).getTime_to_cover());
 
         Glide.with(context)
                 .load(models.get(position).getImage())

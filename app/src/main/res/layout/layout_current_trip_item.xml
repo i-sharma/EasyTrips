@@ -43,15 +43,18 @@
                 android:layout_marginStart="16dp" />
 
             <TextView
-                android:id="@+id/desc"
+                android:id="@+id/time_to_cover"
                 android:layout_below="@id/title"
                 android:layout_marginTop="3dp"
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
-                android:maxLines="3"
+                android:layout_centerInParent="true"
                 android:drawablePadding="10dp"
                 android:ellipsize="end"
-                android:textColor="@color/gray"
+                android:textSize="20sp"
+                android:textColor="#262626"
+                android:background="@color/gray"
+                android:textAlignment="gravity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
