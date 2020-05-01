@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,7 +34,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class login extends AppCompatActivity implements View.OnClickListener{
+public class login extends AppCompatActivity implements View.OnTouchListener{
     TextView google_signin,phone_signin, skip, welcome;
     private static final String TAG = "login";
     public static Activity activity;
@@ -79,15 +80,6 @@ public class login extends AppCompatActivity implements View.OnClickListener{
         phone_signin.setTypeface(custom_font1);
         skip.setTypeface(custom_font);
         welcome.setTypeface(custom_font);
-        phone_signin.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                Intent it = new Intent(login.this, phoneAuth.class);
-                startActivity(it);
-            }
-        });
         skip.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -98,7 +90,8 @@ public class login extends AppCompatActivity implements View.OnClickListener{
                 finish();
             }
         });
-        google_signin.setOnClickListener(this);
+        google_signin.setOnTouchListener(this);
+        phone_signin.setOnTouchListener(this);
     }
 
     @Override
@@ -200,15 +193,27 @@ public class login extends AppCompatActivity implements View.OnClickListener{
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    @Override
-    public void onClick(View v) {
-        FirebaseUser user;
-        switch (v.getId()){
-            case R.id.google_login:
-                user = mAuth.getCurrentUser();
-                if(user == null)
-                    signIn();
-        }
-    }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button_light));
+        }
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button));
+            switch (v.getId()){
+                case R.id.google_login:
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    if(user == null)
+                        signIn();
+                    break;
+                case R.id.phone_login:
+                    Intent it = new Intent(login.this, phoneAuth.class);
+                    startActivity(it);
+                    break;
+            }
+        }
+        return true;
+    }
 }

@@ -9,6 +9,8 @@
     <color name="red">#B00020</color>
     <color name="gray">#909497</color>
 
+    <color name="auth_button">#702705   </color>
+    <color name="auth_button_light">#CF7046</color>
 
     <color name="color1">#424549</color>
     <color name="color2">#7e455e</color>

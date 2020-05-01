@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">testApp</string>
+    <string name="app_name">EasyTrips</string>
     <string name="fade_duration">150</string>
     <string name="remove_from_trip">REMOVE FROM TRIP</string>
 </resources>

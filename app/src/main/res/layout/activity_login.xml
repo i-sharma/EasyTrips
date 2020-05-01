@@ -36,7 +36,7 @@
             android:id="@+id/google_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
+            android:background="@color/auth_button"
             android:text="Google Sign In"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
@@ -49,7 +49,7 @@
             android:id="@+id/phone_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
+            android:background="@color/auth_button"
             android:text="Phone Sign In"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
@@ -86,6 +86,6 @@
             android:id="@+id/login_logo"
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:src="@drawable/ibytes" />
+            android:src="@drawable/logo" />
     </LinearLayout>
 </RelativeLayout>

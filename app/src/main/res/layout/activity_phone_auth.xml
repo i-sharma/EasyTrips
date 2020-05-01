@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/grdnt"
-    >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/grdnt">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -96,7 +95,7 @@
             android:id="@+id/sup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
+            android:background="@color/auth_button"
             android:text="Verify"
             android:textSize="15dp"
             android:textColor="#FFFFFF"
@@ -110,7 +109,7 @@
             android:id="@+id/resend_token"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
+            android:background="@color/auth_button"
             android:text="Resend Code"
             android:textSize="15dp"
             android:textColor="#FFFFFF"
@@ -138,7 +137,7 @@
         <ImageView
             android:layout_width="150dp"
             android:layout_height="150dp"
-            android:src="@drawable/ibytes"
+            android:src="@drawable/logo"
             />
     </LinearLayout>
 </RelativeLayout>

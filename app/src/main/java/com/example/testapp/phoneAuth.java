@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,7 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-public class phoneAuth extends AppCompatActivity implements View.OnClickListener{
+public class phoneAuth extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener{
     private EditText mophone, pswd;
     TextView skip, sup, resend_token;
     private FirebaseAuth mAuth;
@@ -77,8 +78,8 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 
 
         skip.setOnClickListener(this);
-        sup.setOnClickListener(this);
-        resend_token.setOnClickListener(this);
+        sup.setOnTouchListener(this);
+        resend_token.setOnTouchListener(this);
 
 
         //Firebase Auth
@@ -192,6 +193,36 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
     }
 
     @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button_light));
+        }
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button));
+            switch (v.getId()){
+                case R.id.resend_token:
+                    resendVerificationCode(mophone.getText().toString(), mResendToken);
+                    break;
+                case R.id.sup:
+                    if(sup.getText() == "SignIn"){
+                        String code = pswd.getText().toString();
+                        if (TextUtils.isEmpty(code)) {
+                            pswd.setError("Cannot be empty.");
+                        }else {
+                            verifyPhoneNumberWithCode(mVerificationId, code);
+                            break;
+                        }
+                    }
+                    if(validatePhoneNumber()) {
+                        startPhoneNumberVerification(mophone.getText().toString());
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.phone_auth_skip:
@@ -199,25 +230,6 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                 startActivity(it);
                 finish();
                 login.activity.finish();
-                break;
-            case R.id.resend_token:
-                resendVerificationCode(mophone.getText().toString(), mResendToken);
-                break;
-            case R.id.sup:
-                if(sup.getText() == "SignIn"){
-                    String code = pswd.getText().toString();
-                    if (TextUtils.isEmpty(code)) {
-                        pswd.setError("Cannot be empty.");
-                        return;
-                    }
-
-                    verifyPhoneNumberWithCode(mVerificationId, code);
-                    break;
-                }
-
-                if(validatePhoneNumber()) {
-                    startPhoneNumberVerification(mophone.getText().toString());
-                }
                 break;
         }
 
@@ -304,4 +316,6 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                 });
 
     }
+
+
 }

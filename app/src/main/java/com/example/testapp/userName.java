@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,7 +20,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class userName extends AppCompatActivity implements View.OnClickListener {
+public class userName extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener {
 
     EditText name;
     TextView skip_button, start_explore_button, ask_name;
@@ -48,14 +49,11 @@ public class userName extends AppCompatActivity implements View.OnClickListener 
 
 
         skip_button.setOnClickListener(this);
-        start_explore_button.setOnClickListener(this);
+        start_explore_button.setOnTouchListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
         rootRef = FirebaseFirestore.getInstance();
-
-
-
 
     }
 
@@ -72,17 +70,33 @@ public class userName extends AppCompatActivity implements View.OnClickListener 
                 login.activity.finish();
                 phoneAuth.activity.finish();
                 break;
-            case R.id.button_start_explore:
-                Map<String, Object> data = new HashMap<>();
-                data.put("name", name.getText().toString());
-                rootRef.collection("users")
-                        .document(user.getUid())
-                        .set(data, SetOptions.merge());
-                it2 = new Intent(userName.this, Explore.class);
-                startActivity(it2);
-                finish();
-                login.activity.finish();
-                phoneAuth.activity.finish();
         }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        Intent it2;
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button_light));
+        }
+        if(event.getAction() == MotionEvent.ACTION_UP){
+            v.setBackgroundColor(getResources().getColor(R.color.auth_button));
+            switch (v.getId()){
+                case R.id.button_start_explore:
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("name", name.getText().toString());
+                    rootRef.collection("users")
+                            .document(user.getUid())
+                            .set(data, SetOptions.merge());
+                    it2 = new Intent(userName.this, Explore.class);
+                    startActivity(it2);
+                    finish();
+                    login.activity.finish();
+                    phoneAuth.activity.finish();
+                    break;
+            }
+        }
+        return true;
     }
 }
