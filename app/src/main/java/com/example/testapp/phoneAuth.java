@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,12 +35,12 @@ import java.util.concurrent.TimeUnit;
 
 public class phoneAuth extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener{
     private EditText mophone, pswd;
-    TextView skip, sup, resend_token;
+    TextView skip, verify_button, resend_token;
     private FirebaseAuth mAuth;
     private static final String TAG = "signup";
     private boolean mVerificationInProgress = false;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
-
+    ProgressBar progressBar;
     private String mVerificationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
     private static final int STATE_CODE_SENT = 1;
@@ -60,15 +61,16 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
         activity = this;
 
         //Layout rendering
-        sup = (TextView) findViewById(R.id.sup);
+        verify_button = (TextView) findViewById(R.id.verify_button);
         skip = (TextView) findViewById(R.id.phone_auth_skip);
         pswd = (EditText) findViewById(R.id.pswrdd);
         mophone = (EditText) findViewById(R.id.mobphone);
         resend_token = findViewById(R.id.resend_token);
+        progressBar = findViewById(R.id.phone_auth_progress);
         Typeface custom_font = Typeface.createFromAsset(getAssets(), "fonts/LatoLight.ttf");
         Typeface custom_font1 = Typeface.createFromAsset(getAssets(), "fonts/LatoRegular.ttf");
         mophone.setTypeface(custom_font);
-        sup.setTypeface(custom_font1);
+        verify_button.setTypeface(custom_font1);
         pswd.setTypeface(custom_font);
         skip.setTypeface(custom_font);
         resend_token.setTypeface(custom_font1);
@@ -78,7 +80,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 
 
         skip.setOnClickListener(this);
-        sup.setOnTouchListener(this);
+        verify_button.setOnTouchListener(this);
         resend_token.setOnTouchListener(this);
 
 
@@ -90,6 +92,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 
             @Override
             public void onVerificationCompleted(PhoneAuthCredential credential) {
+
                 Log.d(TAG, "onVerificationCompleted:" + credential);
                 mVerificationInProgress = false;
                 updateUI(STATE_VERIFY_SUCCESS);
@@ -104,7 +107,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                 // [START_EXCLUDE silent]
                 mVerificationInProgress = false;
                 // [END_EXCLUDE]
-
+                progressBar.setVisibility(View.GONE);
                 if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     // [START_EXCLUDE]
@@ -117,30 +120,23 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
             @Override
             public void onCodeSent(@NonNull String verificationId,
                                    @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                progressBar.setVisibility(View.GONE);
                 mVerificationId = verificationId;
                 mResendToken = token;
                 updateUI(STATE_CODE_SENT);
-
-
-                // [END_EXCLUDE]
             }
         };
     }
-//
-//    private void updateUI(int state){
-//        updateUI(state, null);
-//    }
-
 
     private void updateUI(int state){
         FirebaseUser user;
-//        Toast.makeText(signup.this, message, Toast.LENGTH_SHORT).show();
         switch (state){
             case STATE_CODE_SENT:
                 LinearLayout otp = findViewById(R.id.otp);
                 otp.setVisibility(View.VISIBLE);
                 resend_token.setVisibility(View.VISIBLE);
-                sup.setText("SignIn");
+                verify_button.setText("SignIn");
+                Toast.makeText(activity, "OTP Sent! Check your inbox", Toast.LENGTH_SHORT).show();
                 break;
             case STATE_SIGNIN_SUCCESS:
 //
@@ -201,10 +197,12 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
             v.setBackgroundColor(getResources().getColor(R.color.auth_button));
             switch (v.getId()){
                 case R.id.resend_token:
+                    progressBar.setVisibility(View.VISIBLE);
                     resendVerificationCode(mophone.getText().toString(), mResendToken);
                     break;
-                case R.id.sup:
-                    if(sup.getText() == "SignIn"){
+                case R.id.verify_button:
+                    if(verify_button.getText() == "SignIn"){
+                        progressBar.setVisibility(View.VISIBLE);
                         String code = pswd.getText().toString();
                         if (TextUtils.isEmpty(code)) {
                             pswd.setError("Cannot be empty.");
@@ -214,6 +212,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                         }
                     }
                     if(validatePhoneNumber()) {
+                        progressBar.setVisibility(View.VISIBLE);
                         startPhoneNumberVerification(mophone.getText().toString());
                     }
                     break;
@@ -276,6 +275,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                progressBar.setVisibility(View.GONE);
                                                 Intent i;
                                                 if (task.isSuccessful()) {
                                                     Log.d(TAG, "here we are sir2");
@@ -312,6 +312,7 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                             }
                             updateUI(STATE_SIGNIN_FAILED);
                         }
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
 

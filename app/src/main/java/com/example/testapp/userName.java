@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +28,7 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
     FirebaseAuth mAuth;
     private static final String TAG = "userName";
     private FirebaseFirestore rootRef;
-
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +42,7 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
         skip_button = findViewById(R.id.username_skip);
         start_explore_button = findViewById(R.id.button_start_explore);
         ask_name = findViewById(R.id.ask_for_name);
-
+        progressBar = findViewById(R.id.username_progress);
         name.setTypeface(custom_font);
         skip_button.setTypeface(custom_font);
         start_explore_button.setTypeface(custom_font1);
@@ -82,6 +83,7 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
         }
         if(event.getAction() == MotionEvent.ACTION_UP){
             v.setBackgroundColor(getResources().getColor(R.color.auth_button));
+            progressBar.setVisibility(View.VISIBLE);
             switch (v.getId()){
                 case R.id.button_start_explore:
                     Map<String, Object> data = new HashMap<>();
@@ -89,6 +91,7 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
                     rootRef.collection("users")
                             .document(user.getUid())
                             .set(data, SetOptions.merge());
+                    progressBar.setVisibility(View.GONE);
                     it2 = new Intent(userName.this, Explore.class);
                     startActivity(it2);
                     finish();

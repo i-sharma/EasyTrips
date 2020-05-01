@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/grdnt">
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        android:id="@+id/phone_auth_progress"
+        />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -92,7 +99,7 @@
         android:gravity="bottom"
         android:layout_marginBottom="20dp">
         <TextView
-            android:id="@+id/sup"
+            android:id="@+id/verify_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/auth_button"
