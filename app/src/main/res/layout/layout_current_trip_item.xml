@@ -58,6 +58,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
+            <Button
+                android:id="@+id/info"
+                android:background="@drawable/info"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_toEndOf="@id/time_to_cover"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="0dp"
+                android:tooltipText="@string/time_to_visit"
+                android:layout_below="@+id/title"
+                app:srcCompat="@android:drawable/ic_menu_info_details" />
+
 
         </RelativeLayout>
 

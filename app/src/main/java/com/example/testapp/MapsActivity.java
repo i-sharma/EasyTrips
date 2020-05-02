@@ -1,26 +1,13 @@
 package com.example.testapp;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -28,27 +15,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
-
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.lang.reflect.Type;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -63,7 +35,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap map;
     private SupportMapFragment mapFragment;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
-    ArrayList<Integer> waypoint_order;
+    ArrayList<Integer> waypoint_order = new ArrayList<>();
+    Boolean same;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +48,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         optimization = it.getExtras().getBoolean("optimization");
         origin = it.getParcelableExtra("origin");
         destination = it.getParcelableExtra("destination");
-        waypoint_order = it.getIntegerArrayListExtra("waypoints");
+        waypoint_order = it.getExtras().getIntegerArrayList("waypoints");
+        same  = it.getExtras().getBoolean("same");
+
         loadApiResult(optimization);
 
         optimize_switch = findViewById(R.id.optimize_switch);
@@ -91,9 +66,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         optimize_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 optimization = optimize_switch.isChecked();
-                loadApiResult(optimization);
-                plotMap(optimization);
+
+                if(same){
+                    Toast.makeText(MapsActivity.this,
+                            "Trip Already Optimized", Toast.LENGTH_SHORT).show();
+                }else{
+                    loadApiResult(optimization);
+                    plotMap(optimization);
+                }
+
             }
         });
 
@@ -106,24 +89,61 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
                 .getString(R.string.style_json)));
 
-        if(origin != null && map != null){
-            map.addMarker(new MarkerOptions().position(origin).title("your location"));
-            map.addMarker(new MarkerOptions().position(destination).title("destination"));
+        if(origin != null && destination != null && map != null){
+            map.addMarker(new MarkerOptions().position(origin).title("your location")).showInfoWindow();
+            //map.addMarker(new MarkerOptions().position(destination).title("destination"));
             map.moveCamera(CameraUpdateFactory.newLatLng(origin));
             map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
+
             for(int id:trip_data.keySet()){
                 double lat = Double.parseDouble(trip_data.get(id).get("lat"));
                 double lon = Double.parseDouble(trip_data.get(id).get("lon"));
-                map.addMarker(new MarkerOptions().position(new LatLng(lat,lon)));
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(lat,lon))
+                );
             }
+
+            //addMarkerstoMap();
         }else{
-            Log.e("map null", "onMapReady: kya ho rha h?");
+        Log.e("map null", "onMapReady: kya ho rha h?");
         }
 
         if (!success) {
-            Log.e("changing ui", "Style parsing failed.");
+        Log.e("changing ui", "Style parsing failed.");
         }
     }
+
+    /*private void addMarkerstoMap() {
+        if(!optimization){
+            int count = 1;
+            for(int id:trip_data.keySet()){
+                double lat = Double.parseDouble(trip_data.get(id).get("lat"));
+                double lon = Double.parseDouble(trip_data.get(id).get("lon"));
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(lat,lon))
+                        .title("" + count)
+                );
+                count++;
+            }
+        }else{
+            Object[] ids_array = trip_data.keySet().toArray();
+            int count = 1;
+            if(waypoint_order != null) {
+                for (int index : waypoint_order) {
+                    int id = (int) ids_array[index];
+                    double lon = Double.parseDouble(trip_data.get(id).get("lon"));
+                    double lat = Double.parseDouble(trip_data.get(id).get("lat"));
+                    map.addMarker(new MarkerOptions()
+                            .position(new LatLng(lat, lon))
+                            .title("" + count)
+                    );
+                    count++;
+                }
+            }else{
+                Log.d("why waypoint_order is",null+"");
+            }
+        }
+    }*/
 
     private void loadTripData() {
         try {
@@ -212,11 +232,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     points = new ArrayList<>();
                     //lineOptions = new PolylineOptions();
 
-                    // Fetching i-th route
-                    List<HashMap<String, String>> path = result.get(i);
+                        // Fetching i-th route
+                        List<HashMap<String, String>> path = result.get(i);
 
-                    // Fetching all the points in i-th route
-                    for (int j = 0; j < path.size(); j++) {
+                        // Fetching all the points in i-th route
+                        for (int j = 0; j < path.size(); j++) {
                         HashMap<String, String> point = path.get(j);
 
                         double lat = Double.parseDouble(point.get("lat"));
@@ -233,6 +253,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     lineOptions.color(Color.YELLOW);*/
 
                     MapAnimator.getInstance().animateRoute(map,points);
+
 
                     Log.d("onPostExecute","onPostExecute lineoptions decoded");
 
