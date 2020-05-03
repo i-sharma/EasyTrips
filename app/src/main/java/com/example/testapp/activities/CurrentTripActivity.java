@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -67,10 +68,11 @@ public class CurrentTripActivity extends AppCompatActivity {
     Switch opt_switch;
     Boolean optimization = false;
     LinearLayout removeItem;
+    ImageView empty_trip;
     BottomNavigationView navigation;
     String opt_off,opt_on;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
-    ArrayList<Integer> waypoint_order;
+    ArrayList<Integer> waypoint_order = new ArrayList<>();
     Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
 
     @Override
@@ -95,8 +97,14 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         setViewPagerBackground();
 
-        if(trip_data.keySet().size() > 1)  optimizeRoute();
+        //show empty_trip_notification and hide everything else
+        if(trip_data.keySet().size() == 0){
+            showEmptyTripUI();
+        }
 
+        if(trip_data.keySet().size() >= 1)  optimizeRoute();
+
+        //for given city fetch data from firestore
         createStorageReference("delhi");
 
         bottomNavigation();
@@ -104,18 +112,21 @@ public class CurrentTripActivity extends AppCompatActivity {
         route.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if(trip_data.keySet().size() > 0){
+
                     loadTripData();
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization",optimization);
+                    Log.d("orgin before",origin+"");
                     intent.putExtra("origin",origin);
                     intent.putExtra("destination",destination);
                     intent.putExtra("waypoints",waypoint_order);
                     intent.putExtra("same",same);
                     startActivity(intent);
-                }else{
-                    Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
+
                 }
+
             }
         });
 
@@ -131,6 +142,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 if(trip_data.keySet().size() >= 1) {
                     opt_off = opt_on = "";
                     optimizeRoute();
+                }else{
+                    showEmptyTripUI();
                 }
             }
         });
@@ -182,9 +195,18 @@ public class CurrentTripActivity extends AppCompatActivity {
                     }
                 }
 
-    }
-});
+            }
+        });
 
+    }
+
+    private void showEmptyTripUI() {
+        empty_trip = findViewById(R.id.empty_trip_notify);
+        empty_trip.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.GONE);
+        opt_switch.setVisibility(View.GONE);
+        removeItem.setVisibility(View.GONE);
+        route.setVisibility(View.GONE);
     }
 
     private void applyModel_opt_on() {
@@ -201,19 +223,10 @@ public class CurrentTripActivity extends AppCompatActivity {
         StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
 
-        double hotel_lat = 28.651685;
-        double hotel_lon = 77.217220;
+        setTmpLocation();
 
-        LatLng tmp_origin,tmp_destination;
-        tmp_origin = new LatLng(hotel_lat,hotel_lon);
-        tmp_destination = tmp_origin;
-
-        //change this
-        origin = tmp_origin;
-        destination = tmp_destination;
-
-        String url_opt_is_false = getUrl(tmp_origin,tmp_destination,false,waypoints_coordinates);
-        String url_opt_is_true = getUrl(tmp_origin,tmp_destination,true,waypoints_coordinates);
+        String url_opt_is_false = getUrl(origin,destination,false,waypoints_coordinates);
+        String url_opt_is_true = getUrl(origin,destination,true,waypoints_coordinates);
 
         DownloadTask task_opt_is_false = new DownloadTask();
         task_opt_is_false.execute(url_opt_is_false);
@@ -232,6 +245,19 @@ public class CurrentTripActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setTmpLocation() {
+        double hotel_lat = 28.651685;
+        double hotel_lon = 77.217220;
+
+        LatLng tmp_origin,tmp_destination;
+        tmp_origin = new LatLng(hotel_lat,hotel_lon);
+        tmp_destination = tmp_origin;
+
+        //change this
+        origin = tmp_origin;
+        destination = tmp_destination;
     }
 
     private void saveApiResult(Boolean opt){

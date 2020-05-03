@@ -6,7 +6,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.CurrentTripActivity"
-    android:background="#fff">
+    android:background="#F0B2B2">
+
+    <ImageView
+        android:id="@+id/empty_trip_notify"
+        android:visibility="gone"
+        android:background="@drawable/empty_trip_notification"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </ImageView>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"

@@ -2,11 +2,14 @@ package com.example.testapp.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.testapp.utils.MapsDataParser;
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
@@ -36,7 +40,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Switch optimize_switch;
     String opt_off,opt_on;
     private GoogleMap map;
-    private SupportMapFragment mapFragment;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     Boolean same;
@@ -47,24 +50,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         loadTripData();
+
         Intent it = getIntent();
         optimization = it.getExtras().getBoolean("optimization");
         origin = it.getParcelableExtra("origin");
         destination = it.getParcelableExtra("destination");
         waypoint_order = it.getExtras().getIntegerArrayList("waypoints");
-        same  = it.getExtras().getBoolean("same");
+        same = it.getExtras().getBoolean("same");
 
-        loadApiResult(optimization);
-
-        optimize_switch = findViewById(R.id.optimize_switch);
-        optimize_switch.setChecked(optimization);
-
-        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        plotMap(optimization);
+        optimize_switch = findViewById(R.id.optimize_switch);
+        optimize_switch.setChecked(optimization);
+
+        //this is the condition to call direction api
+        if(trip_data.keySet().size() > 0)  {
+            loadApiResult(optimization);
+            plotMap(optimization);
+        }
 
         optimize_switch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,8 +82,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(MapsActivity.this,
                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                 }else{
-                    loadApiResult(optimization);
-                    plotMap(optimization);
+                    if(trip_data.keySet().size() == 1){
+                        Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
+                    }
+                    if(trip_data.keySet().size() > 1){
+                        loadApiResult(optimization);
+                        plotMap(optimization);
+                    }
                 }
 
             }
@@ -85,11 +96,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
 
-        boolean success = googleMap.setMapStyle(new MapStyleOptions(getResources()
+        boolean success = map.setMapStyle(new MapStyleOptions(getResources()
                 .getString(R.string.style_json)));
 
         if(origin != null && destination != null && map != null){
@@ -104,12 +116,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 map.addMarker(new MarkerOptions()
                         .position(new LatLng(lat,lon))
                 );
+
             }
 
+
             //addMarkerstoMap();
-        }else{
+        }else if(origin != null && destination != null ){
         Log.e("map null", "onMapReady: kya ho rha h?");
         }
+        else if(origin == null) Log.d("origin is ","null");
 
         if (!success) {
         Log.e("changing ui", "Style parsing failed.");
@@ -224,6 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return routes;
         }
         // Executes in UI thread, after the parsing process
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         @Override
         protected void onPostExecute(List<List<HashMap<String, String>>> result) {
             ArrayList<LatLng> points;
@@ -257,7 +273,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     MapAnimator.getInstance().animateRoute(map,points);
 
-
                     Log.d("onPostExecute","onPostExecute lineoptions decoded");
 
                 }
@@ -271,7 +286,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }*/
 
             }
-
             else{
                 Toast.makeText(MapsActivity.this,"No Internet Connection Available",Toast.LENGTH_SHORT).show();
             }
