@@ -90,7 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .getString(R.string.style_json)));
 
         if(origin != null && destination != null && map != null){
-            map.addMarker(new MarkerOptions().position(origin).title("your location")).showInfoWindow();
+            map.addMarker(new MarkerOptions().position(origin).title("Start location")).showInfoWindow();
             //map.addMarker(new MarkerOptions().position(destination).title("destination"));
             map.moveCamera(CameraUpdateFactory.newLatLng(origin));
             map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);

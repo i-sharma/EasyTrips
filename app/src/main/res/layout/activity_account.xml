@@ -40,6 +40,7 @@
             android:visibility="gone"
             android:id="@+id/user_name_edit_layout"
             android:paddingTop="10dp"
+            tools:visibility="visible"
             >
             <EditText
                 android:layout_width="match_parent"
@@ -57,9 +58,10 @@
                 android:layout_marginLeft="25dp" />
             <Button
                 android:id="@+id/save_user_name_button"
-                android:layout_width="180dp"
+                android:layout_width="130dp"
                 android:layout_alignParentLeft="true"
                 android:layout_height="40dp"
+
                 android:layout_below="@id/user_name_edit"
                 android:text="SAVE"
                 android:textStyle="bold"
@@ -69,7 +71,7 @@
                 android:layout_margin="8dp" />
             <Button
                 android:id="@+id/cancel_user_name_button"
-                android:layout_width="180dp"
+                android:layout_width="130dp"
                 android:layout_alignParentRight="true"
                 android:layout_height="40dp"
                 android:layout_below="@id/user_name_edit"
