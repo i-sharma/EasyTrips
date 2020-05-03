@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +39,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
     TextView google_signin,phone_signin, skip, welcome;
     private static final String TAG = "login";
     public static Activity activity;
-
+    ProgressBar progressBar;
 
     private static final int RC_SIGN_IN = 9001;
     private FirebaseFirestore rootRef;
@@ -55,7 +56,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         activity = this;
-
+        progressBar = findViewById(R.id.login_progress);
         //Google Signin
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -124,8 +125,8 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
                             setNameInFirestore(user.getUid(), user.getDisplayName());
+                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -177,6 +178,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
     }
 
     private void updateUI(FirebaseUser user) {
+        progressBar.setVisibility(View.GONE);
         if (user != null){
             Toast.makeText(login.this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(login.this, Explore.class);
@@ -189,6 +191,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
     }
 
     private void signIn() {
+        progressBar.setVisibility(View.VISIBLE);
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
