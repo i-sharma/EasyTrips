@@ -2,10 +2,12 @@ package com.example.testapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOverlay;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -45,8 +47,7 @@ public class CurrentTripAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.layout_current_trip_item, container, false);
-
+        final View view = layoutInflater.inflate(R.layout.layout_current_trip_item, container, false);
 
         imageView = view.findViewById(R.id.image);
         title = view.findViewById(R.id.title);

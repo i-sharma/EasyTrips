@@ -6,11 +6,13 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
@@ -66,6 +69,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     String opt_off,opt_on;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order;
+    Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +109,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     intent.putExtra("origin",origin);
                     intent.putExtra("destination",destination);
                     intent.putExtra("waypoints",waypoint_order);
+                    intent.putExtra("same",same);
                     startActivity(intent);
                 }else{
                     Toast.makeText(getBaseContext(),"Trip size 0",Toast.LENGTH_SHORT).show();
@@ -145,7 +150,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                             waypoint_order = parser.get_waypoint_order();
                             Log.d("waypoints ",waypoint_order+"");
                             if(waypoint_order.size() == trip_data.keySet().size()){
-                                boolean same = true;
+                                same = true;
                                 ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
                                 for(int i = 0; i < waypoint_order.size(); i++){
                                     trip_data_array.add(i);
@@ -559,7 +564,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         return url;
     }
 
-    private class DownloadTask extends AsyncTask<String,Void,String> {
+    private class DownloadTask extends AsyncTask<String,Integer,String> {
 
         @Override
         protected String doInBackground(String... urls) {
@@ -603,7 +608,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         }
         Log.d("waypoint is ",waypoints_coordinates+"");
-      return waypoints_coordinates;
+        return waypoints_coordinates;
     }
 
 }
