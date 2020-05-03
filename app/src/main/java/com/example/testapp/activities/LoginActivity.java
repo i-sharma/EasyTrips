@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.testapp.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -35,7 +35,7 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
-public class login extends AppCompatActivity implements View.OnTouchListener{
+public class LoginActivity extends AppCompatActivity implements View.OnTouchListener{
     TextView google_signin,phone_signin, skip, welcome;
     private static final String TAG = "login";
     public static Activity activity;
@@ -86,7 +86,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
             @Override
             public void onClick(View v)
             {
-                Intent it = new Intent(login.this, Explore.class);
+                Intent it = new Intent(LoginActivity.this, ExploreActivity.class);
                 startActivity(it);
                 finish();
             }
@@ -180,13 +180,13 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
     private void updateUI(FirebaseUser user) {
         progressBar.setVisibility(View.GONE);
         if (user != null){
-            Toast.makeText(login.this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(login.this, Explore.class);
+            Toast.makeText(LoginActivity.this, "Welcome " + user.getDisplayName(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, ExploreActivity.class);
             startActivity(intent);
             finish();
         }
         else{
-            Toast.makeText(login.this, "Not Signed In", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "Not Signed In", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -212,7 +212,7 @@ public class login extends AppCompatActivity implements View.OnTouchListener{
                         signIn();
                     break;
                 case R.id.phone_login:
-                    Intent it = new Intent(login.this, phoneAuth.class);
+                    Intent it = new Intent(LoginActivity.this, PhoneAuthActivity.class);
                     startActivity(it);
                     break;
             }

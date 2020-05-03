@@ -1,8 +1,8 @@
-package com.example.testapp;
+package com.example.testapp.models;
 
 import java.io.Serializable;
 
-public class explore_model implements Serializable {
+public class ExploreModel implements Serializable {
     public String title, short_description, image_name, opening_hours,lat;
     public String description, distance_from_delhi_airport, fb_img_url, entry_fee, few_essential_tips;
     public String formatted_address;
@@ -15,15 +15,15 @@ public class explore_model implements Serializable {
     public String tip;
     public String lon;
 
-    public explore_model() {}
+    public ExploreModel() {}
 
 
 
-    public explore_model(String title, String short_description, String lat,
-                         String image_name, String opening_hours, String fb_img_url,
-                         String description, String distance_from_delhi_airport, String entry_fee,
-                         String few_essential_tips, String formatted_address, String must_visit,
-                         String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
+    public ExploreModel(String title, String short_description, String lat,
+                        String image_name, String opening_hours, String fb_img_url,
+                        String description, String distance_from_delhi_airport, String entry_fee,
+                        String few_essential_tips, String formatted_address, String must_visit,
+                        String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
         this.title = title;
         this.tip = tip;
         this.lon = lon;

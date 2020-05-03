@@ -1,39 +1,26 @@
-package com.example.testapp;
+package com.example.testapp.adapters;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.CustomTarget;
-import com.bumptech.glide.request.transition.Transition;
+import com.example.testapp.models.ExploreModel;
+import com.example.testapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.concurrent.ExecutionException;
-
-public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, ExploreAdapter.ExploreViewHolder> {
+public class ExploreAdapter extends FirestoreRecyclerAdapter<ExploreModel, ExploreAdapter.ExploreViewHolder> {
 
     private static final String TAG = "ExploreAdapter";
     FirebaseStorage storage;
@@ -46,7 +33,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
     private OnItemClickListener listener;
 
 
-    public ExploreAdapter(@NonNull FirestoreRecyclerOptions<explore_model> options, Resources res) {
+    public ExploreAdapter(@NonNull FirestoreRecyclerOptions<ExploreModel> options, Resources res) {
         super(options);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
@@ -55,7 +42,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<explore_model, Expl
 
     @Override
     protected void onBindViewHolder(@NonNull final ExploreViewHolder holder, int position,
-                                    @NonNull explore_model model) {
+                                    @NonNull ExploreModel model) {
         holder.setTitle(model.getTitle());
         holder.setShortDescription(model.getShort_description());
 

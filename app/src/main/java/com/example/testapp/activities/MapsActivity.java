@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.fragment.app.FragmentActivity;
+
+import com.example.testapp.utils.MapsDataParser;
+import com.example.testapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;

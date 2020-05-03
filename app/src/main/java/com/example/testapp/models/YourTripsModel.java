@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.models;
 
 public class YourTripsModel {
     public String start_location, end_location, n_locations;

@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -16,6 +16,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
+import com.example.testapp.R;
+import com.example.testapp.models.ExploreModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -30,7 +32,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public class tsDetails extends AppCompatActivity implements View.OnClickListener{
+public class TSDetailsActivity extends AppCompatActivity implements View.OnClickListener{
     TextView title, rating, description, address_heading, address_content, opening_hours_content;
     TextView opening_hours_heading, entry_fee_content, entry_fee_heading, tips_content, tips_heading;
     TextView airport_distance_content, airport_distance_heading, must_visit_content, must_visit_heading;
@@ -42,7 +44,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
     final long ONE_MEGABYTE = 1024 * 1024;
 
     int already_present_in_trip;
-    explore_model obj;
+    ExploreModel obj;
     int click_position;
 
     private final int START_NOT_ALREADY_ADDED = 0;
@@ -79,7 +81,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         delete_button = findViewById(R.id.ts_details_delete_button);
 
         Intent it = getIntent();
-        obj = (explore_model) it.getSerializableExtra("snapshot");
+        obj = (ExploreModel) it.getSerializableExtra("snapshot");
 //        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
         click_position = it.getIntExtra("click_position", -1);
         loadTripData();
@@ -154,7 +156,7 @@ public class tsDetails extends AppCompatActivity implements View.OnClickListener
         return super.onKeyDown(keyCode, event);
     }
 
-    private void set_content(explore_model obj) {
+    private void set_content(ExploreModel obj) {
         if(obj == null)
             return;
         if(obj.getTitle() != "Not found" && obj.getTitle() != ""){

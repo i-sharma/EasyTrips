@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".YourTripsActivity"></activity>
+        <activity android:name=".activities.YourTripsActivity"></activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -23,19 +23,18 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".AccountActivity" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".userName" />
+        <activity android:name=".activities.AccountActivity" />
+        <activity android:name=".activities.UserNameActivity" />
         <activity
-            android:name=".tsDetails"
-            android:parentActivityName=".Explore">
+            android:name=".activities.TSDetailsActivity"
+            android:parentActivityName=".activities.ExploreActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Explore" />
+                android:value=".activities.ExploreActivity" />
         </activity>
-        <activity android:name=".Explore" />
+        <activity android:name=".activities.ExploreActivity" />
         <activity
-            android:name=".SplashScreen"
+            android:name=".activities.SplashScreenActivity"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,10 +42,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".login" />
-        <activity android:name=".MapsActivity" />
-        <activity android:name=".phoneAuth" />
-        <activity android:name=".CurrentTripActivity" />
+        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.MapsActivity" />
+        <activity android:name=".activities.PhoneAuthActivity" />
+        <activity android:name=".activities.CurrentTripActivity" />
     </application>
 
 </manifest>

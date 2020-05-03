@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 
 import android.app.Activity;
@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.testapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -33,7 +34,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
-public class phoneAuth extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener{
+public class PhoneAuthActivity extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener{
     private EditText mophone, pswd;
     TextView skip, verify_button, resend_token;
     private FirebaseAuth mAuth;
@@ -142,14 +143,14 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
 //
                 user = mAuth.getCurrentUser();
                 if(user!=null)
-                    Toast.makeText(phoneAuth.this, user.getDisplayName(),
+                    Toast.makeText(PhoneAuthActivity.this, user.getDisplayName(),
                             Toast.LENGTH_SHORT).show();
                 else
-                    Toast.makeText(phoneAuth.this, "Something's not quite right",
+                    Toast.makeText(PhoneAuthActivity.this, "Something's not quite right",
                             Toast.LENGTH_SHORT).show();
                 break;
             case STATE_SIGNIN_FAILED:
-                Toast.makeText(phoneAuth.this, "SignIn Failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PhoneAuthActivity.this, "SignIn Failed", Toast.LENGTH_SHORT).show();
                 break;
             case STATE_VERIFY_SUCCESS:
 //                pswd.setText();
@@ -225,10 +226,10 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.phone_auth_skip:
-                Intent it = new Intent(phoneAuth.this, Explore.class);
+                Intent it = new Intent(PhoneAuthActivity.this, ExploreActivity.class);
                 startActivity(it);
                 finish();
-                login.activity.finish();
+                LoginActivity.activity.finish();
                 break;
         }
 
@@ -283,18 +284,18 @@ public class phoneAuth extends AppCompatActivity implements View.OnClickListener
                                                     if (document.exists()) {
                                                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                                         if(document.get("name").toString() == null || document.get("name").toString() == "") {
-                                                            i = new Intent(phoneAuth.this, userName.class);
+                                                            i = new Intent(PhoneAuthActivity.this, UserNameActivity.class);
                                                             startActivity(i);
                                                         }
                                                         else{
-                                                            i = new Intent(phoneAuth.this, Explore.class);
+                                                            i = new Intent(PhoneAuthActivity.this, ExploreActivity.class);
                                                             startActivity(i);
                                                             finish();
-                                                            login.activity.finish();
+                                                            LoginActivity.activity.finish();
                                                         }
                                                     } else {
                                                         Log.d(TAG, "No such document");
-                                                        i = new Intent(phoneAuth.this, userName.class);
+                                                        i = new Intent(PhoneAuthActivity.this, UserNameActivity.class);
                                                         startActivity(i);
                                                     }
                                                 } else {

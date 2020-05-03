@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,16 +12,16 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.testapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class userName extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener {
+public class UserNameActivity extends AppCompatActivity implements View.OnClickListener,View.OnTouchListener {
 
     EditText name;
     TextView skip_button, start_explore_button, ask_name;
@@ -65,11 +65,11 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
         switch (v.getId()){
             case R.id.username_skip:
                 Log.d(TAG, "here we are");
-                it1 = new Intent(userName.this, Explore.class);
+                it1 = new Intent(UserNameActivity.this, ExploreActivity.class);
                 startActivity(it1);
                 finish();
-                login.activity.finish();
-                phoneAuth.activity.finish();
+                LoginActivity.activity.finish();
+                PhoneAuthActivity.activity.finish();
                 break;
         }
     }
@@ -92,11 +92,11 @@ public class userName extends AppCompatActivity implements View.OnClickListener,
                             .document(user.getUid())
                             .set(data, SetOptions.merge());
                     progressBar.setVisibility(View.GONE);
-                    it2 = new Intent(userName.this, Explore.class);
+                    it2 = new Intent(UserNameActivity.this, ExploreActivity.class);
                     startActivity(it2);
                     finish();
-                    login.activity.finish();
-                    phoneAuth.activity.finish();
+                    LoginActivity.activity.finish();
+                    PhoneAuthActivity.activity.finish();
                     break;
             }
         }

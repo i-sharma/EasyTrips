@@ -1,16 +1,13 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.AnimatedVectorDrawable;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,8 +15,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 
+import com.example.testapp.R;
+import com.example.testapp.adapters.ExploreAdapter;
+import com.example.testapp.models.ExploreModel;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -40,7 +39,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 
-public class Explore extends AppCompatActivity {
+public class ExploreActivity extends AppCompatActivity {
     private static final String TAG = "Explore";
 
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
@@ -53,16 +52,11 @@ public class Explore extends AppCompatActivity {
     LinearLayoutManager linearLayoutManager;
     RecyclerView recyclerView;
 
-    AnimatedVectorDrawable avd2 ;
-    AnimatedVectorDrawableCompat avd;
-
     int BOOL_ADD_TO_TRIP = 1;
     int last_click_position;
 
     private ExploreAdapter adapter;
     BottomNavigationView navigation;
-    Parcelable mListState;
-    String LIST_STATE_KEY = "9718";
 
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
 
@@ -112,18 +106,18 @@ public class Explore extends AppCompatActivity {
                     case R.id.menu_item0:
                         break;
                     case R.id.menu_item1:
-                        Intent a = new Intent(Explore.this, CurrentTripActivity.class);
+                        Intent a = new Intent(ExploreActivity.this, CurrentTripActivity.class);
                         a.putExtra("origin",origin);
                         a.putExtra("destination",destination);
                         startActivity(a);
                         break;
                     case R.id.menu_item2:
                         if(currentUser != null){
-                            Intent b = new Intent(Explore.this, AccountActivity.class);
+                            Intent b = new Intent(ExploreActivity.this, AccountActivity.class);
                             startActivity(b);
                         }
                         else {
-                            Intent b = new Intent(Explore.this, login.class);
+                            Intent b = new Intent(ExploreActivity.this, LoginActivity.class);
                             startActivity(b);
                         }
                         break;
@@ -139,9 +133,9 @@ public class Explore extends AppCompatActivity {
                 .collection("delhi_data")
                 .orderBy("priority", Query.Direction.ASCENDING);
 
-        FirestoreRecyclerOptions<explore_model> options = new FirestoreRecyclerOptions
-                .Builder<explore_model>()
-                .setQuery(query, explore_model.class)
+        FirestoreRecyclerOptions<ExploreModel> options = new FirestoreRecyclerOptions
+                .Builder<ExploreModel>()
+                .setQuery(query, ExploreModel.class)
                 .build();
 
         adapter = new ExploreAdapter(options, getResources());
@@ -158,8 +152,8 @@ public class Explore extends AppCompatActivity {
             @Override
             public void onViewClick(DocumentSnapshot documentSnapshot, int position) {
                 last_click_position = position;
-                Intent it = new Intent(Explore.this, tsDetails.class);
-                it.putExtra("snapshot", documentSnapshot.toObject(explore_model.class));
+                Intent it = new Intent(ExploreActivity.this, TSDetailsActivity.class);
+                it.putExtra("snapshot", documentSnapshot.toObject(ExploreModel.class));
                 it.putExtra("click_position", position+1);
                 startActivityForResult(it, BOOL_ADD_TO_TRIP);
             }

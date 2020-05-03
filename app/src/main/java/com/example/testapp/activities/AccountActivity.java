@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.testapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -105,7 +106,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
                 user_name_edit_layout.setVisibility(View.GONE);
                 break;
             case SIGNED_OUT:
-                Intent intent = new Intent(AccountActivity.this, login.class);
+                Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
                 break;
@@ -148,7 +149,7 @@ public class AccountActivity extends AppCompatActivity implements View.OnClickLi
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.menu_item0:
-                        Intent a = new Intent(AccountActivity.this, Explore.class);
+                        Intent a = new Intent(AccountActivity.this, ExploreActivity.class);
                         startActivity(a);
                         break;
                     case R.id.menu_item1:

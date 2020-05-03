@@ -1,24 +1,20 @@
-package com.example.testapp;
+package com.example.testapp.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOverlay;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
+import com.example.testapp.models.CurrentTripModel;
+import com.example.testapp.R;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurrentTripAdapter extends PagerAdapter {

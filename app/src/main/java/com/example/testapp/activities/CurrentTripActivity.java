@@ -1,4 +1,4 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.animation.ArgbEvaluator;
 import android.content.Intent;
@@ -6,19 +6,21 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+
+import com.example.testapp.utils.MapsDataParser;
+import com.example.testapp.R;
+import com.example.testapp.models.CurrentTripModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -43,8 +45,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import com.example.testapp.adapters.CurrentTripAdapter;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
@@ -332,7 +334,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.menu_item0:
-                        Intent a = new Intent(CurrentTripActivity.this, Explore.class);
+                        Intent a = new Intent(CurrentTripActivity.this, ExploreActivity.class);
                         startActivity(a);
                         break;
                     case R.id.menu_item1:
@@ -343,7 +345,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                             startActivity(b);
                         }
                         else {
-                            Intent b = new Intent(CurrentTripActivity.this, login.class);
+                            Intent b = new Intent(CurrentTripActivity.this, LoginActivity.class);
                             startActivity(b);
                         }
                         break;

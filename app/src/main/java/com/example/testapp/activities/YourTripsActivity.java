@@ -1,10 +1,14 @@
-package com.example.testapp;
+package com.example.testapp.activities;
 
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.testapp.R;
+import com.example.testapp.adapters.YourTripsAdapter;
+import com.example.testapp.models.YourTripsModel;
 
 import java.util.ArrayList;
 import java.util.List;
