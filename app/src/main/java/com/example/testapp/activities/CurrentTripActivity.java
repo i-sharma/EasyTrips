@@ -1,6 +1,7 @@
 package com.example.testapp.activities;
 
 import android.animation.ArgbEvaluator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
@@ -82,6 +83,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,8 +143,10 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     removeItem.setBackgroundColor(getResources().getColor(R.color.light_red));
+                    return true;
                 }
                 if(event.getAction() == MotionEvent.ACTION_UP){
+                    v.performClick();
                     removeItem.setBackgroundColor(0x00000000);
                     loadTripData();
                     optimization = false;
@@ -156,10 +160,13 @@ public class CurrentTripActivity extends AppCompatActivity {
                     }else{
                         showEmptyTripUI();
                     }
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
+
+
 
 
         opt_switch.setOnClickListener(new View.OnClickListener() {
