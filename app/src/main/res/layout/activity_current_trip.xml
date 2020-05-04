@@ -16,6 +16,14 @@
         android:layout_height="match_parent">
     </ImageView>
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:id="@+id/curr_trip_progress"
+        android:visibility="gone"
+        />
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
@@ -30,51 +38,58 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="50dp"
         android:checked="false"
         android:text="OPTIMIZE"
         android:textColor="@color/colorDark"
         android:textSize="22sp"/>
-
     <LinearLayout
-        android:id="@+id/removeItemFromTrip"
         android:layout_width="wrap_content"
-        android:layout_height="32dp"
-        android:layout_above="@+id/showRoute"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/navigation_bar"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginBottom="50dp"
+
+        >
+        <LinearLayout
+            android:id="@+id/removeItemFromTrip"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_toStartOf="@id/showRoute"
+            android:orientation="horizontal"
+            android:layout_marginEnd="20dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="10dp">
+            <Button
+                android:id="@+id/delBtn"
+                android:layout_width="37dp"
+                android:layout_height="42dp"
+                android:background="@drawable/delete_button"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/remove"
+                android:text="@string/remove_from_trip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@android:color/black"
+                android:gravity="center"/>
+
+        </LinearLayout>
 
         <Button
-            android:id="@+id/delBtn"
-            android:layout_width="37dp"
-            android:layout_height="42dp"
-            android:background="@drawable/delete_button" />
-
-        <TextView
-            android:id="@+id/remove"
-            android:text="@string/remove_from_trip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@android:color/black" />
-
+            android:id="@+id/showRoute"
+            android:text="Show Route!"
+            android:textColor="#fff"
+            android:background="@drawable/current_trip_round"
+            android:layout_alignParentEnd="true"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/showRoute"
-        android:text="Show Route!"
-        android:textColor="#fff"
-        android:background="@drawable/current_trip_round"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
-        android:layout_alignParentBottom="true"
-        android:layout_above="@+id/navigation_bar"
-        android:layout_marginBottom="60dp"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

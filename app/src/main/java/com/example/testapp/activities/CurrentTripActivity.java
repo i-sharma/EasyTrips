@@ -2,16 +2,22 @@ package com.example.testapp.activities;
 
 import android.animation.ArgbEvaluator;
 import android.content.Intent;
+import android.graphics.BlendMode;
+import android.graphics.BlendModeColorFilter;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -74,6 +80,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +88,6 @@ public class CurrentTripActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
         loadTripData();
-
-        for(int id:trip_data.keySet()){
-            Log.d("original sent trip_data",id+"");
-        }
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -94,7 +97,9 @@ public class CurrentTripActivity extends AppCompatActivity {
         route = findViewById(R.id.showRoute);
         viewPager = findViewById(R.id.viewPager);
         removeItem = findViewById(R.id.removeItemFromTrip);
-
+        progressBar = findViewById(R.id.curr_trip_progress);
+        progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
+                android.graphics.PorterDuff.Mode.MULTIPLY);
         setViewPagerBackground();
 
         //show empty_trip_notification and hide everything else
@@ -130,23 +135,32 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
         });
 
-        removeItem.setOnClickListener(new View.OnClickListener() {
+        removeItem.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                loadTripData();
-                optimization = false;
-                boolean was_checked = opt_switch.isChecked();
-                opt_switch.setChecked(false); //because it may not be optimized.
-                removeFromModel(was_checked);
-                saveTripData();
-                if(trip_data.keySet().size() >= 1) {
-                    opt_off = opt_on = "";
-                    optimizeRoute();
-                }else{
-                    showEmptyTripUI();
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    removeItem.setBackgroundColor(getResources().getColor(R.color.light_red));
                 }
+                if(event.getAction() == MotionEvent.ACTION_UP){
+                    removeItem.setBackgroundColor(0x00000000);
+                    loadTripData();
+                    optimization = false;
+                    boolean was_checked = opt_switch.isChecked();
+                    opt_switch.setChecked(false); //because it may not be optimized.
+                    removeFromModel(was_checked);
+                    saveTripData();
+                    if(trip_data.keySet().size() >= 1) {
+                        opt_off = opt_on = "";
+                        optimizeRoute();
+                    }else{
+                        showEmptyTripUI();
+                    }
+                }
+                return true;
             }
         });
+
 
         opt_switch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -247,139 +261,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-    private void setTmpLocation() {
-        double hotel_lat = 28.651685;
-        double hotel_lon = 77.217220;
 
-        LatLng tmp_origin,tmp_destination;
-        tmp_origin = new LatLng(hotel_lat,hotel_lon);
-        tmp_destination = tmp_origin;
-
-        //change this
-        origin = tmp_origin;
-        destination = tmp_destination;
-    }
-
-    private void saveApiResult(Boolean opt){
-        if(!opt){
-            try {
-                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
-                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                outputStream.writeObject(opt_off);
-                outputStream.flush();
-                outputStream.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }else{
-            try {
-                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
-                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                outputStream.writeObject(opt_on);
-                outputStream.flush();
-                outputStream.close();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void loadApiResult(Boolean opt) {
-        if (opt) {
-            try {
-                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                opt_on = (String) ois.readObject();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                opt_on = "";
-            }
-        }else{
-            try {
-                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
-                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-                opt_off = (String) ois.readObject();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                opt_off = "";
-            }
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        currentUser = mAuth.getCurrentUser();
-        loadTripData();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        loadTripData();
-    }
-
-    private void saveTripData(){
-        try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-            outputStream.writeObject(trip_data);
-            outputStream.flush();
-            outputStream.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-
-    }
-
-    private void loadTripData() {
-        try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-            trip_data = (LinkedHashMap) ois.readObject();
-
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e){
-            trip_data = new LinkedHashMap<>();
-        }
-    }
-
-    private void bottomNavigation() {
-        loadTripData();
-        navigation = findViewById(R.id.navigation_bar);
-        navigation.getMenu().findItem(R.id.menu_item1).setChecked(true);
-        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_item0:
-                        Intent a = new Intent(CurrentTripActivity.this, ExploreActivity.class);
-                        startActivity(a);
-                        break;
-                    case R.id.menu_item1:
-                        break;
-                    case R.id.menu_item2:
-                        if(currentUser != null){
-                            Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
-                            startActivity(b);
-                        }
-                        else {
-                            Intent b = new Intent(CurrentTripActivity.this, LoginActivity.class);
-                            startActivity(b);
-                        }
-                        break;
-                }
-                return false;
-            }
-        });
-    }
 
     private void setViewPagerBackground() {
 
@@ -531,6 +413,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
         viewPager.setCurrentItem(start_position);
         viewPager.setPadding(100, 0, 100, 0);
+        progressBar.setVisibility(View.GONE);
         saveTripData();
     }
 
@@ -593,6 +476,11 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private class DownloadTask extends AsyncTask<String,Integer,String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -639,6 +527,139 @@ public class CurrentTripActivity extends AppCompatActivity {
         return waypoints_coordinates;
     }
 
+    private void setTmpLocation() {
+        double hotel_lat = 28.651685;
+        double hotel_lon = 77.217220;
+
+        LatLng tmp_origin,tmp_destination;
+        tmp_origin = new LatLng(hotel_lat,hotel_lon);
+        tmp_destination = tmp_origin;
+
+        //change this
+        origin = tmp_origin;
+        destination = tmp_destination;
+    }
+
+    private void saveApiResult(Boolean opt){
+        if(!opt){
+            try {
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(opt_off);
+                outputStream.flush();
+                outputStream.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }else{
+            try {
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(opt_on);
+                outputStream.flush();
+                outputStream.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadApiResult(Boolean opt) {
+        if (opt) {
+            try {
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                opt_on = (String) ois.readObject();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                opt_on = "";
+            }
+        }else{
+            try {
+                File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+                opt_off = (String) ois.readObject();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                opt_off = "";
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        currentUser = mAuth.getCurrentUser();
+        loadTripData();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadTripData();
+    }
+
+    private void saveTripData(){
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(trip_data);
+            outputStream.flush();
+            outputStream.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    private void loadTripData() {
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            trip_data = (LinkedHashMap) ois.readObject();
+
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e){
+            trip_data = new LinkedHashMap<>();
+        }
+    }
+
+    private void bottomNavigation() {
+        loadTripData();
+        navigation = findViewById(R.id.navigation_bar);
+        navigation.getMenu().findItem(R.id.menu_item1).setChecked(true);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.menu_item0:
+                        Intent a = new Intent(CurrentTripActivity.this, ExploreActivity.class);
+                        startActivity(a);
+                        break;
+                    case R.id.menu_item1:
+                        break;
+                    case R.id.menu_item2:
+                        if(currentUser != null){
+                            Intent b = new Intent(CurrentTripActivity.this, AccountActivity.class);
+                            startActivity(b);
+                        }
+                        else {
+                            Intent b = new Intent(CurrentTripActivity.this, LoginActivity.class);
+                            startActivity(b);
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
+    }
 }
 
 
