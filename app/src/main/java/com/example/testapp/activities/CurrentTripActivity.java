@@ -2,7 +2,9 @@ package com.example.testapp.activities;
 
 import android.animation.ArgbEvaluator;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BlendMode;
 import android.graphics.BlendModeColorFilter;
 import android.graphics.Color;
@@ -50,6 +52,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -80,8 +83,14 @@ public class CurrentTripActivity extends AppCompatActivity {
     String opt_off,opt_on;
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
+    ArrayList<Integer> saved_api_ids = new ArrayList<>();
     Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
+
+
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -90,10 +99,12 @@ public class CurrentTripActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
         loadTripData();
-
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
         destination = i.getParcelableExtra("destination");
+        sharedPref = getApplicationContext().getSharedPreferences(
+                getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         opt_switch = findViewById(R.id.optimize_switch);
         route = findViewById(R.id.showRoute);
@@ -103,6 +114,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
                 android.graphics.PorterDuff.Mode.MULTIPLY);
         setViewPagerBackground();
+        progressBar.setVisibility(View.VISIBLE);
 
         //show empty_trip_notification and hide everything else
         if(trip_data.keySet().size() == 0){
@@ -240,6 +252,14 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void optimizeRoute() {
+
+        ArrayList<Integer> temp = new ArrayList<>(trip_data.keySet());
+        Collections.sort(temp);
+        String shared_pref_ids = sharedPref.getString("saved_api_ids","");
+        Log.d(TAG, "optimizeRoute: " + temp);
+        Log.d(TAG, "optimizeRoute: " + shared_pref_ids);
+        if(temp.toString().equals(shared_pref_ids))
+            return;
 
         StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
@@ -555,6 +575,15 @@ public class CurrentTripActivity extends AppCompatActivity {
                 outputStream.writeObject(opt_off);
                 outputStream.flush();
                 outputStream.close();
+                for(Integer i: trip_data.keySet()) {
+                    saved_api_ids.add(i);
+                };
+                Collections.sort(saved_api_ids);
+                Log.d(TAG, "saveApiResult: apiid" + saved_api_ids);
+                Log.d(TAG, "saveApiResult: tripdata" + trip_data.keySet());
+                editor.putString("saved_api_ids", saved_api_ids.toString());
+                editor.commit();
+
             }catch (IOException e){
                 e.printStackTrace();
             }
