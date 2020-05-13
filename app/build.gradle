@@ -83,4 +83,7 @@ dependencies {
     //Progressbar
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
+    //Places (for Autocomplete func)
+    implementation 'com.google.android.libraries.places:places:2.2.0'
+
 }

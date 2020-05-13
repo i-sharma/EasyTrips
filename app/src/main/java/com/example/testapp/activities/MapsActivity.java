@@ -35,6 +35,8 @@ import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
+    private static final String TAG = "MapsActivity";
+
     LatLng origin,destination;
     Boolean optimization;
     Switch optimize_switch;
@@ -124,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }else if(origin != null && destination != null ){
         Log.e("map null", "onMapReady: kya ho rha h?");
         }
-        else if(origin == null) Log.d("origin is ","null");
+        else if(origin == null) Log.d(TAG,"origin is null");
 
         if (!success) {
         Log.e("changing ui", "Style parsing failed.");

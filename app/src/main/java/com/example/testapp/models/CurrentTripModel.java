@@ -42,5 +42,9 @@ public class CurrentTripModel {
         this.time_to_cover = time_to_cover;
     }
 
+    public void setId(int id){
+        this.id = id;
+    }
+
     public int getId(){return id;}
 }

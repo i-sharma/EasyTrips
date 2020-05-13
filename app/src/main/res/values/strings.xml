@@ -4,4 +4,8 @@
     <string name="remove_from_trip">REMOVE FROM TRIP</string>
     <string name="time_to_visit">"expected duration of visit"</string>
     <string name="shared_pref_file_name">shared_pref</string>
+    <string name="customStop">ADD CUSTOM STOPS</string>
+    <string name="optimize_switch">OPTIMIZE</string>
+    <string name="directions_api_key">***REMOVED***</string>
+    <string name="autocomplete_api_key">***REMOVED***</string>
 </resources>

@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
@@ -31,8 +32,19 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.testapp.utils.MapsDataParser;
 import com.example.testapp.R;
 import com.example.testapp.models.CurrentTripModel;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.LocationRestriction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,16 +64,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import com.example.testapp.adapters.CurrentTripAdapter;
+import com.google.maps.android.SphericalUtil;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
 
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
 
@@ -74,7 +89,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<CurrentTripModel> model_opt_on =  new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-    Button route;
+    Button route,editBtn,doneBtn,customStopBtn;
     Switch opt_switch;
     Boolean optimization = false;
     LinearLayout removeItem;
@@ -84,13 +99,11 @@ public class CurrentTripActivity extends AppCompatActivity {
     LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<Integer> saved_api_ids = new ArrayList<>();
-    Boolean same; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean same,somethingDeleted = false; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
-
 
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -110,6 +123,9 @@ public class CurrentTripActivity extends AppCompatActivity {
         route = findViewById(R.id.showRoute);
         viewPager = findViewById(R.id.viewPager);
         removeItem = findViewById(R.id.removeItemFromTrip);
+        editBtn = findViewById(R.id.editBtn);
+        doneBtn = findViewById(R.id.doneBtn);
+        customStopBtn = findViewById(R.id.customStop);
         progressBar = findViewById(R.id.curr_trip_progress);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
                 android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -121,12 +137,106 @@ public class CurrentTripActivity extends AppCompatActivity {
             showEmptyTripUI();
         }
 
-        if(trip_data.keySet().size() >= 1)  optimizeRoute();
+        else{
 
-        //for given city fetch data from firestore
-        createStorageReference("delhi");
+            String apiKey = getString(R.string.autocomplete_api_key);
+
+            if (!Places.isInitialized()) {
+                Places.initialize(getApplicationContext(), apiKey);
+            }
+
+            // Create a new Places client instance.
+            PlacesClient placesClient = Places.createClient(this);
+
+            optimizeRoute();
+
+            //for given city fetch data from firestore
+            createStorageReference("delhi");
+        }
 
         bottomNavigation();
+
+        createOnClickListeners();
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId() + ", " + place.getLatLng());
+                //Toast.makeText(AutocompleteFromIntentActivity.this, "ID: " + place.getId() + "address:" + place.getAddress() + "Name:" + place.getName() + " latlong: " + place.getLatLng(), Toast.LENGTH_LONG).show();
+                String title = place.getName();
+                LatLng customLoc = place.getLatLng();
+
+                int curr_id;
+                optimization = false;
+                boolean was_checked = opt_switch.isChecked();
+                opt_switch.setChecked(false);
+
+                /*int position = viewPager.getCurrentItem();
+                if(!was_checked){
+                    curr_id = model_opt_off.get(position).getId();
+                    CurrentTripModel customModel = new CurrentTripModel(null,title,null,curr_id);
+                    model_opt_off.add(position,customModel);
+
+                }else{
+                    curr_id = model_opt_on.get(position).getId();
+                    CurrentTripModel customModel = new CurrentTripModel(null,title,null,curr_id);
+                    model_opt_on.add(position,customModel);
+
+                }
+
+                for(int i = position; i < model_opt_off.size(); i++){
+                    int prev_id = model_opt_off.get(i).getId();
+                    model_opt_off.get(i).setId(prev_id + 1);
+                }
+
+                *//*Log.d("deleting:",""+viewPager.getCurrentItem());
+                trip_data.remove(curr_id);*//*
+                updateModel(position);*/
+
+                // do query with address
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                //Toast.makeText(AutocompleteFromIntentActivity.this, "Error: " + status.getStatusMessage(), Toast.LENGTH_LONG).show();
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+            }
+        }
+    }
+
+    public void onSearchCalled() {
+        // Set the fields to specify which types of place data to return.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
+        // Start the autocomplete intent.
+
+        //these are bounds for delhi -> update these bounds in firestore database
+        LatLng northEast = new LatLng(28.847711, 77.341943);
+        LatLng southWest = new LatLng(28.476807, 76.958110);
+
+        Intent intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")  //INDIA
+                .setHint("Stops within Delhi")
+                .setLocationRestriction(RectangularBounds.newInstance(
+                        southWest,northEast))
+                .build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+    private void createOnClickListeners(){
+
+        customStopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSearchCalled();
+            }
+        });
 
         route.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,13 +247,38 @@ public class CurrentTripActivity extends AppCompatActivity {
                     loadTripData();
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization",optimization);
-                    Log.d("orgin before",origin+"");
+                    Log.d("origin before",origin+"");
                     intent.putExtra("origin",origin);
                     intent.putExtra("destination",destination);
                     intent.putExtra("waypoints",waypoint_order);
                     intent.putExtra("same",same);
                     startActivity(intent);
 
+                }
+
+            }
+        });
+
+        editBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editBtn.setVisibility(View.GONE);
+                doneBtn.setVisibility(View.VISIBLE);
+                removeItem.setVisibility(View.VISIBLE);
+            }
+        });
+
+        doneBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editBtn.setVisibility(View.VISIBLE);
+                doneBtn.setVisibility(View.GONE);
+                removeItem.setVisibility(View.GONE);
+
+                if(trip_data.keySet().size() >= 1 && somethingDeleted) {
+                    opt_off = opt_on = "";
+                    optimizeRoute();
+                    somethingDeleted = false;
                 }
 
             }
@@ -162,24 +297,20 @@ public class CurrentTripActivity extends AppCompatActivity {
                     removeItem.setBackgroundColor(0x00000000);
                     loadTripData();
                     optimization = false;
+                    somethingDeleted = true;
                     boolean was_checked = opt_switch.isChecked();
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
                     saveTripData();
-                    if(trip_data.keySet().size() >= 1) {
-                        opt_off = opt_on = "";
-                        optimizeRoute();
-                    }else{
+                    if(trip_data.keySet().size() == 0){
                         showEmptyTripUI();
                     }
+
                     return true;
                 }
                 return false;
             }
         });
-
-
-
 
         opt_switch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -240,6 +371,8 @@ public class CurrentTripActivity extends AppCompatActivity {
         opt_switch.setVisibility(View.GONE);
         removeItem.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
+        editBtn.setVisibility(View.GONE);
+        doneBtn.setVisibility(View.GONE);
     }
 
     private void applyModel_opt_on() {
@@ -494,7 +627,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         String output = "json";
 
         //API KEY
-        String apiKey ="key="+"***REMOVED***" ;
+        String apiKey ="key="+R.string.directions_api_key ;
 
         //url
         String url = directions_api+output+"?"+parameters+"&"+apiKey+"\n";
@@ -535,6 +668,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            Log.d(TAG,"api_result is "+result);
         }
     }
 
@@ -564,6 +698,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         //change this
         origin = tmp_origin;
+        Log.d(TAG,"origin here "+origin);
         destination = tmp_destination;
     }
 

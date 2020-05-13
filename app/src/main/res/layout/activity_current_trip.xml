@@ -32,65 +32,85 @@
         android:foregroundGravity="center"
         android:overScrollMode="never" />
 
+    <Button
+        android:id="@+id/customStop"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:text="@string/customStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <Switch
         android:id="@+id/optimize_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/customStop"
         android:layout_centerInParent="true"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:checked="false"
-        android:text="OPTIMIZE"
+        android:text="@string/optimize_switch"
         android:textColor="@color/colorDark"
         android:textSize="22sp"/>
+
+    <Button
+        android:id="@+id/editBtn"
+        android:layout_width="119dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="4dp"
+        android:layout_above="@id/removeItemFromTrip"
+        android:layout_centerInParent="true"
+        android:background="@drawable/edit_btn" />
+
+    <Button
+        android:id="@+id/doneBtn"
+        android:visibility="gone"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_marginBottom="4dp"
+        android:layout_above="@id/removeItemFromTrip"
+        android:layout_centerInParent="true"
+        android:background="@drawable/done_btn" />
+
     <LinearLayout
+        android:id="@+id/removeItemFromTrip"
+        android:visibility="gone"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/navigation_bar"
-        android:layout_centerHorizontal="true"
+        android:layout_above="@id/showRoute"
+        android:layout_centerInParent="true"
+        android:layout_height="40dp"
         android:orientation="horizontal"
-        android:layout_marginBottom="50dp"
-
-        >
-        <LinearLayout
-            android:id="@+id/removeItemFromTrip"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_toStartOf="@id/showRoute"
-            android:orientation="horizontal"
-            android:layout_marginEnd="20dp"
-            android:paddingBottom="10dp"
-            android:paddingEnd="10dp">
-            <Button
-                android:id="@+id/delBtn"
-                android:layout_width="37dp"
-                android:layout_height="42dp"
-                android:background="@drawable/delete_button"
-                android:gravity="center"/>
-
-            <TextView
-                android:id="@+id/remove"
-                android:text="@string/remove_from_trip"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="@android:color/black"
-                android:gravity="center"/>
-
-        </LinearLayout>
-
+        android:layout_marginEnd="20dp"
+        android:paddingBottom="10dp"
+        android:paddingEnd="10dp">
         <Button
-            android:id="@+id/showRoute"
-            android:text="Show Route!"
-            android:textColor="#fff"
-            android:background="@drawable/current_trip_round"
-            android:layout_alignParentEnd="true"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content" />
+            android:id="@+id/delBtn"
+            android:layout_width="37dp"
+            android:layout_height="42dp"
+            android:background="@drawable/delete_button"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/remove"
+            android:text="@string/remove_from_trip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:gravity="center"/>
+
     </LinearLayout>
 
-
-
+    <Button
+        android:id="@+id/showRoute"
+        android:text="Show Route!"
+        android:textColor="#fff"
+        android:background="@drawable/current_trip_round"
+        android:layout_above="@id/navigation_bar"
+        android:layout_centerInParent="true"
+        android:layout_marginBottom="15dp"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation_bar"
