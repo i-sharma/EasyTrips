@@ -254,7 +254,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         customStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getBaseContext(),"not working now! Oops ",Toast.LENGTH_SHORT);
+                Toast.makeText(getBaseContext(),"not working now! Oops ",Toast.LENGTH_SHORT).show();
                 //onSearchCalled();
             }
         });
