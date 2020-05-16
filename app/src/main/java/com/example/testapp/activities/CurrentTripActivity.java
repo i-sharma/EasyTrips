@@ -70,6 +70,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     LatLng origin,destination;
+    PlacesClient placesClient;
     ViewPager viewPager;
     CurrentTripAdapter adapter;
     List<ExploreModel> model_opt_off = new ArrayList<>();
@@ -87,7 +88,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
-    Boolean same,somethingDeleted = false; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean same,somethingDeleted = false, customStopAdded = false; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
 
     SharedPreferences sharedPref;
@@ -106,6 +107,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         for(ExploreModel model: model_opt_off){
             Log.d(TAG, "loadTripData: " + model.getId() +  " " + model.getTitle());
         }
+
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
         destination = i.getParcelableExtra("destination");
@@ -132,8 +134,9 @@ public class CurrentTripActivity extends AppCompatActivity {
             showEmptyTripUI();
         }
 
-
         else{
+
+            updateModel(0);
 
             String apiKey = getResources().getString(R.string.autocomplete_api_key);
 
@@ -142,7 +145,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
 
             // Create a new Places client instance.
-            PlacesClient placesClient = Places.createClient(this);
+            placesClient = Places.createClient(this);
 
             optimizeRoute();
 
@@ -171,6 +174,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 int curr_id;
                 optimization = false;
+                customStopAdded = true;
                 boolean was_checked = opt_switch.isChecked();
                 opt_switch.setChecked(false);
 
@@ -227,6 +231,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void createOnClickListeners(){
 
         customStopBtn.setOnClickListener(new View.OnClickListener() {
@@ -263,6 +268,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 editBtn.setVisibility(View.GONE);
                 doneBtn.setVisibility(View.VISIBLE);
                 removeItem.setVisibility(View.VISIBLE);
+                route.setVisibility(View.GONE);
+                opt_switch.setVisibility(View.GONE);
             }
         });
 
@@ -272,15 +279,19 @@ public class CurrentTripActivity extends AppCompatActivity {
                 editBtn.setVisibility(View.VISIBLE);
                 doneBtn.setVisibility(View.GONE);
                 removeItem.setVisibility(View.GONE);
+                route.setVisibility(View.VISIBLE);
+                opt_switch.setVisibility(View.VISIBLE);
 
-                if(data_models_map.keySet().size() >= 1 && somethingDeleted) {
+                if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded)) {
                     opt_off = opt_on = "";
                     optimizeRoute();
                     somethingDeleted = false;
+                    customStopAdded = false;
                 }
 
             }
         });
+
 
         removeItem.setOnTouchListener(new View.OnTouchListener() {
             @Override
