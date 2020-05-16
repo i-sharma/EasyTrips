@@ -9,7 +9,8 @@ public class ExploreModel implements Serializable {
     public String must_visit;
     public String n_ratings;
     public String nearest_metro_station;
-
+    public String duration_required_to_visit;
+    public int id;
 
     public String rating;
     public String tip;
@@ -19,8 +20,8 @@ public class ExploreModel implements Serializable {
 
 
 
-    public ExploreModel(String title, String short_description, String lat,
-                        String image_name, String opening_hours, String fb_img_url,
+    public ExploreModel(String title, String short_description, String lat, String duration_required_to_visit,
+                        String image_name, String opening_hours, String fb_img_url, int id,
                         String description, String distance_from_delhi_airport, String entry_fee,
                         String few_essential_tips, String formatted_address, String must_visit,
                         String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
@@ -41,12 +42,17 @@ public class ExploreModel implements Serializable {
         this.nearest_metro_station = nearest_metro_station;
         this.rating = rating;
         this.fb_img_url = fb_img_url;
+        this.duration_required_to_visit = duration_required_to_visit;
+        this.id = id;
     }
 
     public String getLon() {
         return lon;
     }
 
+    public String getDuration_required_to_visit() {
+        return duration_required_to_visit;
+    }
 
     public String getLat() {
         return lat;
@@ -112,5 +118,13 @@ public class ExploreModel implements Serializable {
 
     public String getImage_name() {
         return image_name;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
     }
 }

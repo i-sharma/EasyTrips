@@ -22,28 +22,12 @@ public class CurrentTripModel {
         return image;
     }
 
-    public void setImage(Uri image) {
-        this.image = image;
-    }
-
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getTime_to_cover() {
         return time_to_cover;
-    }
-
-    public void setTime_to_cover(String time_to_cover) {
-        this.time_to_cover = time_to_cover;
-    }
-
-    public void setId(int id){
-        this.id = id;
     }
 
     public int getId(){return id;}

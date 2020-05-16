@@ -5,11 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BlendMode;
-import android.graphics.BlendModeColorFilter;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,24 +18,22 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
-import com.example.testapp.utils.MapsDataParser;
 import com.example.testapp.R;
-import com.example.testapp.models.CurrentTripModel;
+import com.example.testapp.adapters.CurrentTripAdapter;
+import com.example.testapp.models.ExploreModel;
+import com.example.testapp.utils.MapsDataParser;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
-import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
@@ -48,12 +41,9 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
+
 import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,12 +56,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import com.example.testapp.adapters.CurrentTripAdapter;
-import com.google.maps.android.SphericalUtil;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends AppCompatActivity {
@@ -85,8 +72,8 @@ public class CurrentTripActivity extends AppCompatActivity {
     LatLng origin,destination;
     ViewPager viewPager;
     CurrentTripAdapter adapter;
-    List<CurrentTripModel> model_opt_off = new ArrayList<>();
-    List<CurrentTripModel> model_opt_on =  new ArrayList<>();
+    List<ExploreModel> model_opt_off = new ArrayList<>();
+    List<ExploreModel> model_opt_on =  new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
     Button route,editBtn,doneBtn,customStopBtn;
@@ -96,9 +83,10 @@ public class CurrentTripActivity extends AppCompatActivity {
     ImageView empty_trip;
     BottomNavigationView navigation;
     String opt_off,opt_on;
-    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+//    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
-    ArrayList<Integer> saved_api_ids = new ArrayList<>();
+    ArrayList<String> saved_api_ids = new ArrayList<>();
     Boolean same,somethingDeleted = false; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
 
@@ -112,6 +100,12 @@ public class CurrentTripActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
         loadTripData();
+        for(String s: data_models_map.keySet()){
+            model_opt_off.add(data_models_map.get(s));
+        }
+        for(ExploreModel model: model_opt_off){
+            Log.d(TAG, "loadTripData: " + model.getId() +  " " + model.getTitle());
+        }
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
         destination = i.getParcelableExtra("destination");
@@ -132,14 +126,16 @@ public class CurrentTripActivity extends AppCompatActivity {
         setViewPagerBackground();
         progressBar.setVisibility(View.VISIBLE);
 
+
         //show empty_trip_notification and hide everything else
-        if(trip_data.keySet().size() == 0){
+        if(data_models_map.keySet().size() == 0){
             showEmptyTripUI();
         }
 
+
         else{
 
-            String apiKey = getString(R.string.autocomplete_api_key);
+            String apiKey = getResources().getString(R.string.autocomplete_api_key);
 
             if (!Places.isInitialized()) {
                 Places.initialize(getApplicationContext(), apiKey);
@@ -150,8 +146,10 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             optimizeRoute();
 
+
+
             //for given city fetch data from firestore
-            createStorageReference("delhi");
+//            createStorageReference("delhi");
         }
 
         bottomNavigation();
@@ -242,7 +240,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(trip_data.keySet().size() > 0){
+                if(data_models_map.keySet().size() > 0){
 
                     loadTripData();
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
@@ -275,7 +273,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 doneBtn.setVisibility(View.GONE);
                 removeItem.setVisibility(View.GONE);
 
-                if(trip_data.keySet().size() >= 1 && somethingDeleted) {
+                if(data_models_map.keySet().size() >= 1 && somethingDeleted) {
                     opt_off = opt_on = "";
                     optimizeRoute();
                     somethingDeleted = false;
@@ -302,7 +300,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
                     saveTripData();
-                    if(trip_data.keySet().size() == 0){
+                    if(data_models_map.keySet().size() == 0){
                         showEmptyTripUI();
                     }
 
@@ -319,7 +317,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 optimization = opt_switch.isChecked();
 
                 if(optimization){
-                    if(trip_data.keySet().size() > 1){
+                    if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
                         JSONObject jObject;
@@ -328,7 +326,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                             MapsDataParser parser = new MapsDataParser(jObject);
                             waypoint_order = parser.get_waypoint_order();
                             Log.d("waypoints ",waypoint_order+"");
-                            if(waypoint_order.size() == trip_data.keySet().size()){
+                            if(waypoint_order.size() == data_models_map.keySet().size()){
                                 same = true;
                                 ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
                                 for(int i = 0; i < waypoint_order.size(); i++){
@@ -354,7 +352,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    if(trip_data.keySet().size() > 1) {
+                    if(data_models_map.keySet().size() > 1) {
                         updateModel(0);
                     }
                 }
@@ -386,7 +384,13 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void optimizeRoute() {
 
-        ArrayList<Integer> temp = new ArrayList<>(trip_data.keySet());
+        ArrayList<Integer> temp = new ArrayList<>();
+        for(String s: data_models_map.keySet()){
+            // Check if string contains only numbers
+            if(s.matches("^[0-9]+$")) {
+                temp.add(Integer.parseInt(s));
+            }
+        }
         Collections.sort(temp);
         String shared_pref_ids = sharedPref.getString("saved_api_ids","");
         Log.d(TAG, "optimizeRoute: " + temp);
@@ -399,7 +403,9 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         setTmpLocation();
 
+        Log.d(TAG, "optimizeRoute: before");
         String url_opt_is_false = getUrl(origin,destination,false,waypoints_coordinates);
+        Log.d(TAG, "optimizeRoute: url " + url_opt_is_false);
         String url_opt_is_true = getUrl(origin,destination,true,waypoints_coordinates);
 
         DownloadTask task_opt_is_false = new DownloadTask();
@@ -476,71 +482,71 @@ public class CurrentTripActivity extends AppCompatActivity {
         });
     }
 
-    private HashMap<Integer, DocumentReference> CreateDocReference(String... cities) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
-        HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
+//    private HashMap<Integer, DocumentReference> CreateDocReference(String... cities) {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
+//        HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
+//
+//        for (int id : trip_data.keySet()) {
+//            String tourist_places_id = cities[0] + "::" + id;
+//            tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
+//        }
+//        return tourist_places;
+//    }
 
-        for (int id : trip_data.keySet()) {
-            String tourist_places_id = cities[0] + "::" + id;
-            tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
-        }
-        return tourist_places;
-    }
-
-    private void createStorageReference(String... cities) {
-
-        HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
-        final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-
-        for(final int id : trip_data.keySet()){
-            Log.d("proper id is",id+"");
-
-            tp.get(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-
-                @Override
-                public void onSuccess(DocumentSnapshot document) {
-
-                    assert document != null;
-                    if (!document.exists()) {
-                        Log.d("existence: ", "No such document");
-                    } else {
-                        String img_name = "" + document.get("image_name");
-                        Log.d("img_name is ",img_name);
-                        final String title = "" + document.get("title");
-                        final String time_to_cover = "" + document.get("duration_required_to_visit");
-                        String[] parts = time_to_cover.split(":",2);
-                        int hour = Integer.parseInt(parts[0]);
-                        int min = Integer.parseInt(parts[1]);
-                        final String tot_time;
-                        if(hour > 0 && min > 0){
-                            tot_time = hour + " hrs " + min + " min";
-                        }
-                        else if (min > 0 && hour == 0){
-                            tot_time = min + " min";
-                        }
-                        else if(hour > 0 && min == 0){
-                            tot_time = hour + " hrs";
-                        }else {
-                            tot_time = "no estimate";
-                        }
-                        StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
-                        Log.d("spaceRef is",spaceRef.getName());
-                        spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                addTo_Model_opt_off(uri,title,tot_time,id);
-                            }
-                        });
-                    }
-                }
-            });
-        }
-    }
+//    private void createStorageReference(String... cities) {
+//
+////        HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
+//        final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+//
+//        for(final int id : trip_data.keySet()){
+//            Log.d("proper id is",id+"");
+//
+//            tp.get(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+//
+//                @Override
+//                public void onSuccess(DocumentSnapshot document) {
+//
+//                    assert document != null;
+//                    if (!document.exists()) {
+//                        Log.d("existence: ", "No such document");
+//                    } else {
+//                        String img_name = "" + document.get("image_name");
+//                        Log.d("img_name is ",img_name);
+//                        final String title = "" + document.get("title");
+//                        final String time_to_cover = "" + document.get("duration_required_to_visit");
+//                        String[] parts = time_to_cover.split(":",2);
+//                        int hour = Integer.parseInt(parts[0]);
+//                        int min = Integer.parseInt(parts[1]);
+//                        final String tot_time;
+//                        if(hour > 0 && min > 0){
+//                            tot_time = hour + " hrs " + min + " min";
+//                        }
+//                        else if (min > 0 && hour == 0){
+//                            tot_time = min + " min";
+//                        }
+//                        else if(hour > 0 && min == 0){
+//                            tot_time = hour + " hrs";
+//                        }else {
+//                            tot_time = "no estimate";
+//                        }
+//                        StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
+//                        Log.d("spaceRef is",spaceRef.getName());
+//                        spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                            @Override
+//                            public void onSuccess(Uri uri) {
+//                                addTo_Model_opt_off(uri,title,tot_time,id);
+//                            }
+//                        });
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     public void removeFromModel(boolean was_checked) {
         int curr_id;
-        if(trip_data.isEmpty()){
+        if(data_models_map.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
         }else{
 
@@ -559,7 +565,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
 
             Log.d("deleting:",""+viewPager.getCurrentItem());
-            trip_data.remove(curr_id);
+            data_models_map.remove(curr_id);
             updateModel(position);
         }
 
@@ -577,32 +583,32 @@ public class CurrentTripActivity extends AppCompatActivity {
         saveTripData();
     }
 
-    private void addTo_Model_opt_off(Uri result, String title, String tot_time, int id) {
-
-        /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
-
-       */
-        model_opt_off.add(new CurrentTripModel(result,title,tot_time,id));
-
-        if(model_opt_off.size() == trip_data.keySet().size()){
-            int size = model_opt_off.size();
-            ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
-            List<CurrentTripModel> proper_model = new ArrayList<>();
-            for(int i=0;i<size;i++){
-                proper_model.add(new CurrentTripModel());
-            }
-            for(int i=0;i<size;i++){
-                CurrentTripModel curr_model = model_opt_off.get(i);
-                int curr_id = model_opt_off.get(i).getId();
-                Log.d("curr_id is ",curr_id+"");
-                int index = ids.indexOf(curr_id);
-                proper_model.set(index,curr_model);
-            }
-            model_opt_off = proper_model;
-            updateModel(0);
-        }
-
-    }
+//    private void addTo_Model_opt_off(Uri result, String title, String tot_time, int id) {
+//
+//        /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
+//
+//       */
+//        model_opt_off.add(new CurrentTripModel(result,title,tot_time,id));
+//
+//        if(model_opt_off.size() == trip_data.keySet().size()){
+//            int size = model_opt_off.size();
+//            ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
+//            List<CurrentTripModel> proper_model = new ArrayList<>();
+//            for(int i=0;i<size;i++){
+//                proper_model.add(new CurrentTripModel());
+//            }
+//            for(int i=0;i<size;i++){
+//                CurrentTripModel curr_model = model_opt_off.get(i);
+//                int curr_id = model_opt_off.get(i).getId();
+//                Log.d("curr_id is ",curr_id+"");
+//                int index = ids.indexOf(curr_id);
+//                proper_model.set(index,curr_model);
+//            }
+//            model_opt_off = proper_model;
+//            updateModel(0);
+//        }
+//
+//    }
 
     private String getUrl(LatLng origin, LatLng dest, Boolean opt,StringBuffer waypoints_coordinates) {
 
@@ -625,9 +631,9 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         // Output format
         String output = "json";
-
         //API KEY
-        String apiKey ="key="+R.string.directions_api_key ;
+        String apiKey ="key="+getResources().getString(R.string.directions_api_key );
+        Log.d(TAG, "getUrl: " + apiKey);
 
         //url
         String url = directions_api+output+"?"+parameters+"&"+apiKey+"\n";
@@ -676,10 +682,10 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         StringBuffer waypoints_coordinates = new StringBuffer("");
 
-        for(int id:trip_data.keySet()){
+        for(String id:data_models_map.keySet()){
 
-            String lon = trip_data.get(id).get("lon");
-            String lat = trip_data.get(id).get("lat");
+            String lon = data_models_map.get(id).getLon();
+            String lat = data_models_map.get(id).getLat();
 
             waypoints_coordinates.append("|").append(lat).append(",").append(lon);
 
@@ -710,12 +716,10 @@ public class CurrentTripActivity extends AppCompatActivity {
                 outputStream.writeObject(opt_off);
                 outputStream.flush();
                 outputStream.close();
-                for(Integer i: trip_data.keySet()) {
+                for(String i: data_models_map.keySet()) {
                     saved_api_ids.add(i);
                 };
                 Collections.sort(saved_api_ids);
-                Log.d(TAG, "saveApiResult: apiid" + saved_api_ids);
-                Log.d(TAG, "saveApiResult: tripdata" + trip_data.keySet());
                 editor.putString("saved_api_ids", saved_api_ids.toString());
                 editor.commit();
 
@@ -776,9 +780,9 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void saveTripData(){
         try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-            outputStream.writeObject(trip_data);
+            outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
         }catch (IOException e){
@@ -789,16 +793,16 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void loadTripData() {
         try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-            trip_data = (LinkedHashMap) ois.readObject();
+            data_models_map = (LinkedHashMap) ois.readObject();
 
         }
         catch (IOException e){
             e.printStackTrace();
         }
         catch (ClassNotFoundException e){
-            trip_data = new LinkedHashMap<>();
+            data_models_map = new LinkedHashMap<>();
         }
     }
 

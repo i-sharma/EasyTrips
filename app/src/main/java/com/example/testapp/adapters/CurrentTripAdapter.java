@@ -14,17 +14,18 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.bumptech.glide.Glide;
 import com.example.testapp.models.CurrentTripModel;
 import com.example.testapp.R;
+import com.example.testapp.models.ExploreModel;
 
 import java.util.List;
 
 public class CurrentTripAdapter extends PagerAdapter {
 
-    private List<CurrentTripModel> models;
+    private List<ExploreModel> models;
     private Context context;
     private ImageView imageView;
     private TextView title, time_to_cover;
 
-    public CurrentTripAdapter(List<CurrentTripModel> models, Context context) {
+    public CurrentTripAdapter(List<ExploreModel> models, Context context) {
         this.models = models;
         this.context = context;
     }
@@ -60,10 +61,10 @@ public class CurrentTripAdapter extends PagerAdapter {
 
     private void updateView(int position,ViewGroup container) {
         title.setText(models.get(position).getTitle());
-        time_to_cover.setText(models.get(position).getTime_to_cover());
+        time_to_cover.setText(models.get(position).getDuration_required_to_visit());
 
         Glide.with(context)
-                .load(models.get(position).getImage())
+                .load(models.get(position).getFb_image_url())
                 .placeholder(R.drawable.wait)
                 .into(imageView);
 

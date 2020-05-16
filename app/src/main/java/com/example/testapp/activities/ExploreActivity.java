@@ -99,19 +99,19 @@ public class ExploreActivity extends AppCompatActivity {
         adapter.stopListening();
     }
 
-//    private void loadTripData() {
-//        try {
-//            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
-//            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-//            data_models_map = (LinkedHashMap) ois.readObject();
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-//        catch (ClassNotFoundException e){
-//            data_models_map = new LinkedHashMap<>();
-//        }
-//    }
+    private void loadTripData() {
+        try {
+            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
+            data_models_map = (LinkedHashMap) ois.readObject();
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e){
+            data_models_map = new LinkedHashMap<>();
+        }
+    }
 
     private void bottomNavigation() {
 
@@ -121,11 +121,11 @@ public class ExploreActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.menu_item0:
-//                        loadTripData();
-//                        for(String s: data_models_map.keySet()){
-//                            Log.d(TAG, "onNavigationItemSelected: " + s + " " + data_models_map.get(s).title);
-//                        }
-//                        Log.d(TAG, "onNavigationItemSelected: ");
+                        loadTripData();
+                        for(String s: data_models_map.keySet()){
+                            Log.d(TAG, "onNavigationItemSelected: " + data_models_map.get(s).getId() + " " + data_models_map.get(s).title);
+                        }
+                        Log.d(TAG, "onNavigationItemSelected: ");
                         break;
                     case R.id.menu_item1:
                         Intent a = new Intent(ExploreActivity.this, CurrentTripActivity.class);

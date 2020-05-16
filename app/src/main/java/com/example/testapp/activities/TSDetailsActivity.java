@@ -241,6 +241,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ts_details_button_add_to_trip:
+                obj.setId(Integer.parseInt(click_position));
                 data_models_map.put(click_position, obj);
                 updateButtonUI(IN_ACTIVITY_ADD_BUTTON_CLICKED);
                 break;
