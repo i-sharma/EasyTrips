@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.annotation.GlideModule;
 import com.example.testapp.models.CurrentTripModel;
 import com.example.testapp.R;
 import com.example.testapp.models.ExploreModel;
@@ -63,10 +64,20 @@ public class CurrentTripAdapter extends PagerAdapter {
         title.setText(models.get(position).getTitle());
         time_to_cover.setText(models.get(position).getDuration_required_to_visit());
 
-        Glide.with(context)
-                .load(models.get(position).getFb_image_url())
-                .placeholder(R.drawable.wait)
-                .into(imageView);
+        Boolean isCustom = models.get(position).getIsCustom();
+
+        if(!isCustom){
+            Glide.with(context)
+                    .load(models.get(position).getFb_image_url())
+                    .placeholder(R.drawable.wait)
+                    .into(imageView);
+        }
+
+        else{
+            Glide.with(context)
+                    .load(R.drawable.custom_location)
+                    .into(imageView);
+        }
 
         startUpdate(container);
 

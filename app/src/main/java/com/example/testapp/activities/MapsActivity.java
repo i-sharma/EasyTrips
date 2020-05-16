@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.models.ExploreModel;
 import com.example.testapp.utils.MapsDataParser;
 import com.example.testapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Switch optimize_switch;
     String opt_off,opt_on;
     private GoogleMap map;
-    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     Boolean same;
 
@@ -69,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         optimize_switch.setChecked(optimization);
 
         //this is the condition to call direction api
-        if(trip_data.keySet().size() > 0)  {
+        if(data_models_map.keySet().size() > 0)  {
             loadApiResult(optimization);
             plotMap(optimization);
         }
@@ -84,10 +85,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(MapsActivity.this,
                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                 }else{
-                    if(trip_data.keySet().size() == 1){
+                    if(data_models_map.keySet().size() == 1){
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
-                    if(trip_data.keySet().size() > 1){
+                    if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
                         plotMap(optimization);
                     }
@@ -112,15 +113,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map.moveCamera(CameraUpdateFactory.newLatLng(origin));
             map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
 
-            for(int id:trip_data.keySet()){
-                double lat = Double.parseDouble(trip_data.get(id).get("lat"));
-                double lon = Double.parseDouble(trip_data.get(id).get("lon"));
+            for(String id:data_models_map.keySet()){
+
+                double lon = Double.parseDouble(data_models_map.get(id).getLon());
+                double lat = Double.parseDouble(data_models_map.get(id).getLat());
+
                 map.addMarker(new MarkerOptions()
                         .position(new LatLng(lat,lon))
                 );
 
             }
-
 
             //addMarkerstoMap();
         }else if(origin != null && destination != null ){
@@ -136,9 +138,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /*private void addMarkerstoMap() {
         if(!optimization){
             int count = 1;
-            for(int id:trip_data.keySet()){
-                double lat = Double.parseDouble(trip_data.get(id).get("lat"));
-                double lon = Double.parseDouble(trip_data.get(id).get("lon"));
+            for(int id:data_models_map.keySet()){
+                double lat = Double.parseDouble(data_models_map.get(id).get("lat"));
+                double lon = Double.parseDouble(data_models_map.get(id).get("lon"));
                 map.addMarker(new MarkerOptions()
                         .position(new LatLng(lat,lon))
                         .title("" + count)
@@ -146,13 +148,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 count++;
             }
         }else{
-            Object[] ids_array = trip_data.keySet().toArray();
+            Object[] ids_array = data_models_map.keySet().toArray();
             int count = 1;
             if(waypoint_order != null) {
                 for (int index : waypoint_order) {
                     int id = (int) ids_array[index];
-                    double lon = Double.parseDouble(trip_data.get(id).get("lon"));
-                    double lat = Double.parseDouble(trip_data.get(id).get("lat"));
+                    double lon = Double.parseDouble(data_models_map.get(id).get("lon"));
+                    double lat = Double.parseDouble(data_models_map.get(id).get("lat"));
                     map.addMarker(new MarkerOptions()
                             .position(new LatLng(lat, lon))
                             .title("" + count)
@@ -167,18 +169,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void loadTripData() {
         try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-            trip_data = (LinkedHashMap) ois.readObject();
+            data_models_map = (LinkedHashMap) ois.readObject();
 
         }
         catch (IOException e){
             e.printStackTrace();
         }
         catch (ClassNotFoundException e){
-            trip_data = new LinkedHashMap<>();
+            data_models_map = new LinkedHashMap<>();
         }
     }
+
 
     private void plotMap(Boolean optimization) {
 

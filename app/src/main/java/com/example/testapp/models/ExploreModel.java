@@ -16,9 +16,17 @@ public class ExploreModel implements Serializable {
     public String tip;
     public String lon;
 
+    Boolean isCustom = false;
+
     public ExploreModel() {}
 
-
+    public ExploreModel(String title,String lat,String lon,Boolean isCustom, String time) {
+        this.lat = lat;
+        this.lon = lon;
+        this.title = title;
+        this.isCustom = isCustom;
+        this.duration_required_to_visit = time;
+    }
 
     public ExploreModel(String title, String short_description, String lat, String duration_required_to_visit,
                         String image_name, String opening_hours, String fb_img_url, int id,
@@ -127,4 +135,6 @@ public class ExploreModel implements Serializable {
     public int getId() {
         return id;
     }
+
+    public Boolean getIsCustom() {return isCustom;}
 }

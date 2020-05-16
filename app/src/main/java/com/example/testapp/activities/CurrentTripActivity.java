@@ -100,13 +100,8 @@ public class CurrentTripActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
+
         loadTripData();
-        for(String s: data_models_map.keySet()){
-            model_opt_off.add(data_models_map.get(s));
-        }
-        for(ExploreModel model: model_opt_off){
-            Log.d(TAG, "loadTripData: " + model.getId() +  " " + model.getTitle());
-        }
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -123,42 +118,47 @@ public class CurrentTripActivity extends AppCompatActivity {
         doneBtn = findViewById(R.id.doneBtn);
         customStopBtn = findViewById(R.id.customStop);
         progressBar = findViewById(R.id.curr_trip_progress);
+
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
                 android.graphics.PorterDuff.Mode.MULTIPLY);
         setViewPagerBackground();
-        progressBar.setVisibility(View.VISIBLE);
 
+        initializePlaces();
 
         //show empty_trip_notification and hide everything else
         if(data_models_map.keySet().size() == 0){
             showEmptyTripUI();
+            progressBar.setVisibility(View.GONE);
         }
 
         else{
 
+            progressBar.setVisibility(View.VISIBLE);
+
+            //this is essential for maps activity to work, not required when we access location in app
+            setTmpLocation();
+
             updateModel(0);
-
-            String apiKey = getResources().getString(R.string.autocomplete_api_key);
-
-            if (!Places.isInitialized()) {
-                Places.initialize(getApplicationContext(), apiKey);
-            }
-
-            // Create a new Places client instance.
-            placesClient = Places.createClient(this);
 
             optimizeRoute();
 
-
-
-            //for given city fetch data from firestore
-//            createStorageReference("delhi");
         }
 
         bottomNavigation();
 
         createOnClickListeners();
 
+    }
+
+    private void initializePlaces() {
+        String apiKey = getResources().getString(R.string.autocomplete_api_key);
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), apiKey);
+        }
+
+        // Create a new Places client instance.
+        placesClient = Places.createClient(this);
     }
 
     @Override
@@ -171,34 +171,51 @@ public class CurrentTripActivity extends AppCompatActivity {
                 //Toast.makeText(AutocompleteFromIntentActivity.this, "ID: " + place.getId() + "address:" + place.getAddress() + "Name:" + place.getName() + " latlong: " + place.getLatLng(), Toast.LENGTH_LONG).show();
                 String title = place.getName();
                 LatLng customLoc = place.getLatLng();
+                String lat = String.valueOf(customLoc.latitude);
+                String lon = String.valueOf(customLoc.longitude);
+                String time = "NO ESTIMATE";
 
-                int curr_id;
+                int curr_id,position;
                 optimization = false;
                 customStopAdded = true;
+                ExploreModel customModel = new ExploreModel(title,lat,lon,true,time);
                 boolean was_checked = opt_switch.isChecked();
                 opt_switch.setChecked(false);
 
-                /*int position = viewPager.getCurrentItem();
-                if(!was_checked){
-                    curr_id = model_opt_off.get(position).getId();
-                    CurrentTripModel customModel = new CurrentTripModel(null,title,null,curr_id);
-                    model_opt_off.add(position,customModel);
+                Log.d(TAG,"after adding custom place ");
 
-                }else{
-                    curr_id = model_opt_on.get(position).getId();
-                    CurrentTripModel customModel = new CurrentTripModel(null,title,null,curr_id);
-                    model_opt_on.add(position,customModel);
+                if(!model_opt_off.isEmpty()){
+                    position = viewPager.getCurrentItem();
+                    if(!was_checked){
+                        curr_id = model_opt_off.get(position).getId();
+                        model_opt_off.add(position,customModel);
 
+                        for(ExploreModel m:model_opt_off){
+                            Log.d(TAG,m.getTitle());
+                        }
+
+                    }else{
+                        curr_id = model_opt_on.get(position).getId();
+                        model_opt_on.add(position,customModel);
+
+                        for(ExploreModel m:model_opt_on){
+                            Log.d(TAG,m.getTitle());
+                        }
+
+                    }
+
+                    updateModel(position);
                 }
 
-                for(int i = position; i < model_opt_off.size(); i++){
-                    int prev_id = model_opt_off.get(i).getId();
-                    model_opt_off.get(i).setId(prev_id + 1);
+                else{
+                    model_opt_off.add(0,customModel);
+                    updateModel(0);
                 }
 
-                *//*Log.d("deleting:",""+viewPager.getCurrentItem());
-                trip_data.remove(curr_id);*//*
-                updateModel(position);*/
+                Log.d("inserting:",""+viewPager.getCurrentItem());
+
+                //data_models_map.remove(curr_id + "");
+                saveTripData();
 
                 // do query with address
 
@@ -237,7 +254,8 @@ public class CurrentTripActivity extends AppCompatActivity {
         customStopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onSearchCalled();
+                Toast.makeText(getBaseContext(),"not working now! Oops ",Toast.LENGTH_SHORT);
+                //onSearchCalled();
             }
         });
 
@@ -247,11 +265,11 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(data_models_map.keySet().size() > 0){
 
-                    loadTripData();
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization",optimization);
                     Log.d("origin before",origin+"");
                     intent.putExtra("origin",origin);
+                    Log.d(TAG,"origin sent to Maps Activity is " + origin);
                     intent.putExtra("destination",destination);
                     intent.putExtra("waypoints",waypoint_order);
                     intent.putExtra("same",same);
@@ -305,11 +323,11 @@ public class CurrentTripActivity extends AppCompatActivity {
                     v.performClick();
                     removeItem.setBackgroundColor(0x00000000);
                     loadTripData();
-                    optimization = false;
                     somethingDeleted = true;
                     boolean was_checked = opt_switch.isChecked();
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
+                    optimization = false;
                     saveTripData();
                     if(data_models_map.keySet().size() == 0){
                         showEmptyTripUI();
@@ -353,6 +371,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                                     Toast.makeText(CurrentTripActivity.this,
                                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                                 }else{
+                                    Toast.makeText(CurrentTripActivity.this,
+                                            "Optimized", Toast.LENGTH_SHORT).show();
                                     applyModel_opt_on();
                                 }
                             }
@@ -571,18 +591,20 @@ public class CurrentTripActivity extends AppCompatActivity {
                 for(int i = 0; i < model_opt_off.size(); i++){
                     if(model_opt_off.get(i).getId() == curr_id){
                         model_opt_off.remove(i);
+                        break;
                     }
                 }
             }
 
-            Log.d("deleting:",""+viewPager.getCurrentItem());
-            data_models_map.remove(curr_id);
+            Log.d("deleting:",""+position);
+            data_models_map.remove(curr_id + "");
             updateModel(position);
         }
 
     }
 
     private void updateModel(int start_position) {
+        Log.d(TAG,"updateModel is called ");
         if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off, this);
         else                adapter = new CurrentTripAdapter(model_opt_on , this);
 
@@ -591,25 +613,24 @@ public class CurrentTripActivity extends AppCompatActivity {
         viewPager.setCurrentItem(start_position);
         viewPager.setPadding(100, 0, 100, 0);
         progressBar.setVisibility(View.GONE);
-        saveTripData();
     }
 
 //    private void addTo_Model_opt_off(Uri result, String title, String tot_time, int id) {
 //
-//        /*model_opt_off.set(index,new CurrentTripModel(result,title,short_description,id));
+//        /*model_opt_off.set(index,new ExploreModel(result,title,short_description,id));
 //
 //       */
-//        model_opt_off.add(new CurrentTripModel(result,title,tot_time,id));
+//        model_opt_off.add(new ExploreModel(result,title,tot_time,id));
 //
 //        if(model_opt_off.size() == trip_data.keySet().size()){
 //            int size = model_opt_off.size();
 //            ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
-//            List<CurrentTripModel> proper_model = new ArrayList<>();
+//            List<ExploreModel> proper_model = new ArrayList<>();
 //            for(int i=0;i<size;i++){
-//                proper_model.add(new CurrentTripModel());
+//                proper_model.add(new ExploreModel());
 //            }
 //            for(int i=0;i<size;i++){
-//                CurrentTripModel curr_model = model_opt_off.get(i);
+//                ExploreModel curr_model = model_opt_off.get(i);
 //                int curr_id = model_opt_off.get(i).getId();
 //                Log.d("curr_id is ",curr_id+"");
 //                int index = ids.indexOf(curr_id);
@@ -796,6 +817,11 @@ public class CurrentTripActivity extends AppCompatActivity {
             outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
+
+            for(ExploreModel model: model_opt_off){
+                Log.d(TAG, "saveTripData: " + model.getId() +  " " + model.getTitle());
+            }
+
         }catch (IOException e){
             e.printStackTrace();
         }
@@ -807,6 +833,15 @@ public class CurrentTripActivity extends AppCompatActivity {
             File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
             data_models_map = (LinkedHashMap) ois.readObject();
+
+            model_opt_off.clear();
+
+            for(String s: data_models_map.keySet()){
+                model_opt_off.add(data_models_map.get(s));
+            }
+            for(ExploreModel model: model_opt_off){
+                Log.d(TAG, "loadTripData: " + model.getId() +  " " + model.getTitle());
+            }
 
         }
         catch (IOException e){
