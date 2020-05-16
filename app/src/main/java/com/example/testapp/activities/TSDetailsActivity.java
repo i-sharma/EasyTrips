@@ -45,14 +45,14 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
 
     int already_present_in_trip;
     ExploreModel obj;
-    int click_position;
+    String click_position;
 
     private final int START_NOT_ALREADY_ADDED = 0;
     private final int START_ALREADY_ADDED = 1;
     private final int IN_ACTIVITY_ADD_BUTTON_CLICKED = 2;
     private final int IN_ACTIVITY_DELETE_BUTTON_CLICKED = 3;
 
-    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +83,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         Intent it = getIntent();
         obj = (ExploreModel) it.getSerializableExtra("snapshot");
 //        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
-        click_position = it.getIntExtra("click_position", -1);
+        click_position = Integer.toString(it.getIntExtra("click_position", -1));
         loadTripData();
         updateButtonUI(already_present_in_trip);
 
@@ -118,19 +118,19 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void saveTripData() throws IOException {
-        File file = new File(getDir("data", MODE_PRIVATE), "map");
+        File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
         ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-        outputStream.writeObject(trip_data);
+        outputStream.writeObject(data_models_map);
         outputStream.flush();
         outputStream.close();
     }
 
     private void loadTripData() {
         try {
-            File file = new File(getDir("data", MODE_PRIVATE), "map");
+            File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-            trip_data = (LinkedHashMap) ois.readObject();
-            if(trip_data.keySet().contains(click_position)) {
+            data_models_map = (LinkedHashMap) ois.readObject();
+            if(data_models_map.keySet().contains(click_position)) {
                 already_present_in_trip = 1;
             }
             else
@@ -140,7 +140,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
             e.printStackTrace();
         }
         catch (ClassNotFoundException e){
-            trip_data = new LinkedHashMap<>();
+            data_models_map = new LinkedHashMap<>();
         }
     }
 
@@ -241,11 +241,11 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.ts_details_button_add_to_trip:
-                trip_data.put(click_position, get_lat_long());
+                data_models_map.put(click_position, obj);
                 updateButtonUI(IN_ACTIVITY_ADD_BUTTON_CLICKED);
                 break;
             case R.id.ts_details_delete_button:
-                trip_data.remove(click_position);
+                data_models_map.remove(click_position);
                 updateButtonUI(IN_ACTIVITY_DELETE_BUTTON_CLICKED);
                 break;
         }
