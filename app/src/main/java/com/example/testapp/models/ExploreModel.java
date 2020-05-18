@@ -10,7 +10,7 @@ public class ExploreModel implements Serializable {
     public String n_ratings;
     public String nearest_metro_station;
     public String duration_required_to_visit;
-    public int id;
+    public String id;
 
     public String rating;
     public String tip;
@@ -20,16 +20,17 @@ public class ExploreModel implements Serializable {
 
     public ExploreModel() {}
 
-    public ExploreModel(String title,String lat,String lon,Boolean isCustom, String time) {
+    public ExploreModel(String id,String title,String lat,String lon,Boolean isCustom, String time) {
         this.lat = lat;
         this.lon = lon;
         this.title = title;
         this.isCustom = isCustom;
         this.duration_required_to_visit = time;
+        this.id = id;
     }
 
     public ExploreModel(String title, String short_description, String lat, String duration_required_to_visit,
-                        String image_name, String opening_hours, String fb_img_url, int id,
+                        String image_name, String opening_hours, String fb_img_url, String id,
                         String description, String distance_from_delhi_airport, String entry_fee,
                         String few_essential_tips, String formatted_address, String must_visit,
                         String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
@@ -128,11 +129,11 @@ public class ExploreModel implements Serializable {
         return image_name;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
