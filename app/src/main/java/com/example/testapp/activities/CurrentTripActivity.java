@@ -204,7 +204,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 }
 
-                adapter.notifyDataSetChanged();
+                //adapter.notifyDataSetChanged();
                 updateModel(position);
 
                 Log.d("outside if else","modeloptoff has:");
@@ -222,6 +222,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
 
+                Log.d("saveTripData"," was called after adding CustomStop");
                 saveTripData();
 
                 if(was_empty){
@@ -398,7 +399,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }else{
                     if(data_models_map.keySet().size() > 1) {
                         Log.d("from optSwitch","updateModel called");
-                        updateModel(0);
+                        int position = viewPager.getCurrentItem();
+                        updateModel(position);
                     }
                 }
 
@@ -436,7 +438,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             model_opt_on.add(model_opt_off.get(index));
         }
         Log.d("from applyModelOptOn","updateModel called");
-        updateModel(0);
+        int position = viewPager.getCurrentItem();
+        updateModel(position);
     }
 
     private void optimizeRoute() {
@@ -773,6 +776,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void saveApiResult(Boolean opt){
+        Log.d(TAG,"saveApiResult was called");
         if(!opt){
             try {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
@@ -849,6 +853,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
+
+            Log.d("saveTripData ","is called");
 
         }catch (IOException e){
             e.printStackTrace();

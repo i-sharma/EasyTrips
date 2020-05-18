@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,7 +25,8 @@ public class CurrentTripAdapter extends PagerAdapter {
     private List<ExploreModel> models;
     private Context context;
     private ImageView imageView;
-    private TextView title, time_to_cover;
+    private TextView title;
+    private TextView time_to_cover;
 
     public CurrentTripAdapter(List<ExploreModel> models, Context context) {
         this.models = models;
