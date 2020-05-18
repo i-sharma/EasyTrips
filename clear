@@ -1,0 +1,464 @@
+[33mcommit be774249b8f0a0fda66d392fd06ab97036ff7661[m[33m ([m[1;36mHEAD -> [m[1;32mmodel_sharing_curr_trip[m[33m, [m[1;31morigin/model_sharing_curr_trip[m[33m, [m[1;32mtmp[m[33m)[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Mon May 18 12:48:42 2020 +0530
+
+    90 percent autocomplete
+
+[33mcommit 4cd5f65e6d1af61eee55863e84b3ec64cbde6418[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat May 16 16:53:21 2020 +0530
+
+    fixed bugs related to del and maps
+
+[33mcommit 0ed99c947736ff405a71f037ca74a0e470b5011a[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat May 16 16:48:11 2020 +0530
+
+    fixed delbtn and maps activity
+
+[33mcommit eeff5c44d4907c2cac3a0b6773afae1b7ed23e10[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat May 16 13:20:23 2020 +0530
+
+    some bug fixing
+
+[33mcommit b5717be00f346c836ce0046562799e2e8c3d3318[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat May 16 12:12:29 2020 +0530
+
+    current_trip bug oncreate viewpager not loaded
+
+[33mcommit c7413bfa55013dba5db30d95ee286adf2ab858f1[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat May 16 10:44:00 2020 +0530
+
+    models stored from tsDetails
+
+[33mcommit 8660adcccb055c833b49aa282a49e5c9cb3f585f[m[33m ([m[1;31morigin/Autocomplete[m[33m, [m[1;32mAutocomplete[m[33m)[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Wed May 13 19:35:14 2020 +0530
+
+    Added edit button and almost Autocomplete feature
+
+[33mcommit 5d469ca643a6dcef7ccaa3db6e984080a36874d8[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue May 12 22:50:40 2020 +0530
+
+    curr_trip load api result if saved
+
+[33mcommit c42b1906c1094bf7e3d7e55ec442110dfe777f04[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon May 4 14:10:16 2020 +0530
+
+    curr trip suppresslint
+
+[33mcommit 690ed540ef2942dc82d1a4a633325316b1dd011c[m[33m ([m[1;31morigin/fixing_bugs[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon May 4 13:56:20 2020 +0530
+
+    Curr Trip loader added, button positions changed, remove made responsive
+
+[33mcommit 933036769870cd6fdbd1149855ada2c23c7f997d[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Mon May 4 02:28:38 2020 +0530
+
+    handled case when trip contains just 1 item and no item and thus updated ui in maps and curr_trip
+
+[33mcommit 4381915d10c1e853cae1a9cfd6bdd70e93b537a9[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun May 3 19:58:24 2020 +0530
+
+    refactoring of acitivity names and stored in packages
+
+[33mcommit bca492ad35e27540bec1450fc184e83a0419ad80[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun May 3 18:10:02 2020 +0530
+
+    made small changes
+
+[33mcommit 9d02a126b64d1c60fdbaf587082d27c456c75142[m
+Merge: 4e437f4 dde4183
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun May 3 16:27:46 2020 +0530
+
+    Merge branch 'info_button'
+
+[33mcommit 4e437f485b93ea9635b69f066c6aa56a35d3585b[m[33m ([m[1;31morigin/logo_login_resp[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun May 3 15:33:17 2020 +0530
+
+    google signin loader added
+
+[33mcommit dde4183e04e67a2c77d6fb1c2bd93fa5023612f9[m[33m ([m[1;31morigin/info_button[m[33m)[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat May 2 18:43:39 2020 +0530
+
+    fixed some bugs in maps activity and created an info button which works on long press
+
+[33mcommit db9c067ea141b08048f7fe24b87f1c263ad38e7b[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri May 1 22:13:41 2020 +0530
+
+    login activities made better
+
+[33mcommit 9168482f86e15c2afc836a2ab966b915eb9ab4af[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri May 1 21:34:56 2020 +0530
+
+    added logo and made login activities more responsive
+
+[33mcommit 2a7dcbed4c526805ed7a23b3b59b281a0e27b93e[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Thu Apr 30 19:28:00 2020 +0530
+
+    added time_required_to_visit in CurrTripActivity
+
+[33mcommit 6a0ed043cd6eac7319e3edbc66643525e63b9429[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 29 20:06:55 2020 +0530
+
+    Removed your trips button
+
+[33mcommit 51310426c4ee069f0857d7a319996f58f4813a84[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue Apr 21 19:40:19 2020 +0530
+
+    Your Trip history button and saving trip data to db
+
+[33mcommit 60c9f94232ad9af9299b2eae364941476ecbb479[m[33m ([m[1;31morigin/account_section[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Apr 19 17:00:16 2020 +0530
+
+    Stored trip indices in firestore
+
+[33mcommit 958fda353fcc6e6e2f900571599b7f5650f448d7[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Apr 19 16:23:54 2020 +0530
+
+    halfway through storing trip in db
+
+[33mcommit 5c27e1e4c6b5bb0fd0f4ecbf0cd34b852e2dd69a[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Apr 17 00:11:56 2020 +0530
+
+    New account UI working
+
+[33mcommit 8429bf1dc2e9c8df560f3aa29edc74b391c4edad[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 16 23:46:31 2020 +0530
+
+    Account UI changed
+
+[33mcommit 9a90a019df952f95868cadcd4c248a88ccd50b87[m
+Merge: c237eb8 037583b
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 16 17:07:29 2020 +0530
+
+    merged master into account_section
+
+[33mcommit 037583b8f62d186a9ffd4cc09403af7c347803c6[m[33m ([m[1;31morigin/optimize_curr_trip_activity[m[33m)[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Thu Apr 16 16:41:42 2020 +0530
+
+    Fixed maps ui
+
+[33mcommit 14298a26ab292c82fee40272260757883e4c8c41[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Thu Apr 16 16:36:16 2020 +0530
+
+    Added markers in Maps for trip_data.keySet()
+
+[33mcommit d95944570f4f51dea0957fb6b633765715938481[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 16 15:36:21 2020 +0530
+
+    Trip delete opt on off bug fixed and toast added
+
+[33mcommit 883bfea52b7af6f8180344bdbde366c90a5f5f21[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Thu Apr 16 14:39:58 2020 +0530
+
+    Fixing of bugs relative to positioning of items on deletion
+
+[33mcommit 3958306bfcf4f589e3457d656877656d9afb2183[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Wed Apr 15 23:51:15 2020 +0530
+
+    Implemented optimize switch in CurrentTripActivity
+
+[33mcommit 7e2d643068f0a0e80ddda617940fbd9a576dfef1[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Wed Apr 15 19:04:09 2020 +0530
+
+    Uber animation implementation
+
+[33mcommit ace90763bd01431500d2b934525444961caed6a7[m[33m ([m[1;31morigin/tmp[m[33m)[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Wed Apr 15 18:30:52 2020 +0530
+
+    getting waypoints order
+
+[33mcommit 6eae22d44e0e8179481f16bebc406efbf80c868f[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Wed Apr 15 15:22:01 2020 +0530
+
+    Proper ordering of CardView in CurrentTripActivity
+
+[33mcommit c237eb85fc941d7cf771a898ab74c5defe2ab3c0[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 15 15:05:44 2020 +0530
+
+    Account activity working except your_trips
+
+[33mcommit 67109ce72791bf351fd474d382bba3defd3a7d7e[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Tue Apr 14 19:48:43 2020 +0530
+
+    Created Optimize switch in CurrentTripActivity
+
+[33mcommit 845adc3f8baeeeca5091695c0670db215d13184c[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon Apr 13 20:50:29 2020 +0530
+
+    Existing auth flow made better
+
+[33mcommit 0c72e857b51490f422160a143b04c02760bd802d[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Mon Apr 13 15:19:40 2020 +0530
+
+    Adding optimize switch to Current Trip
+
+[33mcommit df618fccdded18e32b3e60cd6ea20d094040aa76[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon Apr 13 14:21:16 2020 +0530
+
+    currentTrip also works fine
+
+[33mcommit e9d934ed9fd61e6ed8020e6e60bc768fa028b6e1[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon Apr 13 14:13:22 2020 +0530
+
+    explore and tsDetails work
+
+[33mcommit d0a751339054ec59271d25e70101c556b81ccda3[m[33m ([m[1;31morigin/proper_delete_functionality[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Mon Apr 13 11:48:51 2020 +0530
+
+    cardview height and onclick fixed
+
+[33mcommit 3609e60d933ca3a67c1669e555da5e0fb5a68c9f[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sun Apr 12 19:32:18 2020 +0530
+
+    Updating trip indices on deletion with proper index
+
+[33mcommit dc2fa983d3d8e456611c09bf9e6f9fb3c1984b64[m
+Merge: d2b620d 212dd40
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat Apr 11 20:52:22 2020 +0530
+
+    Merge branch 'latest_update'
+
+[33mcommit 212dd402da9db232b19145fe4f95b3f54cd7173d[m
+Author: Eeshan Deo <eeshandeo45@gmail.com>
+Date:   Sat Apr 11 20:50:09 2020 +0530
+
+    delete button in card view
+
+[33mcommit d2b620d7691c4af3733083311b3fe3a54f880578[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat Apr 11 19:47:44 2020 +0530
+
+    tsDetails on pressing back return to click position
+
+[33mcommit f550f71c76af1ca36d614d4e407c235962ff2185[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat Apr 11 16:35:29 2020 +0530
+
+    Explore image reloading bug fixed
+
+[33mcommit 7e89d479456d2e7f9b74177b048a252222dcbc8a[m[33m ([m[1;31morigin/merge_eeshan[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Apr 10 09:05:08 2020 +0530
+
+    delete bug fixed
+
+[33mcommit 9a773364799233256c91c7a064d22e6a71be8318[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Apr 10 00:34:23 2020 +0530
+
+    Explore, trips and maps working well; shared pref for trip_indices implemented
+
+[33mcommit 3ba2f44b297592a4dfe14a257b088c012fdbd129[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Apr 10 00:07:15 2020 +0530
+
+    Maps activity added
+
+[33mcommit 78c258153254923834b27d644327622386656658[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 9 22:40:03 2020 +0530
+
+    Standard android bottom nav bar implemented
+
+[33mcommit 0892ab7ca8e6c98c269f95685593655790cac327[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 9 20:41:25 2020 +0530
+
+    Animated bottom bar with intent
+
+[33mcommit 09853eaa306feb0897bb89bf13485217b070371a[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 8 14:26:24 2020 +0530
+
+    bottom bar added to explore
+
+[33mcommit b5255a290580de53738016dabc016d6fb4ec10c5[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 8 00:22:56 2020 +0530
+
+    Add to trip and delete functionality added; 1 bug fixed
+
+[33mcommit c61a372e376938ff99c9634fba306417fd600d10[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue Apr 7 23:19:34 2020 +0530
+
+    Add to trip and delete functionality added
+
+[33mcommit 9b8320bf519d73e7ce1a0c464e97b0c204dd81bb[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue Apr 7 12:28:44 2020 +0530
+
+    ts_details complete; layout button onclicklistener commented
+
+[33mcommit 5c5e9ee05e8f9af31da2ac21e70858d7b4ec1936[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Apr 5 11:37:51 2020 +0530
+
+    tick animation added
+
+[33mcommit 00f8338cf846222a7fa93722e275b76cafc05590[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat Apr 4 16:54:06 2020 +0530
+
+    Button added to explore_layout, onClickListener works
+
+[33mcommit d5f0ab1567ba13541e974a999aca445500e7d37a[m[33m ([m[1;31morigin/ts_details[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 2 21:08:09 2020 +0530
+
+    tsDetails page complete
+
+[33mcommit 269dd7a1ab17f8157efa3f731c1dc8808425b4bf[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Apr 2 18:37:15 2020 +0530
+
+    layout design almost done
+
+[33mcommit 48dddc4150b25c165b0dd64017361ec89b214626[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 1 23:29:08 2020 +0530
+
+    getting document data in ts_details activity
+
+[33mcommit d7c00aee8b77a952fcb3ea9e3a9bb5ae0270f2b9[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 1 20:54:54 2020 +0530
+
+    progressing towards ts_details completion
+
+[33mcommit 0ef386689800597e7d93f23534a2c91c8f18b990[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Apr 1 16:22:54 2020 +0530
+
+    ExploreAdapter separated from Explore.java
+
+[33mcommit c634165f148096f7bdedb57555da7230e23926e2[m[33m ([m[1;31morigin/auth_flow[m[33m, [m[1;32mauth_flow[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Mar 29 20:32:49 2020 +0530
+
+    Auth work done
+
+[33mcommit a5fb790b392f240efca55addc260777c4d7276d1[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Mar 29 19:27:15 2020 +0530
+
+    Auth work in progress
+
+[33mcommit d482c9f3a6bbc1002fea8104068df65b624d21b6[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Mar 29 19:12:43 2020 +0530
+
+    Auth work in progress
+
+[33mcommit af6c28255b9eaa75318c5d0e267971b01a9f9485[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Mar 27 18:52:16 2020 +0530
+
+    Phone auth implemented
+
+[33mcommit c9a1b6920f8bc1a6670a2c40d6772c96875b80de[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Thu Mar 26 17:20:03 2020 +0530
+
+    Some auth work started
+
+[33mcommit f505b07efb990aefc0f0d9313631b4403748bce6[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Mar 22 19:18:22 2020 +0530
+
+    Added bugs file and got doc id
+
+[33mcommit 7135d42fa08abba2f27251cb9705054b1096d8ac[m[33m ([m[1;31morigin/firestore_recyclerview[m[33m)[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Mar 18 18:04:38 2020 +0530
+
+    Images from firebase storage added
+
+[33mcommit 85309195929507e631d20ab382690c36124d349c[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Wed Mar 18 17:13:33 2020 +0530
+
+    Images from firebase storage added
+
+[33mcommit 797d5229293893ebb4b806a28fe20da38005495d[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue Mar 17 22:29:03 2020 +0530
+
+    Firestore data v1
+
+[33mcommit a80e15958b43fdfef993dc6a179bd2f2eeb77217[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Tue Mar 17 11:24:03 2020 +0530
+
+    Uploaded data to cloud firestore
+
+[33mcommit 181a08a7a62e19f32220afc4f7225e2c20265b60[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sun Mar 15 11:08:43 2020 +0530
+
+    minor correction recycler_view
+
+[33mcommit 98aee534ca711cdc11749ff778e1733ce0ee823e[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Sat Mar 14 15:03:52 2020 +0530
+
+    Recycler view implemented
+
+[33mcommit 42a8b09a406e14505fe27af5e4e11c0115f22715[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Mar 13 18:04:59 2020 +0530
+
+    Rounded the corners of image
+
+[33mcommit 267735f2ce4d2f0bec09414c8e477a14122e0800[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Mar 13 17:48:33 2020 +0530
+
+    Intent not working
+
+[33mcommit 2fe94bcf0a8a85f0add9ae71fc2d35725179a4c2[m
+Author: Ishan <ishans996@gmail.com>
+Date:   Fri Mar 13 15:38:48 2020 +0530
+
+    splash screen, login and signup
