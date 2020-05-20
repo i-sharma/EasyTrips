@@ -141,7 +141,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             Log.d("in starting ","updateModel called");
             updateModel(0);
 
-            optimizeRoute();
+            OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
+            optimizeAsyncTask.execute();
 
         }
 
@@ -316,7 +317,8 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded)) {
                     opt_off = opt_on = "";
-                    optimizeRoute();
+                    OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
+                    optimizeAsyncTask.execute();
                     somethingDeleted = false;
                     customStopAdded = false;
                 }
@@ -457,8 +459,8 @@ public class CurrentTripActivity extends AppCompatActivity {
         String shared_pref_ids = sharedPref.getString("saved_api_ids","");
         Log.d(TAG, "optimizeRoute: " + temp);
         Log.d(TAG, "optimizeRoute: " + shared_pref_ids);
-        if(temp.toString().equals(shared_pref_ids))
-            return;
+
+        if(temp.toString().equals(shared_pref_ids)) return;
 
         StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
@@ -486,6 +488,28 @@ public class CurrentTripActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    private class OptimizeAsyncTask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progressBar.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            optimizeRoute();
+            return null;
         }
     }
 
