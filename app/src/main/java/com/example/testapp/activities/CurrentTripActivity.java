@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -88,6 +89,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     Button route,editBtn,doneBtn,customStopBtn;
     Switch opt_switch;
     Boolean optimization = false;
+    Boolean optimization_change = false;
     LinearLayout removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
@@ -147,7 +149,17 @@ public class CurrentTripActivity extends AppCompatActivity {
             setTmpLocation();
 
             Log.d("in starting ","updateModel called");
-            updateModel(0);
+            dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+//            updateModel(0);
+            if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
+            else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
+            adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
+            adapter.updateDisplayMetrics();
+            dragListView.setAdapter(adapter, true);
+            dragListView.setCanDragHorizontally(true);
+//            dragListView.getRecyclerView().scrollToPosition(cur);
+            progressBar.setVisibility(View.GONE);
+
             dragListView.setDragListListener(new DragListView.DragListListener() {
                 @Override
                 public void onItemDragStarted(int position) {
@@ -375,6 +387,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     boolean was_checked = opt_switch.isChecked();
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
+                    if(optimization)    optimization_change = true;
                     optimization = false;
                     saveTripData();
                     if(data_models_map.keySet().size() == 0){
@@ -390,9 +403,9 @@ public class CurrentTripActivity extends AppCompatActivity {
         opt_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Boolean old_opt = optimization;
                 optimization = opt_switch.isChecked();
-
+                if((!optimization && old_opt) || (optimization && !old_opt))    optimization_change = true;
                 if(optimization){
                     if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
@@ -623,15 +636,19 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void updateModel(int start_position) {
         Log.d(TAG,"updateModel is called ");
-        dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
-        else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
-        adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
-        adapter.updateDisplayMetrics();
-        dragListView.setAdapter(adapter, true);
-        dragListView.setCanDragHorizontally(true);
-        dragListView.getRecyclerView().scrollToPosition(start_position);
-        progressBar.setVisibility(View.GONE);
+        if (optimization_change) {
+            if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
+            else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
+            adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
+            adapter.updateDisplayMetrics();
+            dragListView.setAdapter(adapter, true);
+            dragListView.setCanDragHorizontally(true);
+            dragListView.getRecyclerView().scrollToPosition(start_position);
+            progressBar.setVisibility(View.GONE);
+        }
+        if(adapter!=null)
+            adapter.notifyDataSetChanged();
+
     }
 
     private String getUrl(LatLng origin, LatLng dest, Boolean opt,StringBuffer waypoints_coordinates) {
