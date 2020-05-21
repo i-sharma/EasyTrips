@@ -166,9 +166,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }
             });
 
-            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL);
-
-            dragListView.getRecyclerView().addItemDecoration(dividerItemDecoration);
+//            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL);
+//
+//            dragListView.getRecyclerView().addItemDecoration(dividerItemDecoration);
 
             PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
             pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
