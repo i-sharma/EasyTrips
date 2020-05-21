@@ -1,93 +1,117 @@
 package com.example.testapp.adapters;
 
 import android.content.Context;
-import android.util.Log;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.PagerAdapter;
-
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.annotation.GlideModule;
-import com.example.testapp.models.CurrentTripModel;
 import com.example.testapp.R;
 import com.example.testapp.models.ExploreModel;
+import com.woxthebox.draglistview.DragItemAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CurrentTripAdapter extends PagerAdapter {
+public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapter.ViewHolder> {
+
+//    private ArrayList<Integer> mDataSet;
 
     private List<ExploreModel> models;
     private Context context;
-    private ImageView imageView;
-    private TextView title;
-    private TextView time_to_cover;
 
-    public CurrentTripAdapter(List<ExploreModel> models, Context context) {
+
+    private boolean dragOnLongPress;
+    private DisplayMetrics metrics;
+    private int itemMargin = 0, itemWidth = 0;
+
+    public CurrentTripAdapter(List<ExploreModel> models, Context context, DisplayMetrics metrics, boolean dragOnLongPress) {
         this.models = models;
         this.context = context;
+        this.dragOnLongPress = dragOnLongPress;
+        this.metrics = metrics;
+//        setItemList(mDataSet);
+        setHasStableIds(true);
     }
 
     @Override
-    public int getCount() {
+    public long getUniqueItemId(int position) {
+        return models.get(position).hashCode();
+    }
+
+    @Override
+    public int getItemCount() {
         return models.size();
     }
 
     @Override
-    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-        return view.equals(object);
-    }
-
-    @NonNull
-    @Override
-    public Object instantiateItem(@NonNull ViewGroup container, final int position) {
-        LayoutInflater layoutInflater = LayoutInflater.from(context);
-        final View view = layoutInflater.inflate(R.layout.layout_current_trip_item, container, false);
-
-        imageView = view.findViewById(R.id.image);
-        title = view.findViewById(R.id.title);
-        time_to_cover = view.findViewById(R.id.time_to_cover);
-
-        Log.d("title is","" + models.get(position).getTitle());
-
-        updateView(position,container);
-
-        container.addView(view, 0);
-
-        return view;
-    }
-
-    private void updateView(int position,ViewGroup container) {
-        title.setText(models.get(position).getTitle());
-        time_to_cover.setText(models.get(position).getDuration_required_to_visit());
-
-        Boolean isCustom = models.get(position).getIsCustom();
-
-        if(!isCustom){
-            Glide.with(context)
-                    .load(models.get(position).getFb_image_url())
-                    .placeholder(R.drawable.wait)
-                    .into(imageView);
-        }
-
-        else{
-            Glide.with(context)
-                    .load(R.drawable.custom_location)
-                    .into(imageView);
-        }
-
-        startUpdate(container);
-
-        notifyDataSetChanged();
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_current_trip_item, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
-    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView((View)object);
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        super.onBindViewHolder(holder, position);
+        int currentItemWidth = itemWidth;
+//        if (position == 0) {
+//            currentItemWidth += itemMargin;
+//            holder.view.setPadding(itemMargin, 0, itemMargin, 0);
+//        } else if (position == mDataset.size() - 1) {
+//            currentItemWidth += itemMargin;
+//            holder.view.setPadding(itemMargin, 0, itemMargin, 0);
+//        }
+
+        int height = holder.itemView.getLayoutParams().height;
+        holder.itemView.setLayoutParams(new ViewGroup.LayoutParams(currentItemWidth, height));
+        holder.setData(position);
     }
+
+    class ViewHolder extends DragItemAdapter.ViewHolder {
+
+        private View v;
+        private ImageView imageView;
+        private TextView title;
+        private TextView time_to_cover;
+
+        ViewHolder(View view) {
+            super(view, R.id.layout_current_trip_item, dragOnLongPress);
+            v = view;
+            imageView = v.findViewById(R.id.image);
+            title = v.findViewById(R.id.title);
+            time_to_cover = v.findViewById(R.id.time_to_cover);
+        }
+
+        void setData(int position){
+            title.setText(models.get(position).getTitle());
+            time_to_cover.setText(models.get(position).getDuration_required_to_visit());
+
+            Boolean isCustom = models.get(position).getIsCustom();
+
+            if(!isCustom){
+                Glide.with(context)
+                        .load(models.get(position).getFb_image_url())
+                        .placeholder(R.drawable.wait)
+                        .into(imageView);
+            }
+
+            else{
+                Glide.with(context)
+                        .load(R.drawable.custom_location)
+                        .into(imageView);
+            }
+        }
+    }
+
+    public void setItemMargin(int itemMargin){
+        this.itemMargin = itemMargin;
+    }
+
+    public void updateDisplayMetrics(){
+        itemWidth = metrics.widthPixels - itemMargin * 2;
+    }
+
 }

@@ -24,13 +24,10 @@
         android:visibility="gone"
         />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewPager"
+    <com.woxthebox.draglistview.DragListView
+        android:id="@+id/drag_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:foregroundGravity="center"
-        android:overScrollMode="never" />
+        android:layout_height="match_parent"/>
 
     <Button
         android:id="@+id/customStop"

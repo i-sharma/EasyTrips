@@ -8,7 +8,9 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,6 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.testapp.R;
@@ -41,6 +47,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.woxthebox.draglistview.DragListView;
 
 import org.json.JSONObject;
 
@@ -69,9 +76,10 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    int current_position = 0;
     LatLng origin,destination;
     PlacesClient placesClient;
-    ViewPager viewPager;
+    DragListView dragListView;
     CurrentTripAdapter adapter;
     List<ExploreModel> model_opt_off = new ArrayList<>();
     List<ExploreModel> model_opt_on =  new ArrayList<>();
@@ -112,7 +120,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         opt_switch = findViewById(R.id.optimize_switch);
         route = findViewById(R.id.showRoute);
-        viewPager = findViewById(R.id.viewPager);
+        dragListView = (DragListView) findViewById(R.id.drag_list_view);
         removeItem = findViewById(R.id.removeItemFromTrip);
         editBtn = findViewById(R.id.editBtn);
         doneBtn = findViewById(R.id.doneBtn);
@@ -140,6 +148,30 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             Log.d("in starting ","updateModel called");
             updateModel(0);
+            dragListView.setDragListListener(new DragListView.DragListListener() {
+                @Override
+                public void onItemDragStarted(int position) {
+
+                }
+
+                @Override
+                public void onItemDragging(int itemPosition, float x, float y) {
+
+                }
+
+                @Override
+                public void onItemDragEnded(int fromPosition, int toPosition) {
+                    Collections.swap(model_opt_off,fromPosition,toPosition);
+                    updateModel(toPosition);
+                }
+            });
+
+            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL);
+
+            dragListView.getRecyclerView().addItemDecoration(dividerItemDecoration);
+
+            PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
+            pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
 
             OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
             optimizeAsyncTask.execute();
@@ -179,7 +211,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 String lon = String.valueOf(customLoc.longitude);
                 String time = "NO ESTIMATE";
 
-                int position = viewPager.getCurrentItem();
+//                int position = current_position;
                 optimization = false;
                 customStopAdded = true;
                 ExploreModel customModel = new ExploreModel(id,title,lat,lon,true,time);
@@ -187,16 +219,16 @@ public class CurrentTripActivity extends AppCompatActivity {
                 boolean was_empty = model_opt_off.isEmpty();
                 opt_switch.setChecked(false);
 
-                Log.d(TAG,"curr position is "+position);
+                Log.d(TAG,"curr position is "+current_position);
 
                 if(!was_checked){
-                    model_opt_off.add(position,customModel);
+                    model_opt_off.add(current_position,customModel);
                     for(ExploreModel m:model_opt_off){
                         Log.d("in model_opt_off: ",m.getTitle());
                     }
 
                 }else{
-                    model_opt_on.add(position,customModel);
+                    model_opt_on.add(current_position,customModel);
                     model_opt_off.add(0,customModel);
 
                     for(ExploreModel m:model_opt_on){
@@ -206,7 +238,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }
 
                 //adapter.notifyDataSetChanged();
-                updateModel(position);
+                updateModel(current_position);
 
                 Log.d("outside if else","modeloptoff has:");
 
@@ -401,8 +433,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }else{
                     if(data_models_map.keySet().size() > 1) {
                         Log.d("from optSwitch","updateModel called");
-                        int position = viewPager.getCurrentItem();
-                        updateModel(position);
+//                        int position = viewPager.getCurrentItem();
+                        updateModel(current_position);
                     }
                 }
 
@@ -414,7 +446,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     private void showEmptyTripUI() {
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.VISIBLE);
-        viewPager.setVisibility(View.GONE);
+        dragListView.setVisibility(View.GONE);
         opt_switch.setVisibility(View.GONE);
         removeItem.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
@@ -425,7 +457,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     private void removeEmptyTripUI() {
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.GONE);
-        viewPager.setVisibility(View.VISIBLE);
+        dragListView.setVisibility(View.VISIBLE);
         opt_switch.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
         editBtn.setVisibility(View.GONE);
@@ -440,8 +472,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             model_opt_on.add(model_opt_off.get(index));
         }
         Log.d("from applyModelOptOn","updateModel called");
-        int position = viewPager.getCurrentItem();
-        updateModel(position);
+//        int position = ;
+        updateModel(current_position);
     }
 
     private void optimizeRoute() {
@@ -513,7 +545,10 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-
+    private int getCurrentItem() {
+        return ((LinearLayoutManager) dragListView.getRecyclerView().getLayoutManager())
+                .findFirstCompletelyVisibleItemPosition();
+    }
 
     private void setViewPagerBackground() {
 
@@ -531,104 +566,21 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         colors = colors_temp;
 
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        dragListView.getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-                if(adapter != null){
-
-                    if (position < (adapter.getCount() -1) && position < (colors.length - 1)) {
-                        viewPager.setBackgroundColor(
-
-                                (Integer) argbEvaluator.evaluate(
-                                        positionOffset,
-                                        colors[position],
-                                        colors[position + 1]
-                                )
-                        );
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    int position = getCurrentItem();
+                    if(adapter != null){
+                        dragListView.setBackgroundColor(colors[position%(colors.length-1)]);
+                        current_position = position;
                     }
-
-                    else {
-                        viewPager.setBackgroundColor(colors[colors.length - 1]);
-                    }
-
                 }
-
             }
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-
         });
     }
 
-//    private HashMap<Integer, DocumentReference> CreateDocReference(String... cities) {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        DocumentReference city_reference = db.collection("ts_data").document(cities[0]);
-//        HashMap<Integer, DocumentReference> tourist_places = new HashMap<>();
-//
-//        for (int id : trip_data.keySet()) {
-//            String tourist_places_id = cities[0] + "::" + id;
-//            tourist_places.put(id,city_reference.collection(cities[0] + "_data").document(tourist_places_id));
-//        }
-//        return tourist_places;
-//    }
-
-//    private void createStorageReference(String... cities) {
-//
-////        HashMap<Integer, DocumentReference> tp = CreateDocReference(cities);
-//        final StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-//
-//        for(final int id : trip_data.keySet()){
-//            Log.d("proper id is",id+"");
-//
-//            tp.get(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-//
-//                @Override
-//                public void onSuccess(DocumentSnapshot document) {
-//
-//                    assert document != null;
-//                    if (!document.exists()) {
-//                        Log.d("existence: ", "No such document");
-//                    } else {
-//                        String img_name = "" + document.get("image_name");
-//                        Log.d("img_name is ",img_name);
-//                        final String title = "" + document.get("title");
-//                        final String time_to_cover = "" + document.get("duration_required_to_visit");
-//                        String[] parts = time_to_cover.split(":",2);
-//                        int hour = Integer.parseInt(parts[0]);
-//                        int min = Integer.parseInt(parts[1]);
-//                        final String tot_time;
-//                        if(hour > 0 && min > 0){
-//                            tot_time = hour + " hrs " + min + " min";
-//                        }
-//                        else if (min > 0 && hour == 0){
-//                            tot_time = min + " min";
-//                        }
-//                        else if(hour > 0 && min == 0){
-//                            tot_time = hour + " hrs";
-//                        }else {
-//                            tot_time = "no estimate";
-//                        }
-//                        StorageReference spaceRef  = storageReference.child("photos_delhi/" + img_name);
-//                        Log.d("spaceRef is",spaceRef.getName());
-//                        spaceRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                            @Override
-//                            public void onSuccess(Uri uri) {
-//                                addTo_Model_opt_off(uri,title,tot_time,id);
-//                            }
-//                        });
-//                    }
-//                }
-//            });
-//        }
-//    }
 
     public void removeFromModel(boolean was_checked) {
         String curr_id;
@@ -636,16 +588,16 @@ public class CurrentTripActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
         }else{
 
-            int position = viewPager.getCurrentItem();
+//            int position = viewPager.getCurrentItem();
 
-            viewPager.setAdapter(null);
+            dragListView.setAdapter(null,false);
 
             if(!was_checked){
-                curr_id = model_opt_off.get(position).getId();
-                model_opt_off.remove(position);
+                curr_id = model_opt_off.get(current_position).getId();
+                model_opt_off.remove(current_position);
             }else{
-                curr_id = model_opt_on.get(position).getId();
-                model_opt_on.remove(position);
+                curr_id = model_opt_on.get(current_position).getId();
+                model_opt_on.remove(current_position);
                 for(int i = 0; i < model_opt_off.size(); i++){
                     if(model_opt_off.get(i).getId() == curr_id){
                         model_opt_off.remove(i);
@@ -654,52 +606,33 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }
             }
 
-            Log.d("deleting:",""+position);
+            Log.d("deleting:",""+current_position);
             data_models_map.remove(curr_id);
             Log.d("from removeFromModel","updateModel called");
-            updateModel(position);
+            updateModel(current_position);
         }
 
     }
 
-    private void updateModel(int start_position) {
-        Log.d(TAG,"updateModel is called ");
-        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off, this);
-        else                adapter = new CurrentTripAdapter(model_opt_on , this);
-
-        viewPager.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        viewPager.setCurrentItem(start_position);
-        viewPager.setPadding(100, 0, 100, 0);
-        progressBar.setVisibility(View.GONE);
+    private DisplayMetrics getDisplayMetrics() {
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics metrics = new DisplayMetrics();
+        display.getMetrics(metrics);
+        return metrics;
     }
 
-//    private void addTo_Model_opt_off(Uri result, String title, String tot_time, int id) {
-//
-//        /*model_opt_off.set(index,new ExploreModel(result,title,short_description,id));
-//
-//       */
-//        model_opt_off.add(new ExploreModel(result,title,tot_time,id));
-//
-//        if(model_opt_off.size() == trip_data.keySet().size()){
-//            int size = model_opt_off.size();
-//            ArrayList<Integer> ids = new ArrayList<>(trip_data.keySet());
-//            List<ExploreModel> proper_model = new ArrayList<>();
-//            for(int i=0;i<size;i++){
-//                proper_model.add(new ExploreModel());
-//            }
-//            for(int i=0;i<size;i++){
-//                ExploreModel curr_model = model_opt_off.get(i);
-//                int curr_id = model_opt_off.get(i).getId();
-//                Log.d("curr_id is ",curr_id+"");
-//                int index = ids.indexOf(curr_id);
-//                proper_model.set(index,curr_model);
-//            }
-//            model_opt_off = proper_model;
-//            updateModel(0);
-//        }
-//
-//    }
+    private void updateModel(int start_position) {
+        Log.d(TAG,"updateModel is called ");
+        dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
+        else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
+        adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
+        adapter.updateDisplayMetrics();
+        dragListView.setAdapter(adapter, true);
+        dragListView.setCanDragHorizontally(true);
+        dragListView.getRecyclerView().scrollToPosition(start_position);
+        progressBar.setVisibility(View.GONE);
+    }
 
     private String getUrl(LatLng origin, LatLng dest, Boolean opt,StringBuffer waypoints_coordinates) {
 
