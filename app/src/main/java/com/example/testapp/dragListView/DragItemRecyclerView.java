@@ -32,6 +32,7 @@ import android.view.ViewConfiguration;
 import com.example.testapp.dragListView.AutoScroller;
 import com.example.testapp.dragListView.DragItem;
 import com.example.testapp.dragListView.DragItemAdapter;
+import com.example.testapp.models.ExploreModel;
 
 public class DragItemRecyclerView extends RecyclerView implements AutoScroller.AutoScrollListener {
 
@@ -502,7 +503,7 @@ public class DragItemRecyclerView extends RecyclerView implements AutoScroller.A
         return pos;
     }
 
-    void addDragItemAndStart(float y, Object item, long itemId) {
+    void addDragItemAndStart(float y, ExploreModel item, long itemId) {
         int pos = getDragPositionForY(y);
 
         mDragState = DragState.DRAG_STARTED;

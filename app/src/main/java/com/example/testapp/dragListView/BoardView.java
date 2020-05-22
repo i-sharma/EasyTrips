@@ -47,6 +47,7 @@ import com.example.testapp.dragListView.ColumnProperties;
 import com.example.testapp.dragListView.DragItem;
 import com.example.testapp.dragListView.DragItemAdapter;
 import com.example.testapp.dragListView.DragItemRecyclerView;
+import com.example.testapp.models.ExploreModel;
 
 
 import java.util.ArrayList;
@@ -370,7 +371,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
                 // Check if it is ok to drop the item in the new column first
                 int newPosition = currentList.getDragPositionForY(getRelativeViewTouchY(currentList));
                 if (mBoardCallback == null || mBoardCallback.canDropItemAtPosition(mDragStartColumn, mDragStartRow, newColumn, newPosition)) {
-                    Object item = mCurrentRecyclerView.removeDragItemAndEnd();
+                    ExploreModel item = (ExploreModel)mCurrentRecyclerView.removeDragItemAndEnd();
                     if (item != null) {
                         mCurrentRecyclerView = currentList;
                         mCurrentRecyclerView.addDragItemAndStart(getRelativeViewTouchY(mCurrentRecyclerView), item, itemId);
@@ -543,7 +544,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         }
     }
 
-    public void addItem(int column, int row, Object item, boolean scrollToItem) {
+    public void addItem(int column, int row, ExploreModel item, boolean scrollToItem) {
         if (!isDragging() && mLists.size() > column && mLists.get(column).getAdapter().getItemCount() >= row) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(column).getAdapter();
             adapter.addItem(row, item);
@@ -557,7 +558,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         if (!isDragging() && mLists.size() > fromColumn && mLists.get(fromColumn).getAdapter().getItemCount() > fromRow
                 && mLists.size() > toColumn && mLists.get(toColumn).getAdapter().getItemCount() >= toRow) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(fromColumn).getAdapter();
-            Object item = adapter.removeItem(fromRow);
+            ExploreModel item = (ExploreModel)adapter.removeItem(fromRow);
             adapter = (DragItemAdapter) mLists.get(toColumn).getAdapter();
             adapter.addItem(toRow, item);
             if (scrollToItem) {
@@ -580,7 +581,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         }
     }
 
-    public void replaceItem(int column, int row, Object item, boolean scrollToItem) {
+    public void replaceItem(int column, int row, ExploreModel item, boolean scrollToItem) {
         if (!isDragging() && mLists.size() > column && mLists.get(column).getAdapter().getItemCount() > row) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(column).getAdapter();
             adapter.removeItem(row);

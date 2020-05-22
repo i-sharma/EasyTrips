@@ -157,7 +157,6 @@ public class CurrentTripActivity extends AppCompatActivity {
             adapter.updateDisplayMetrics();
             dragListView.setAdapter(adapter, true);
             dragListView.setCanDragHorizontally(true);
-//            dragListView.getRecyclerView().scrollToPosition(cur);
             progressBar.setVisibility(View.GONE);
 
             dragListView.setDragListListener(new DragListView.DragListListener() {
@@ -173,8 +172,8 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 @Override
                 public void onItemDragEnded(int fromPosition, int toPosition) {
-                    Collections.swap(model_opt_off,fromPosition,toPosition);
-                    updateModel(toPosition);
+//                    Collections.swap(model_opt_off,fromPosition,toPosition);
+//                    updateModel(toPosition);
                 }
             });
 

@@ -33,7 +33,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         this.context = context;
         this.dragOnLongPress = dragOnLongPress;
         this.metrics = metrics;
-//        setItemList(models);
+        setItemList(models);
         setHasStableIds(true);
     }
 

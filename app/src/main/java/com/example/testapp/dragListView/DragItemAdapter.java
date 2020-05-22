@@ -25,6 +25,8 @@ import android.view.View;
 import java.util.Collections;
 import java.util.List;
 
+import com.example.testapp.models.ExploreModel;
+
 public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> extends RecyclerView.Adapter<VH> {
 
     interface DragStartCallback {
@@ -36,7 +38,7 @@ public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> 
     private DragStartCallback mDragStartCallback;
     private long mDragItemId = RecyclerView.NO_ID;
     private long mDropTargetId = RecyclerView.NO_ID;
-    protected List<T> mItemList;
+    protected List<ExploreModel> mItemList;
 
     /**
      * @return a unique id for an item at the specific position.
@@ -47,12 +49,12 @@ public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> 
         setHasStableIds(true);
     }
 
-    public void setItemList(List<T> itemList) {
+    public void setItemList(List<ExploreModel> itemList) {
         mItemList = itemList;
         notifyDataSetChanged();
     }
 
-    public List<T> getItemList() {
+    public List<ExploreModel> getItemList() {
         return mItemList;
     }
 
@@ -75,7 +77,7 @@ public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> 
         return null;
     }
 
-    public void addItem(int pos, T item) {
+    public void addItem(int pos, ExploreModel item) {
         if (mItemList != null && mItemList.size() >= pos) {
             mItemList.add(pos, item);
             notifyItemInserted(pos);
@@ -84,7 +86,7 @@ public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> 
 
     public void changeItemPosition(int fromPos, int toPos) {
         if (mItemList != null && mItemList.size() > fromPos && mItemList.size() > toPos) {
-            T item = mItemList.remove(fromPos);
+            ExploreModel item = mItemList.remove(fromPos);
             mItemList.add(toPos, item);
             notifyItemMoved(fromPos, toPos);
         }
