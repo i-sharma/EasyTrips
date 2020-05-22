@@ -24,10 +24,11 @@
         android:visibility="gone"
         />
 
-    <com.woxthebox.draglistview.DragListView
+    <com.example.testapp.dragListView.DragListView
         android:id="@+id/drag_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
 
     <Button
         android:id="@+id/customStop"

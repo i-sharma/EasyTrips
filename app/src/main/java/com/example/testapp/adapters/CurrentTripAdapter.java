@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.testapp.R;
 import com.example.testapp.models.ExploreModel;
-import com.woxthebox.draglistview.DragItemAdapter;
+import com.example.testapp.dragListView.DragItemAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         this.context = context;
         this.dragOnLongPress = dragOnLongPress;
         this.metrics = metrics;
-//        setItemList(mDataSet);
+//        setItemList(models);
         setHasStableIds(true);
     }
 
