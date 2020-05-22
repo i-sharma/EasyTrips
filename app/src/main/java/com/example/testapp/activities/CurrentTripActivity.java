@@ -89,7 +89,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     Button route,editBtn,doneBtn,customStopBtn;
     Switch opt_switch;
     Boolean optimization = false;
-    Boolean optimization_change = false;
+//    Boolean optimization_change = false;
     LinearLayout removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
@@ -150,7 +150,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             Log.d("in starting ","updateModel called");
             dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-            createNewModel(0);
+            updateModel(0);
 
             dragListView.setDragListListener(new DragListView.DragListListener() {
                 @Override
@@ -182,8 +182,12 @@ public class CurrentTripActivity extends AppCompatActivity {
             PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
             pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
 
-            OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
-            optimizeAsyncTask.execute();
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+                new OptimizeAsyncTask().execute();
+            }
+            else{
+                new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
 
         }
 
@@ -382,8 +386,13 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded)) {
                     opt_off = opt_on = "";
-                    OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
-                    optimizeAsyncTask.execute();
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+                        new OptimizeAsyncTask().execute();
+                    }
+                    else{
+                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    }
+
                     somethingDeleted = false;
                     customStopAdded = false;
                 }
@@ -408,7 +417,6 @@ public class CurrentTripActivity extends AppCompatActivity {
                     boolean was_checked = opt_switch.isChecked();
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
-                    if(optimization)    optimization_change = true;
                     optimization = false;
                     saveTripData();
                     if(data_models_map.keySet().size() == 0){
@@ -424,15 +432,14 @@ public class CurrentTripActivity extends AppCompatActivity {
         opt_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Boolean old_opt = optimization;
                 optimization = opt_switch.isChecked();
-                if((!optimization && old_opt) || (optimization && !old_opt))    optimization_change = true;
                 if(optimization){
                     if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
                         JSONObject jObject;
                         try {
+                            Log.d(TAG, "onClick: someth" + opt_on);
                             jObject = new JSONObject(opt_on);
                             MapsDataParser parser = new MapsDataParser(jObject);
                             waypoint_order = parser.get_waypoint_order();
@@ -659,7 +666,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             Log.d("deleting:",""+current_position);
             data_models_map.remove(curr_id);
             Log.d("from removeFromModel","updateModel called");
-            createNewModel(current_position);
+            updateModel(current_position);
         }
 
     }
@@ -671,24 +678,17 @@ public class CurrentTripActivity extends AppCompatActivity {
         return metrics;
     }
 
-    private void createNewModel(int pos){
+
+    private void updateModel(int start_position) {
+        Log.d(TAG,"updateModel is called ");
         if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
         else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
         adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
         adapter.updateDisplayMetrics();
         dragListView.setAdapter(adapter, true);
         dragListView.setCanDragHorizontally(true);
-        dragListView.getRecyclerView().scrollToPosition(pos);
+        dragListView.getRecyclerView().scrollToPosition(start_position);
         progressBar.setVisibility(View.GONE);
-    }
-
-    private void updateModel(int start_position) {
-        Log.d(TAG,"updateModel is called ");
-        if (optimization_change) {
-            createNewModel(start_position);
-        }
-        if(adapter!=null)
-            adapter.notifyDataSetChanged();
 
     }
 
@@ -736,6 +736,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             StringBuilder result = new StringBuilder();
             try {
                 url = new URL(urls[0]);
+                Log.d(TAG, "doInBackground: someth" + urls[0]);
                 InputStream in = url.openStream();
                 InputStreamReader reader = new InputStreamReader(in);
                 char[] buffer = new char[1024];
