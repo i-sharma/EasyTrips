@@ -165,14 +165,19 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 @Override
                 public void onItemDragEnded(int fromPosition, int toPosition) {
-//                    Collections.swap(model_opt_off,fromPosition,toPosition);
-//                    updateModel(toPosition);
+                    Log.d(TAG, "onItemDragEnded: from " + fromPosition + " to " + toPosition);
+                    for(ExploreModel model: model_opt_off){
+//                        Log.d(TAG, "doInBackground: " + model.getTitle());
+                        Log.d(TAG, "onItemDragEnded: " + model.getTitle());
+                    }
+
+                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1)
+                        new DragEndedAsync().execute();
+                    else
+                        new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
                 }
             });
-
-//            DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.HORIZONTAL);
-//
-//            dragListView.getRecyclerView().addItemDecoration(dividerItemDecoration);
 
             PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
             pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
@@ -186,6 +191,30 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         createOnClickListeners();
 
+    }
+
+    private class DragEndedAsync extends AsyncTask<Void, Integer, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: debug");
+            data_models_map = new LinkedHashMap<>();
+            for(ExploreModel model: model_opt_off){
+                data_models_map.put(model.getId(),model);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            saveTripData();
+            for(String key: data_models_map.keySet()){
+                Log.d(TAG, "doInBackground: key " + key + " value " + data_models_map.get(key).getTitle());
+//                Log.d(TAG, "onItemDragEnded: key " + key + " value " + data_models_map.get(key).getTitle());
+            }
+        }
     }
 
     private void initializePlaces() {
@@ -546,6 +575,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             optimizeRoute();
+            Log.d(TAG, "doInBackground: here");
             return null;
         }
     }
