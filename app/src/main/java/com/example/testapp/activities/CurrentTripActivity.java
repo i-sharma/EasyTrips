@@ -150,14 +150,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             Log.d("in starting ","updateModel called");
             dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-//            updateModel(0);
-            if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
-            else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
-            adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
-            adapter.updateDisplayMetrics();
-            dragListView.setAdapter(adapter, true);
-            dragListView.setCanDragHorizontally(true);
-            progressBar.setVisibility(View.GONE);
+            createNewModel(0);
 
             dragListView.setDragListListener(new DragListView.DragListListener() {
                 @Override
@@ -602,7 +595,8 @@ public class CurrentTripActivity extends AppCompatActivity {
 
 //            int position = viewPager.getCurrentItem();
 
-            dragListView.setAdapter(null,false);
+//            dragListView.getRecyclerView().setAdapter(null);
+//            dragListView.setAdapter(null,false);
 
             if(!was_checked){
                 curr_id = model_opt_off.get(current_position).getId();
@@ -621,7 +615,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             Log.d("deleting:",""+current_position);
             data_models_map.remove(curr_id);
             Log.d("from removeFromModel","updateModel called");
-            updateModel(current_position);
+            createNewModel(current_position);
         }
 
     }
@@ -633,17 +627,21 @@ public class CurrentTripActivity extends AppCompatActivity {
         return metrics;
     }
 
+    private void createNewModel(int pos){
+        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
+        else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
+        adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
+        adapter.updateDisplayMetrics();
+        dragListView.setAdapter(adapter, true);
+        dragListView.setCanDragHorizontally(true);
+        dragListView.getRecyclerView().scrollToPosition(pos);
+        progressBar.setVisibility(View.GONE);
+    }
+
     private void updateModel(int start_position) {
         Log.d(TAG,"updateModel is called ");
         if (optimization_change) {
-            if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
-            else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
-            adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
-            adapter.updateDisplayMetrics();
-            dragListView.setAdapter(adapter, true);
-            dragListView.setCanDragHorizontally(true);
-            dragListView.getRecyclerView().scrollToPosition(start_position);
-            progressBar.setVisibility(View.GONE);
+            createNewModel(start_position);
         }
         if(adapter!=null)
             adapter.notifyDataSetChanged();

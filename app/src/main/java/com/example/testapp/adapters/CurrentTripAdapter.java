@@ -1,12 +1,18 @@
 package com.example.testapp.adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
 
 import com.bumptech.glide.Glide;
 import com.example.testapp.R;
@@ -18,8 +24,7 @@ import java.util.List;
 
 public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapter.ViewHolder> {
 
-//    private ArrayList<Integer> mDataSet;
-
+    private static final String TAG = "CurrentTripAdapter";
     private List<ExploreModel> models;
     private Context context;
 
@@ -57,17 +62,15 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         int currentItemWidth = itemWidth;
-//        if (position == 0) {
-//            currentItemWidth += itemMargin;
-//            holder.view.setPadding(itemMargin, 0, itemMargin, 0);
-//        } else if (position == mDataset.size() - 1) {
-//            currentItemWidth += itemMargin;
-//            holder.view.setPadding(itemMargin, 0, itemMargin, 0);
-//        }
-
         int height = holder.itemView.getLayoutParams().height;
-        holder.itemView.setLayoutParams(new ViewGroup.LayoutParams(currentItemWidth, height));
         holder.setData(position);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(currentItemWidth, height);
+        if(position == 0){
+            params.setMargins(itemMargin, 0, 0, 0);
+        } else if (position == models.size() - 1){
+            params.setMargins(0,0,itemMargin, 0);
+        }
+        holder.itemView.setLayoutParams(params);
     }
 
     class ViewHolder extends DragItemAdapter.ViewHolder {
