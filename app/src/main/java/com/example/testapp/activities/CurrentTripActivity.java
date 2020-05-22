@@ -538,10 +538,24 @@ public class CurrentTripActivity extends AppCompatActivity {
         Log.d(TAG, "optimizeRoute: url " + url_opt_is_false);
         String url_opt_is_true = getUrl(origin,destination,true,waypoints_coordinates);
 
-        DownloadTask task_opt_is_false = new DownloadTask();
-        task_opt_is_false.execute(url_opt_is_false);
-        DownloadTask task_opt_is_true = new DownloadTask();
-        task_opt_is_true.execute((url_opt_is_true));
+        DownloadTask task_opt_is_false,task_opt_is_true;
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+            task_opt_is_false = new DownloadTask();
+            task_opt_is_false.execute(url_opt_is_false);
+            task_opt_is_true = new DownloadTask();
+            task_opt_is_true.execute((url_opt_is_true));
+        }
+        else{
+            task_opt_is_false = new DownloadTask();
+            task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            task_opt_is_true = new DownloadTask();
+            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        }
+
+
+
+
+
 
         try {
             opt_off = task_opt_is_false.get();
