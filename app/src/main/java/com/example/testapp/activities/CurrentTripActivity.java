@@ -517,6 +517,29 @@ public class CurrentTripActivity extends AppCompatActivity {
         updateModel(current_position);
     }
 
+    private String download_api_result(String url_param){
+        URL url;
+        StringBuilder result = new StringBuilder();
+        try {
+            url = new URL(url_param);
+            Log.d(TAG, "doInBackground: someth" + url_param);
+            InputStream in = url.openStream();
+            InputStreamReader reader = new InputStreamReader(in);
+            char[] buffer = new char[1024];
+            int bytesRead = reader.read(buffer);
+            while(bytesRead != -1){
+
+                result.append(buffer,0,bytesRead);
+                bytesRead = reader.read(buffer);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+    }
+
     private void optimizeRoute() {
 
         ArrayList<String> temp = new ArrayList<>();
@@ -545,37 +568,26 @@ public class CurrentTripActivity extends AppCompatActivity {
         Log.d(TAG, "optimizeRoute: url " + url_opt_is_false);
         String url_opt_is_true = getUrl(origin,destination,true,waypoints_coordinates);
 
-        DownloadTask task_opt_is_false,task_opt_is_true;
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
-            task_opt_is_false = new DownloadTask();
-            task_opt_is_false.execute(url_opt_is_false);
-            task_opt_is_true = new DownloadTask();
-            task_opt_is_true.execute((url_opt_is_true));
-        }
-        else{
-            task_opt_is_false = new DownloadTask();
-            task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            task_opt_is_true = new DownloadTask();
-            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+//        DownloadTask task_opt_is_false,task_opt_is_true;
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+//            task_opt_is_false = new DownloadTask();
+//            task_opt_is_false.execute(url_opt_is_false);
+//            task_opt_is_true = new DownloadTask();
+//            task_opt_is_true.execute((url_opt_is_true));
+//        }
+//        else{
+//            task_opt_is_false = new DownloadTask();
+//            task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//            task_opt_is_true = new DownloadTask();
+//            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        }
 
+        opt_off = download_api_result(url_opt_is_false);
+        saveApiResult(false);
 
+        opt_on = download_api_result(url_opt_is_true);
+        saveApiResult(true);
 
-
-
-
-        try {
-            opt_off = task_opt_is_false.get();
-            saveApiResult(false);
-
-            opt_on = task_opt_is_true.get();
-            saveApiResult(true);
-
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -693,6 +705,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private String getUrl(LatLng origin, LatLng dest, Boolean opt,StringBuffer waypoints_coordinates) {
+        Log.d(TAG, "getUrl: called");
 
         //Directions API URL
         String directions_api = "https://maps.googleapis.com/maps/api/directions/";
@@ -723,43 +736,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         return url;
     }
 
-    private class DownloadTask extends AsyncTask<String,Integer,String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressBar.setVisibility(View.VISIBLE);
-        }
 
-        @Override
-        protected String doInBackground(String... urls) {
-            URL url;
-            StringBuilder result = new StringBuilder();
-            try {
-                url = new URL(urls[0]);
-                Log.d(TAG, "doInBackground: someth" + urls[0]);
-                InputStream in = url.openStream();
-                InputStreamReader reader = new InputStreamReader(in);
-                char[] buffer = new char[1024];
-                int bytesRead = reader.read(buffer);
-                while(bytesRead != -1){
-
-                    result.append(buffer,0,bytesRead);
-                    bytesRead = reader.read(buffer);
-
-                }
-                return result.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return "not possible";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.d(TAG,"api_result is "+result);
-        }
-    }
 
     private StringBuffer getWaypointsCoordinates() {
 
@@ -769,7 +746,6 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             String lon = data_models_map.get(id).getLon();
             String lat = data_models_map.get(id).getLat();
-
             waypoints_coordinates.append("|").append(lat).append(",").append(lon);
 
         }
