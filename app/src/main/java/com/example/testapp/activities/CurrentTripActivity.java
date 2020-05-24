@@ -76,6 +76,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     FirebaseUser currentUser;
 
     private static final String TAG = "MainActivity";
+    private boolean editMode;
 
     enum ScrollDirection {
         LEFT,
@@ -91,7 +92,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<ExploreModel> model_opt_on =  new ArrayList<>();
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-    Button route,editBtn,doneBtn,customStopBtn;
+    Button route,editBtn,doneBtn,customStopBtn,deleteCard;
     Switch opt_switch;
     Boolean optimization = false;
 //    Boolean optimization_change = false;
@@ -133,6 +134,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         doneBtn = findViewById(R.id.doneBtn);
         customStopBtn = findViewById(R.id.customStop);
         progressBar = findViewById(R.id.curr_trip_progress);
+        deleteCard = findViewById(R.id.curr_trip_delete);
 
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
                 android.graphics.PorterDuff.Mode.MULTIPLY);
@@ -383,6 +385,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 dragListView.setDragEnabled(true);
                 customStopBtn.setVisibility(View.VISIBLE);
                 editBtn.setVisibility(View.GONE);
@@ -673,22 +676,15 @@ public class CurrentTripActivity extends AppCompatActivity {
                         if(current_position!=data_models_map.size()-1)
                             current_position += 1;
                     }
-//                        Log.d(TAG, "onScrollStateChanged: right");
                     else if(scrollDirection.equals(ScrollDirection.LEFT)){
                         if(current_position!=0)
                             current_position -= 1;
                     }
-                    Log.d(TAG, "onScrollStateChanged: curr_pos " + current_position);
-
-//                    Log.d(TAG, "onScrollStateChanged: " + recyclerView.computeHorizontalScrollRange());
-//                    Log.d(TAG, "onScrollStateChanged: " + recyclerView.computeHorizontalScrollExtent());
-//                    Log.d(TAG, "onScrollStateChanged: " + recyclerView.computeHorizontalScrollOffset());
 
                     if(adapter != null){
                         int idx=current_position%(colors.length-1);
                         if(idx < 0) idx = (-1 * idx) % (colors.length-1);
                         dragListView.setBackgroundColor(colors[idx]);
-//                        current_position = position;
                     }
                 }
             }
@@ -724,14 +720,14 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             Log.d("deleting:",""+current_position);
             data_models_map.remove(curr_id);
-            saved_api_ids.remove(current_position);
+            saved_api_ids.clear();
+            for(String s: data_models_map.keySet())
+                saved_api_ids.add(s);
             editor.putString("saved_api_ids", saved_api_ids.toString());
             editor.commit();
             for(ExploreModel model : model_opt_off){
                 Log.d(TAG, "removeFromModel: " + model.getTitle());
             }
-//            Log.d(TAG, "removeFromModel: " + );
-//            Log.d("from removeFromModel","updateModel called");
             if(current_position > (data_models_map.size()-1))
                 current_position = data_models_map.size()-1;
             updateModel(current_position);
@@ -754,7 +750,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
     private void updateModel(int start_position) {
         Log.d(TAG,"updateModel is called ");
-        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off,this, getDisplayMetrics(), true);
+        if(!optimization)   adapter = new CurrentTripAdapter(model_opt_off, this, getDisplayMetrics(), true);
         else                adapter = new CurrentTripAdapter(model_opt_on ,this, getDisplayMetrics(), true);
         adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
         adapter.updateDisplayMetrics();

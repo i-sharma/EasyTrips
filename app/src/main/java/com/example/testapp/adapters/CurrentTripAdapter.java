@@ -1,10 +1,13 @@
 package com.example.testapp.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,6 +18,7 @@ import com.example.testapp.dragListView.DragItemAdapter;
 import com.example.testapp.models.ExploreModel;
 
 import java.util.List;
+import java.util.Random;
 
 public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapter.ViewHolder> {
 
@@ -22,10 +26,12 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private List<ExploreModel> models;
     private Context context;
 
-
+    Random rnd = new Random();
+    int currentColor;
     private boolean dragOnLongPress;
     private DisplayMetrics metrics;
     private int itemMargin = 0, itemWidth = 0;
+    private ViewGroup mParent;
 
     public CurrentTripAdapter(List<ExploreModel> models, Context context, DisplayMetrics metrics, boolean dragOnLongPress) {
         this.models = models;
@@ -48,6 +54,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        mParent = parent;
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_current_trip_item, parent, false);
         return new ViewHolder(view);
     }
@@ -65,6 +72,11 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             params.setMargins(0,0,itemMargin, 0);
         }
         holder.itemView.setLayoutParams(params);
+//        if(mParent!=null) {
+//            currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+//            mParent.setBackgroundColor(currentColor);
+
+//        }
     }
 
     class ViewHolder extends DragItemAdapter.ViewHolder {
@@ -73,6 +85,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         private ImageView imageView;
         private TextView title;
         private TextView time_to_cover;
+        private Button delete;
 
         ViewHolder(View view) {
             super(view, R.id.layout_current_trip_item, dragOnLongPress);
@@ -80,6 +93,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             imageView = v.findViewById(R.id.image);
             title = v.findViewById(R.id.title);
             time_to_cover = v.findViewById(R.id.time_to_cover);
+            delete = v.findViewById(R.id.curr_trip_delete);
         }
 
         void setData(int position){

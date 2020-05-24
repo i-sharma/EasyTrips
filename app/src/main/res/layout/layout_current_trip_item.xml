@@ -70,6 +70,19 @@
                 android:layout_marginBottom="10dp"
                 app:srcCompat="@android:drawable/ic_menu_info_details" />
 
+            <Button
+                android:id="@+id/curr_trip_delete"
+                android:background="@drawable/delete_button"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true"
+                android:visibility="gone"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="5dp"
+                app:srcCompat="@android:drawable/ic_menu_info_details" />
+
 
         </RelativeLayout>
 
