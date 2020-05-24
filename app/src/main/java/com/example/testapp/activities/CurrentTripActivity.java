@@ -98,7 +98,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
-    Boolean same,somethingDeleted = false, customStopAdded = false; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean same,somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
 
     SharedPreferences sharedPref;
@@ -180,6 +180,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 }
             });
+            dragListView.setDragEnabled(false);
 
             PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
             pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
@@ -203,13 +204,22 @@ public class CurrentTripActivity extends AppCompatActivity {
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void>{
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            viewDragged = true;
+        }
+
+        @Override
         protected Void doInBackground(Void... voids) {
             Log.d(TAG, "doInBackground: debug");
             data_models_map = new LinkedHashMap<>();
+            saved_api_ids = new ArrayList<>();
             for(ExploreModel model: model_opt_off){
                 data_models_map.put(model.getId(),model);
+                saved_api_ids.add(model.getId());
             }
-
+            editor.putString("saved_api_ids", saved_api_ids.toString());
+            editor.commit();
             return null;
         }
 
@@ -368,6 +378,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dragListView.setDragEnabled(true);
                 customStopBtn.setVisibility(View.VISIBLE);
                 editBtn.setVisibility(View.GONE);
                 doneBtn.setVisibility(View.VISIBLE);
@@ -380,6 +391,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dragListView.setDragEnabled(false);
                 customStopBtn.setVisibility(View.GONE);
                 editBtn.setVisibility(View.VISIBLE);
                 doneBtn.setVisibility(View.GONE);
@@ -387,7 +399,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 route.setVisibility(View.VISIBLE);
                 opt_switch.setVisibility(View.VISIBLE);
 
-                if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded)) {
+                if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
+                        viewDragged)) {
+                    Log.d(TAG, "onClick: done" );
                     opt_off = opt_on = "";
 //                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
 //                        new OptimizeAsyncTask().execute();
@@ -398,6 +412,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     optimizeRoute();
                     somethingDeleted = false;
                     customStopAdded = false;
+                    viewDragged = false;
                 }
 
             }
@@ -438,7 +453,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 optimization = opt_switch.isChecked();
 
                 if(optimization){
-                    dragListView.setDragEnabled(false);
+//                    dragListView.setDragEnabled(false);
                     if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
@@ -477,7 +492,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
                 }else{
-                    dragListView.setDragEnabled(true);
+
                     if(data_models_map.keySet().size() > 1) {
                         Log.d("from optSwitch","updateModel called");
 //                        int position = viewPager.getCurrentItem();
@@ -529,6 +544,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         for(String s: data_models_map.keySet()){
             // Check if string contains only numbers
             temp.add(s);
+            Log.d(TAG, "optimizeRoute: " + data_models_map.get(s).getTitle());
             /*if(s.matches("^[0-9]+$")) {
                 temp.add(Integer.parseInt(s));
             }*/
