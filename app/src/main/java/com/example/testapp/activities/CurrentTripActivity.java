@@ -672,14 +672,17 @@ public class CurrentTripActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 
-                    if(scrollDirection.equals(ScrollDirection.RIGHT)){
-                        if(current_position!=data_models_map.size()-1)
-                            current_position += 1;
+                    if(scrollDirection!=null){
+                        if(scrollDirection.equals(ScrollDirection.RIGHT)){
+                            if(current_position!=data_models_map.size()-1)
+                                current_position += 1;
+                        }
+                        else if(scrollDirection.equals(ScrollDirection.LEFT)){
+                            if(current_position!=0)
+                                current_position -= 1;
+                        }
                     }
-                    else if(scrollDirection.equals(ScrollDirection.LEFT)){
-                        if(current_position!=0)
-                            current_position -= 1;
-                    }
+
 
                     if(adapter != null){
                         int idx=current_position%(colors.length-1);
