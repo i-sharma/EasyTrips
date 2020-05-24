@@ -545,6 +545,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
         Log.d("from applyModelOptOn","updateModel called");
 //        int position = ;
+        current_position = 0;
         updateModel(current_position);
     }
 
@@ -735,7 +736,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 Log.d(TAG, "removeFromModel: " + model.getTitle());
             }
             if(current_position > (data_models_map.size()-1))
-                current_position = data_models_map.size()-1;
+                current_position = Math.max(0,data_models_map.size()-1);
             updateModel(current_position);
 //            adapter.notifyItemRemoved(current_position);
 //            adapter.notifyItemRangeChanged(0,model_opt_off.size());
