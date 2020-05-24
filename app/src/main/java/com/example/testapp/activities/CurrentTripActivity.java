@@ -737,7 +737,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
             if(current_position > (data_models_map.size()-1))
                 current_position = Math.max(0,data_models_map.size()-1);
-            updateModel(current_position);
+//            updateModel(current_position);
+            adapter.notifyDataSetChanged();
 //            adapter.notifyItemRemoved(current_position);
 //            adapter.notifyItemRangeChanged(0,model_opt_off.size());
             Log.d(TAG, "removeFromModel: pos before " + current_position);
