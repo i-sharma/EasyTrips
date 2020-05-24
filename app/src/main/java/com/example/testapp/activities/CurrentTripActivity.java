@@ -271,20 +271,13 @@ public class CurrentTripActivity extends AppCompatActivity {
                 Log.d(TAG,"curr position is "+current_position);
 
                 if(!was_checked){
-                    if(current_position!=0)
-                        model_opt_off.add(current_position,customModel);
-                    else
-                        model_opt_off.add(customModel);
+                    model_opt_off.add(current_position,customModel);
                     for(ExploreModel m:model_opt_off){
                         Log.d("in model_opt_off: ",m.getTitle());
                     }
 
                 }else{
-                    if(current_position!=0)
-                        model_opt_on.add(current_position,customModel);
-                    else
-                        model_opt_on.add(customModel);
-//                    model_opt_on.add(current_position,customModel);
+                    model_opt_on.add(current_position,customModel);
                     model_opt_off.add(0,customModel);
 
                     for(ExploreModel m:model_opt_on){
