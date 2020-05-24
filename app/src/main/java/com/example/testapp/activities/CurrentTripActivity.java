@@ -141,6 +141,35 @@ public class CurrentTripActivity extends AppCompatActivity {
         setViewPagerBackground();
 
         initializePlaces();
+        dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        dragListView.setDragListListener(new DragListView.DragListListener() {
+            @Override
+            public void onItemDragStarted(int position) {
+
+            }
+
+            @Override
+            public void onItemDragging(int itemPosition, float x, float y) {
+
+            }
+
+            @Override
+            public void onItemDragEnded(int fromPosition, int toPosition) {
+                Log.d(TAG, "onItemDragEnded: from " + fromPosition + " to " + toPosition);
+                for(ExploreModel model: model_opt_off){
+//                        Log.d(TAG, "doInBackground: " + model.getTitle());
+                    Log.d(TAG, "onItemDragEnded: " + model.getTitle());
+                }
+
+                new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+            }
+        });
+        dragListView.setDragEnabled(false);
+
+        PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
+        pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
+
 
         //show empty_trip_notification and hide everything else
         if(data_models_map.keySet().size() == 0){
@@ -155,49 +184,11 @@ public class CurrentTripActivity extends AppCompatActivity {
             //this is essential for maps activity to work, not required when we access location in app
             setTmpLocation();
 
-            Log.d("in starting ","updateModel called");
-            dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+//            Log.d("in starting ","updateModel called");
+            Log.d(TAG, "onCreate: hello 1");
             updateModel(0);
 
-            dragListView.setDragListListener(new DragListView.DragListListener() {
-                @Override
-                public void onItemDragStarted(int position) {
 
-                }
-
-                @Override
-                public void onItemDragging(int itemPosition, float x, float y) {
-
-                }
-
-                @Override
-                public void onItemDragEnded(int fromPosition, int toPosition) {
-                    Log.d(TAG, "onItemDragEnded: from " + fromPosition + " to " + toPosition);
-                    for(ExploreModel model: model_opt_off){
-//                        Log.d(TAG, "doInBackground: " + model.getTitle());
-                        Log.d(TAG, "onItemDragEnded: " + model.getTitle());
-                    }
-
-                    new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-//                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1)
-//                        new DragEndedAsync().execute();
-//                    else
-//                        new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
-                }
-            });
-            dragListView.setDragEnabled(false);
-
-            PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
-            pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
-
-//            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
-//                new OptimizeAsyncTask().execute();
-//            }
-//            else{
-//                new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//            }
             optimizeRoute();
 
         }
@@ -279,13 +270,20 @@ public class CurrentTripActivity extends AppCompatActivity {
                 Log.d(TAG,"curr position is "+current_position);
 
                 if(!was_checked){
-                    model_opt_off.add(current_position,customModel);
+                    if(current_position!=0)
+                        model_opt_off.add(current_position,customModel);
+                    else
+                        model_opt_off.add(customModel);
                     for(ExploreModel m:model_opt_off){
                         Log.d("in model_opt_off: ",m.getTitle());
                     }
 
                 }else{
-                    model_opt_on.add(current_position,customModel);
+                    if(current_position!=0)
+                        model_opt_on.add(current_position,customModel);
+                    else
+                        model_opt_on.add(customModel);
+//                    model_opt_on.add(current_position,customModel);
                     model_opt_off.add(0,customModel);
 
                     for(ExploreModel m:model_opt_on){
@@ -295,7 +293,10 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }
 
                 //adapter.notifyDataSetChanged();
-                updateModel(current_position);
+                Log.d(TAG, "onCreate: hello 2");
+
+
+//                adapter.notifyDataSetChanged();
 
                 Log.d("outside if else","modeloptoff has:");
 
@@ -308,7 +309,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 for(ExploreModel m:model_opt_off){
                     tmp.put(m.getId(),m);
                 }
-
+                updateModel(current_position);
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
 
@@ -515,6 +516,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     }
 
     private void showEmptyTripUI() {
+        progressBar.setVisibility(View.GONE);
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.VISIBLE);
         customStopBtn.setVisibility(View.VISIBLE);
