@@ -171,7 +171,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Log.d(TAG, "onItemDragEnded: " + model.getTitle());
                     }
 
-//                    new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 //                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1)
 //                        new DragEndedAsync().execute();
@@ -436,7 +436,9 @@ public class CurrentTripActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 optimization = opt_switch.isChecked();
+
                 if(optimization){
+                    dragListView.setDragEnabled(false);
                     if(data_models_map.keySet().size() > 1){
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
@@ -475,6 +477,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
                 }else{
+                    dragListView.setDragEnabled(true);
                     if(data_models_map.keySet().size() > 1) {
                         Log.d("from optSwitch","updateModel called");
 //                        int position = viewPager.getCurrentItem();
