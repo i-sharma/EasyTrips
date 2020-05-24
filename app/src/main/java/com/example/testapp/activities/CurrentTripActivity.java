@@ -188,8 +188,9 @@ public class CurrentTripActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: hello 1");
             updateModel(0);
 
+            new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-            optimizeRoute();
+//            optimizeRoute();
 
         }
 
@@ -419,9 +420,10 @@ public class CurrentTripActivity extends AppCompatActivity {
 //                        new OptimizeAsyncTask().execute();
 //                    }
 //                    else{
-//                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//
 //                    }
-                    optimizeRoute();
+                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//                    optimizeRoute();
                     somethingDeleted = false;
                     customStopAdded = false;
                     viewDragged = false;
