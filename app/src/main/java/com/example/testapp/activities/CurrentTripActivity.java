@@ -312,6 +312,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 updateModel(current_position);
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
+                if(data_models_map.size() > 1)
+                    dragListView.setDragEnabled(true);
 
                 Log.d("saveTripData"," was called after adding CustomStop");
                 saveTripData();
