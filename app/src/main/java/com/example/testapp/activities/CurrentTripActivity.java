@@ -386,7 +386,8 @@ public class CurrentTripActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                dragListView.setDragEnabled(true);
+                if(data_models_map.size() > 1)
+                    dragListView.setDragEnabled(true);
                 customStopBtn.setVisibility(View.VISIBLE);
                 editBtn.setVisibility(View.GONE);
                 doneBtn.setVisibility(View.VISIBLE);
@@ -516,6 +517,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     private void showEmptyTripUI() {
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.VISIBLE);
+        customStopBtn.setVisibility(View.VISIBLE);
         dragListView.setVisibility(View.GONE);
         opt_switch.setVisibility(View.GONE);
         removeItem.setVisibility(View.GONE);
@@ -699,6 +701,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         String curr_id;
         if(data_models_map.isEmpty()){
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
+            showEmptyTripUI();
         }else{
 
 
