@@ -171,10 +171,12 @@ public class CurrentTripActivity extends AppCompatActivity {
                         Log.d(TAG, "onItemDragEnded: " + model.getTitle());
                     }
 
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1)
-                        new DragEndedAsync().execute();
-                    else
-                        new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//                    new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+//                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1)
+//                        new DragEndedAsync().execute();
+//                    else
+//                        new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
                 }
             });
@@ -182,12 +184,13 @@ public class CurrentTripActivity extends AppCompatActivity {
             PagerSnapHelper pagerSnapHelper = new PagerSnapHelper();
             pagerSnapHelper.attachToRecyclerView(dragListView.getRecyclerView());
 
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
-                new OptimizeAsyncTask().execute();
-            }
-            else{
-                new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            }
+//            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+//                new OptimizeAsyncTask().execute();
+//            }
+//            else{
+//                new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//            }
+            optimizeRoute();
 
         }
 
@@ -386,13 +389,13 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded)) {
                     opt_off = opt_on = "";
-                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
-                        new OptimizeAsyncTask().execute();
-                    }
-                    else{
-                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    }
-
+//                    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+//                        new OptimizeAsyncTask().execute();
+//                    }
+//                    else{
+//                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//                    }
+                    optimizeRoute();
                     somethingDeleted = false;
                     customStopAdded = false;
                 }
@@ -546,23 +549,24 @@ public class CurrentTripActivity extends AppCompatActivity {
         String url_opt_is_true = getUrl(origin,destination,true,waypoints_coordinates);
 
         DownloadTask task_opt_is_false,task_opt_is_true;
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
-            task_opt_is_false = new DownloadTask();
-            task_opt_is_false.execute(url_opt_is_false);
-            task_opt_is_true = new DownloadTask();
-            task_opt_is_true.execute((url_opt_is_true));
-        }
-        else{
-            task_opt_is_false = new DownloadTask();
-            task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            task_opt_is_true = new DownloadTask();
-            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        }
+        task_opt_is_false = new DownloadTask();
+        task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url_opt_is_false);
+        task_opt_is_true = new DownloadTask();
+        task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,url_opt_is_true);
 
 
-
-
-
+//        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.HONEYCOMB_MR1){
+//            task_opt_is_false = new DownloadTask();
+//            task_opt_is_false.execute(url_opt_is_false);
+//            task_opt_is_true = new DownloadTask();
+//            task_opt_is_true.execute((url_opt_is_true));
+//        }
+//        else{
+//            task_opt_is_false = new DownloadTask();
+//            task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//            task_opt_is_true = new DownloadTask();
+//            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//        }
 
         try {
             opt_off = task_opt_is_false.get();
@@ -629,7 +633,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int position = getCurrentItem();
                     if(adapter != null){
-                        dragListView.setBackgroundColor(colors[position%(colors.length-1)]);
+                        int idx=position%(colors.length-1);
+                        if(idx < 0) idx = -1 * idx;
+                        dragListView.setBackgroundColor(colors[idx]);
                         current_position = position;
                     }
                 }
@@ -747,6 +753,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     bytesRead = reader.read(buffer);
 
                 }
+                Log.d(TAG, "doInBackground: sdf" + result.toString());
                 return result.toString();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -757,7 +764,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            Log.d(TAG,"api_result is "+result);
+            Log.d(TAG,"api_result is "+result.toString());
         }
     }
 
@@ -829,6 +836,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_true");
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                 opt_on = (String) ois.readObject();
+                Log.d(TAG, "loadApiResult: on" + opt_on);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -840,7 +848,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 File file = new File(getDir("apiResponse", MODE_PRIVATE), "opt_false");
                 ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
                 opt_off = (String) ois.readObject();
-
+                Log.d(TAG, "loadApiResult: off" + opt_off);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
