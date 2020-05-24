@@ -570,7 +570,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         Log.d(TAG, "optimizeRoute: " + temp);
         Log.d(TAG, "optimizeRoute: " + shared_pref_ids);
 
-        if(temp.toString().equals(shared_pref_ids)) return;
+        if(temp.toString().equals(shared_pref_ids) && !viewDragged) return;
 
         StringBuffer waypoints_coordinates ;
         waypoints_coordinates = getWaypointsCoordinates();
