@@ -86,7 +86,7 @@ dependencies {
     //Places (for Autocomplete func)
     implementation 'com.google.android.libraries.places:places:2.2.0'
 
-    //Drag and Drop CurrentTrip Activity
-//    implementation 'com.github.woxthebox:draglistview:1.7.1'
+    //OptSwitch
+    implementation 'com.github.zcweng:switch-button:0.0.3@aar'
 
 }

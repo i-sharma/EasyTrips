@@ -52,6 +52,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.example.testapp.dragListView.DragListView;
+import com.suke.widget.SwitchButton;
 
 import org.json.JSONObject;
 
@@ -96,7 +97,8 @@ public class CurrentTripActivity extends AppCompatActivity {
     Integer[] colors = null;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
     Button route,editBtn,doneBtn,customStopBtn,deleteCard;
-    Switch opt_switch;
+//    Switch opt_switch;
+    com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
 //    Boolean optimization_change = false;
     LinearLayout removeItem;
@@ -129,7 +131,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
-        opt_switch = findViewById(R.id.optimize_switch);
+//        opt_switch = findViewById(R.id.optimize_switch);
         route = findViewById(R.id.showRoute);
         dragListView = (DragListView) findViewById(R.id.drag_list_view);
         removeItem = findViewById(R.id.removeItemFromTrip);
@@ -138,7 +140,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         customStopBtn = findViewById(R.id.customStop);
         progressBar = findViewById(R.id.curr_trip_progress);
         deleteCard = findViewById(R.id.curr_trip_delete);
-
+        switchButton = (com.suke.widget.SwitchButton)findViewById(R.id.optimize_switch);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorDark),
                 android.graphics.PorterDuff.Mode.MULTIPLY);
         setViewPagerBackground();
@@ -272,9 +274,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 optimization = false;
                 customStopAdded = true;
                 ExploreModel customModel = new ExploreModel(id,title,lat,lon,true,time);
-                boolean was_checked = opt_switch.isChecked();
+                boolean was_checked = switchButton.isChecked();
                 boolean was_empty = model_opt_off.isEmpty();
-                opt_switch.setChecked(false);
+                switchButton.setChecked(false);
 
                 Log.d(TAG,"curr position is "+current_position);
 
@@ -402,7 +404,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 doneBtn.setVisibility(View.VISIBLE);
                 removeItem.setVisibility(View.VISIBLE);
                 route.setVisibility(View.GONE);
-                opt_switch.setVisibility(View.GONE);
+//                opt_switch.setVisibility(View.GONE);
+                switchButton.setVisibility(View.GONE);
             }
         });
 
@@ -415,8 +418,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                 doneBtn.setVisibility(View.GONE);
                 removeItem.setVisibility(View.GONE);
                 route.setVisibility(View.VISIBLE);
-                opt_switch.setVisibility(View.VISIBLE);
-
+//                opt_switch.setVisibility(View.VISIBLE);
+                switchButton.setVisibility(View.GONE);
                 if(data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged)) {
                     Log.d(TAG, "onClick: done" );
@@ -451,8 +454,8 @@ public class CurrentTripActivity extends AppCompatActivity {
                     removeItem.setBackgroundColor(0x00000000);
                     loadTripData();
                     somethingDeleted = true;
-                    boolean was_checked = opt_switch.isChecked();
-                    opt_switch.setChecked(false); //because it may not be optimized.
+                    boolean was_checked = switchButton.isChecked();
+                    switchButton.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
 //                    new RemoveFromModelAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,was_checked);
                     optimization = false;
@@ -467,11 +470,11 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
         });
 
-        opt_switch.setOnClickListener(new View.OnClickListener() {
+        switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View view) {
-                optimization = opt_switch.isChecked();
-
+            public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+//                optimization = opt_switch.isChecked();
+                optimization = isChecked;
                 if(optimization){
 //                    dragListView.setDragEnabled(false);
                     if(data_models_map.keySet().size() > 1){
@@ -522,6 +525,12 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             }
         });
+//        switchButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//            }
+//        });
 
     }
 
@@ -531,7 +540,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         empty_trip.setVisibility(View.VISIBLE);
         customStopBtn.setVisibility(View.VISIBLE);
         dragListView.setVisibility(View.GONE);
-        opt_switch.setVisibility(View.GONE);
+        switchButton.setVisibility(View.GONE);
         removeItem.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
         editBtn.setVisibility(View.GONE);
@@ -542,7 +551,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.GONE);
         dragListView.setVisibility(View.VISIBLE);
-        opt_switch.setVisibility(View.GONE);
+        switchButton.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
         editBtn.setVisibility(View.GONE);
         removeItem.setVisibility(View.VISIBLE);

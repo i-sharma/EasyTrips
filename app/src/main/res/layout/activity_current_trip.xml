@@ -40,18 +40,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <Switch
-        android:id="@+id/optimize_switch"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="180dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_below="@id/customStop"
         android:layout_centerInParent="true"
-        android:layout_marginTop="20dp"
-        android:checked="false"
-        android:text="@string/optimize_switch"
-        android:textColor="@color/colorDark"
-        android:textSize="22sp"/>
+        android:layout_marginTop="40dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OPTIMIZE"
+            android:textColor="@color/colorDark"
+            android:textSize="22sp"
+            android:layout_alignParentLeft="true"
+            />
+        <com.suke.widget.SwitchButton
+            android:id="@+id/optimize_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:checked="false"/>
+    </RelativeLayout>
+
 
     <Button
         android:id="@+id/editBtn"
