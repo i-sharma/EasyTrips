@@ -306,7 +306,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 for(ExploreModel m:model_opt_off){
                     tmp.put(m.getId(),m);
                 }
-                updateModel(current_position);
+                adapter.notifyItemInserted(current_position);
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
                 if(data_models_map.size() > 1)
@@ -319,7 +319,6 @@ public class CurrentTripActivity extends AppCompatActivity {
                     removeEmptyTripUI();
                 }
 
-                // do query with address
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 // TODO: Handle the error.
@@ -445,6 +444,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                     boolean was_checked = opt_switch.isChecked();
                     opt_switch.setChecked(false); //because it may not be optimized.
                     removeFromModel(was_checked);
+//                    new RemoveFromModelAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,was_checked);
                     optimization = false;
                     saveTripData();
                     if(data_models_map.keySet().size() == 0){
@@ -637,10 +637,13 @@ public class CurrentTripActivity extends AppCompatActivity {
         }
     }
 
-//    private int getCurrentItem() {
-//        return ((LinearLayoutManager) dragListView.getRecyclerView().getLayoutManager())
-//                .findFirstCompletelyVisibleItemPosition();
-//    }
+    private int getCurrentItem() {
+        int pos = ((LinearLayoutManager)(dragListView.getRecyclerView().getLayoutManager())).findFirstCompletelyVisibleItemPosition();
+        Log.d(TAG, "getCurrentItem: " + pos);
+        if(pos>=0)
+            return pos;
+        return -1;
+    }
 
     private void setViewPagerBackground() {
 
@@ -663,30 +666,35 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         dragListView.getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-            ScrollDirection scrollDirection;
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if(dx > 0)  scrollDirection = ScrollDirection.RIGHT;
-                else if(dx < 0)  scrollDirection = ScrollDirection.LEFT;
-//                Log.d(TAG, "onScrolled: dx " + dx + " dy " + dy);
-            }
+//            ScrollDirection scrollDirection;
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if(dx > 0)  scrollDirection = ScrollDirection.RIGHT;
+//                else if(dx < 0)  scrollDirection = ScrollDirection.LEFT;
+////                Log.d(TAG, "onScrolled: dx " + dx + " dy " + dy);
+//            }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-
-                    if(scrollDirection!=null){
-                        if(scrollDirection.equals(ScrollDirection.RIGHT)){
-                            if(current_position!=data_models_map.size()-1)
-                                current_position += 1;
-                        }
-                        else if(scrollDirection.equals(ScrollDirection.LEFT)){
-                            if(current_position!=0)
-                                current_position -= 1;
-                        }
+//                    Log.d(TAG, "onScrollStateChanged: here");
+                    int position = getCurrentItem();
+                    if(position != -1){
+                        current_position = position;
                     }
+                        Log.d(TAG, "onScrollStateChanged: dsf " + position);
+//                    if(scrollDirection!=null){
+//                        if(scrollDirection.equals(ScrollDirection.RIGHT)){
+//                            if(current_position!=data_models_map.size()-1)
+//                                current_position += 1;
+//                        }
+//                        else if(scrollDirection.equals(ScrollDirection.LEFT)){
+//                            if(current_position!=0)
+//                                current_position -= 1;
+//                        }
+//                    }
 
 
                     if(adapter != null){
@@ -706,13 +714,10 @@ public class CurrentTripActivity extends AppCompatActivity {
             Toast.makeText(getBaseContext(),"Trip is Empty",Toast.LENGTH_SHORT).show();
             showEmptyTripUI();
         }else{
-
-
-//            int position = viewPager.getCurrentItem();
-
-//            dragListView.getRecyclerView().setAdapter(null);
-//            dragListView.setAdapter(null,false);
-
+//            for(int i = 0; i < model_opt_off.size(); i++){
+//                Log.d(TAG, "removeFromModel: here " + i + " title " + model_opt_off.get(i).getTitle());
+//            }
+            Log.d(TAG, "removeFromModel: curr before " + current_position);
             if(!was_checked){
                 curr_id = model_opt_off.get(current_position).getId();
                 model_opt_off.remove(current_position);
@@ -726,6 +731,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                     }
                 }
             }
+//            for(int i = 0; i < model_opt_off.size(); i++){
+//                Log.d(TAG, "removeFromModel: here " + i + " title " + model_opt_off.get(i).getTitle());
+//            }
 
             Log.d("deleting:",""+current_position);
             data_models_map.remove(curr_id);
@@ -737,17 +745,40 @@ public class CurrentTripActivity extends AppCompatActivity {
             for(ExploreModel model : model_opt_off){
                 Log.d(TAG, "removeFromModel: " + model.getTitle());
             }
+            adapter.notifyItemRemoved(current_position);
+            adapter.notifyItemRangeChanged(current_position,model_opt_off.size()-current_position);
+            int position = getCurrentItem();
+            if(position != -1){
+                current_position = position;
+            }
             if(current_position > (data_models_map.size()-1))
                 current_position = Math.max(0,data_models_map.size()-1);
 //            updateModel(current_position);
-            adapter.notifyDataSetChanged();
-//            adapter.notifyItemRemoved(current_position);
-//            adapter.notifyItemRangeChanged(0,model_opt_off.size());
-            Log.d(TAG, "removeFromModel: pos before " + current_position);
-
-            Log.d(TAG, "removeFromModel: pos after " + current_position);
+//            adapter.notifyDataSetChanged();
+            Log.d(TAG, "removeFromModel: curr after " + current_position);
         }
 
+    }
+
+
+    private class RemoveFromModelAsync extends AsyncTask<Boolean, Void, Void>{
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            adapter.notifyItemRemoved(current_position);
+        }
+
+        @Override
+        protected Void doInBackground(Boolean... booleans) {
+            removeFromModel(booleans[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
     }
 
     private DisplayMetrics getDisplayMetrics() {

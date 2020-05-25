@@ -2,5 +2,5 @@
 <resources>
     <dimen name="ts_details_add_button_height">50dp</dimen>
     <dimen name="ts_details_added_button_height">40dp</dimen>
-    <dimen name="pager_margin">50dp</dimen>
+    <dimen name="pager_margin">30dp</dimen>
 </resources>
