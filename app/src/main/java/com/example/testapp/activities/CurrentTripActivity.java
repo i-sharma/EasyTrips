@@ -165,7 +165,9 @@ public class CurrentTripActivity extends AppCompatActivity {
                 }
 
                 new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
+                adapter.notifyDataSetChanged();
+                changeCurrentPosition();
+                Log.d(TAG, "onPreExecute: " + current_position);
             }
         });
         dragListView.setDragEnabled(false);
@@ -209,6 +211,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             viewDragged = true;
+
         }
 
         @Override
@@ -228,9 +231,11 @@ public class CurrentTripActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+
             saveTripData();
             for(String key: data_models_map.keySet()){
-                Log.d(TAG, "doInBackground: key " + key + " value " + data_models_map.get(key).getTitle());
+
+//                Log.d(TAG, "doInBackground: key " + key + " value " + data_models_map.get(key).getTitle());
 //                Log.d(TAG, "onItemDragEnded: key " + key + " value " + data_models_map.get(key).getTitle());
             }
         }
@@ -645,6 +650,15 @@ public class CurrentTripActivity extends AppCompatActivity {
         return -1;
     }
 
+    private void changeCurrentPosition(){
+        int position = getCurrentItem();
+        if(position != -1){
+            current_position = position;
+        }
+        if(current_position > (data_models_map.size()-1))
+            current_position = Math.max(0,data_models_map.size()-1);
+    }
+
     private void setViewPagerBackground() {
 
         Integer[] colors_temp = {
@@ -679,12 +693,14 @@ public class CurrentTripActivity extends AppCompatActivity {
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+
+                    changeCurrentPosition();
 //                    Log.d(TAG, "onScrollStateChanged: here");
-                    int position = getCurrentItem();
-                    if(position != -1){
-                        current_position = position;
-                    }
-                        Log.d(TAG, "onScrollStateChanged: dsf " + position);
+//                    int position = getCurrentItem();
+//                    if(position != -1){
+//                        current_position = position;
+//                    }
+//                        Log.d(TAG, "onScrollStateChanged: dsf " + position);
 //                    if(scrollDirection!=null){
 //                        if(scrollDirection.equals(ScrollDirection.RIGHT)){
 //                            if(current_position!=data_models_map.size()-1)
@@ -747,12 +763,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
             adapter.notifyItemRemoved(current_position);
             adapter.notifyItemRangeChanged(current_position,model_opt_off.size()-current_position);
-            int position = getCurrentItem();
-            if(position != -1){
-                current_position = position;
-            }
-            if(current_position > (data_models_map.size()-1))
-                current_position = Math.max(0,data_models_map.size()-1);
+            changeCurrentPosition();
 //            updateModel(current_position);
 //            adapter.notifyDataSetChanged();
             Log.d(TAG, "removeFromModel: curr after " + current_position);

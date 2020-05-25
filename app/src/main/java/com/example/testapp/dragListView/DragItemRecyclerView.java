@@ -93,6 +93,7 @@ public class DragItemRecyclerView extends RecyclerView implements AutoScroller.A
         mAutoScroller = new AutoScroller(getContext(), this);
         mTouchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
+
         addItemDecoration(new ItemDecoration() {
             @Override
             public void onDraw(Canvas c, RecyclerView parent, State state) {
@@ -440,8 +441,10 @@ public class DragItemRecyclerView extends RecyclerView implements AutoScroller.A
             if (newPos != NO_POSITION) {
                 mAdapter.swapItems(mDragItemPosition, newPos);
                 mDragItemPosition = newPos;
+//                mAutoScroller
             }
             mAdapter.setDropTargetId(NO_ID);
+
         }
 
         // Post so layout is done before we start end animation

@@ -223,6 +223,7 @@ public abstract class DragItemAdapter<T, VH extends DragItemAdapter.ViewHolder> 
 
         public void setDragStartCallback(DragStartCallback dragStartedListener) {
             mDragStartCallback = dragStartedListener;
+
         }
 
         public void onItemClicked(View view) {
