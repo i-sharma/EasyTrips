@@ -311,7 +311,7 @@ public class CurrentTripActivity extends AppCompatActivity {
                 for(ExploreModel m:model_opt_off){
                     tmp.put(m.getId(),m);
                 }
-                adapter.notifyItemInserted(current_position);
+
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
                 if(data_models_map.size() > 1)
@@ -322,6 +322,11 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if(was_empty){
                     removeEmptyTripUI();
+                    updateModel(0);
+                }
+
+                else{
+                    adapter.notifyItemInserted(current_position);
                 }
 
 
