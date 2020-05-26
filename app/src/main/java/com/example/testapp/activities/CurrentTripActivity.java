@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -140,9 +141,12 @@ public class CurrentTripActivity extends AppCompatActivity {
 
             @Override
             public void onItemDragEnded(int fromPosition, int toPosition) {
+                dragListView.getRecyclerView().smoothScrollToPosition(toPosition);
                 new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 adapter.notifyDataSetChanged();
                 updateCurrentPosition();
+
+
             }
         });
         dragListView.setDragEnabled(false);
