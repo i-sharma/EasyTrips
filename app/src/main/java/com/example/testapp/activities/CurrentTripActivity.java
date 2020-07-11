@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +59,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,13 +83,14 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<ExploreModel> model_opt_off = new ArrayList<>();
     List<ExploreModel> model_opt_on = new ArrayList<>();
     Integer[] colors = null;
-    Button route, editBtn, doneBtn, customStopBtn, deleteCard;
+    Button route, editBtn, doneBtn, customStopBtn, deleteCard,navigationBtn;
     com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
     LinearLayout removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
-    String opt_off, opt_on;
+    String opt_off, opt_on, url_opt_is_false,url_opt_is_true;
+    StringBuffer waypoints_coordinates,waypoints_coordinates_opt_on;
     LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
@@ -305,12 +308,16 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                 if (data_models_map.keySet().size() > 0) {
 
+                    waypoints_coordinates_opt_on = getWaypoints_coordinates_opt_on();
+                    waypoints_coordinates = getWaypointsCoordinates();
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization", optimization);
                     intent.putExtra("origin", origin);
                     intent.putExtra("destination", destination);
                     intent.putExtra("waypoints", waypoint_order);
                     intent.putExtra("same", same);
+                    intent.putExtra("wc_opt_off", waypoints_coordinates.toString());
+                    intent.putExtra("wc_opt_on", waypoints_coordinates_opt_on.toString());
                     startActivity(intent);
 
                 }
@@ -533,13 +540,13 @@ public class CurrentTripActivity extends AppCompatActivity {
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged) return;
         Log.d(TAG, "optimizeRoute: 2");
-        StringBuffer waypoints_coordinates;
+
         waypoints_coordinates = getWaypointsCoordinates();
 
         setTmpLocation();
 
-        String url_opt_is_false = getUrl(origin, destination, false, waypoints_coordinates);
-        String url_opt_is_true = getUrl(origin, destination, true, waypoints_coordinates);
+        url_opt_is_false = getUrl(origin, destination, false, waypoints_coordinates);
+        url_opt_is_true = getUrl(origin, destination, true, waypoints_coordinates);
 
         DownloadTask task_opt_is_false, task_opt_is_true;
         task_opt_is_false = new DownloadTask();
@@ -716,7 +723,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         // Sensor enabled
         String sensor = "sensor=true";
 
-        String waypoints = waypoints = "waypoints=optimize:" + opt + waypoints_coordinates.toString();
+        String waypoints = "waypoints=optimize:" + opt + waypoints_coordinates.toString();
 
         // Building the parameters to the web service
         String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + waypoints;
@@ -766,6 +773,22 @@ public class CurrentTripActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
         }
+    }
+
+    private StringBuffer getWaypoints_coordinates_opt_on(){
+        StringBuffer wp = new StringBuffer("");
+        ArrayList<String> data_models_lat = new ArrayList<>();
+        ArrayList<String> data_models_lon = new ArrayList<>();
+        for (String id : data_models_map.keySet()) {
+            String lat = data_models_map.get(id).getLat();
+            String lon = data_models_map.get(id).getLon();
+            data_models_lat.add(lat);
+            data_models_lon.add(lon);
+        }
+        for (int index : waypoint_order) {
+            wp.append("|").append(data_models_lat.get(index)).append(",").append(data_models_lon.get(index));
+        }
+        return wp;
     }
 
     private StringBuffer getWaypointsCoordinates() {

@@ -27,7 +27,8 @@
     <com.example.testapp.dragListView.DragListView
         android:id="@+id/drag_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+    </com.example.testapp.dragListView.DragListView>
 
 
     <Button
@@ -39,7 +40,6 @@
         android:background="@drawable/current_trip_round_gray"
         android:text="@string/customStop"
         android:layout_width="180dp"
-        tools:visibility="true"
         android:layout_height="wrap_content"/>
 
     <RelativeLayout
@@ -65,7 +65,6 @@
             android:layout_alignParentRight="true"
             android:checked="false"/>
     </RelativeLayout>
-
 
     <Button
         android:id="@+id/editBtn"

@@ -1,17 +1,20 @@
 package com.example.testapp.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.adapters.ExploreAdapter;
 import com.example.testapp.models.ExploreModel;
 import com.example.testapp.utils.MapsDataParser;
 import com.example.testapp.R;
@@ -39,13 +42,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = "MapsActivity";
 
     LatLng origin,destination;
-    Boolean optimization;
+    Boolean optimization,same;
+    Button changeMapType,navigationBtn;
     Switch optimize_switch;
-    String opt_off,opt_on;
+    String opt_off,opt_on,waypoints_coordinates_opt_off,waypoints_coordinates_opt_on;
     private GoogleMap map;
     LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
-    Boolean same;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         destination = it.getParcelableExtra("destination");
         waypoint_order = it.getExtras().getIntegerArrayList("waypoints");
         same = it.getExtras().getBoolean("same");
+        waypoints_coordinates_opt_off = it.getExtras().getString("wc_opt_off");
+        waypoints_coordinates_opt_on = it.getExtras().getString("wc_opt_on");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -67,6 +72,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         optimize_switch = findViewById(R.id.optimize_switch);
+        changeMapType = findViewById(R.id.change_map_type);
+        navigationBtn = findViewById(R.id.navigationBtn);
         optimize_switch.setChecked(optimization);
 
         //this is the condition to call direction api
@@ -75,6 +82,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             plotMap(optimization);
         }
 
+        createOnClickListeners();
+
+    }
+
+    private void createOnClickListeners() {
         optimize_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,7 +108,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+        changeMapType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                changeType();
+            }
+        });
+        navigationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                String url_opt_off = "https://www.google.com/maps/dir/?api=1&destination=28.651685,77.217220&origin=28.651685,77.217220&waypoints="+waypoints_coordinates_opt_off+"&travelmode=driving&dir_action=navigate";
+                String url_opt_on = "https://www.google.com/maps/dir/?api=1&destination=28.651685,77.217220&origin=28.651685,77.217220&waypoints="+waypoints_coordinates_opt_on+"&travelmode=driving&dir_action=navigate";
+
+                if(optimization){
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_opt_on));
+                    startActivity(intent);
+                }
+                else{
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_opt_off));
+                    startActivity(intent);
+                }
+            }
+        });
+    }
+
+    private void changeType() {
+        if(map.getMapType() == GoogleMap.MAP_TYPE_NORMAL){
+            map.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+        else if(map.getMapType() == GoogleMap.MAP_TYPE_SATELLITE){
+            map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+        }
+        else if(map.getMapType() == GoogleMap.MAP_TYPE_HYBRID){
+            map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
