@@ -47,6 +47,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suke.widget.SwitchButton;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -345,10 +346,22 @@ public class CurrentTripActivity extends AppCompatActivity {
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged)) {
                     opt_off = opt_on = "";
-                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    somethingDeleted = false;
-                    customStopAdded = false;
-                    viewDragged = false;
+                    OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
+                    optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+//                    somethingDeleted = false;
+//                    customStopAdded = false;
+//                    viewDragged = false;
+                    Log.d(TAG, "hello : " + opt_on);
+                    JSONObject jObject = null;
+//                    try {
+//                        jObject = new JSONObject(opt_on);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    MapsDataParser parser = new MapsDataParser(jObject);
+//                    waypoint_order = parser.get_waypoint_order();
+//                    Log.d(TAG, "onClick: done " + waypoint_order);
+//                    saveApiResult(optimization);
                 }
 
             }
@@ -396,36 +409,56 @@ public class CurrentTripActivity extends AppCompatActivity {
                             jObject = new JSONObject(opt_on);
                             MapsDataParser parser = new MapsDataParser(jObject);
                             waypoint_order = parser.get_waypoint_order();
+                            Log.d(TAG, "onCheckedChanged: 1");
+                            ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
+                            for (int i = 0; i < waypoint_order.size(); i++) {
+                                trip_data_array.add(i);
+                            }
+                            Log.d(TAG, "onCheckedChanged: tripd " + trip_data_array);
+                            Log.d(TAG, "onCheckedChanged: wayp " + waypoint_order);
+                            Log.d(TAG, "onCheckedChanged: " + waypoint_order.size() + " "
+                            + data_models_map.keySet().size());
+                            for(String key: data_models_map.keySet()){
+                                Log.d(TAG, "onCheckedChanged: dm " + data_models_map.get(key).getTitle());
+                            }
                             if (waypoint_order.size() == data_models_map.keySet().size()) {
                                 same = true;
-                                ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
-                                for (int i = 0; i < waypoint_order.size(); i++) {
-                                    trip_data_array.add(i);
-                                }
+                                Log.d(TAG, "onCheckedChanged: 2");
+//                                ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
+//                                for (int i = 0; i < waypoint_order.size(); i++) {
+//                                    trip_data_array.add(i);
+//                                }
+//                                Log.d(TAG, "onCheckedChanged: tripd " + trip_data_array);
+//                                Log.d(TAG, "onCheckedChanged: wayp " + waypoint_order);
                                 for (int i = 0; i < waypoint_order.size(); i++) {
                                     if (waypoint_order.get(i) != trip_data_array.get(i)) {
                                         same = false;
+                                        Log.d(TAG, "onCheckedChanged: 3");
+                                        break;
                                     }
                                 }
                                 if (same) {
+                                    Log.d(TAG, "onCheckedChanged: 4");
                                     Toast.makeText(CurrentTripActivity.this,
                                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                                 } else {
+                                    Log.d(TAG, "onCheckedChanged: 5");
                                     Toast.makeText(CurrentTripActivity.this,
                                             "Optimized", Toast.LENGTH_SHORT).show();
                                     applyModel_opt_on();
                                 }
                             }
 
-
+                            Log.d(TAG, "onCheckedChanged: 6");
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     } else {
+                        Log.d(TAG, "onCheckedChanged: 7");
                         Toast.makeText(getBaseContext(), "No further optimization", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-
+                    Log.d(TAG, "onCheckedChanged: 8");
                     if (data_models_map.keySet().size() > 1) {
                         updateModel(current_position);
                     }
@@ -481,8 +514,25 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
-        if (temp.toString().equals(shared_pref_ids) && !viewDragged) return;
+        Log.d(TAG, "optimizeRoute: shared " + shared_pref_ids);
+        Log.d(TAG, "optimizeRoute: temp " + temp);
 
+        Log.d(TAG, "optimizeRoute: 1");
+        Log.d(TAG, "optimizeRoute: customStopAdded" + customStopAdded);
+        Log.d(TAG, "optimizeRoute: somethingDeleted" + somethingDeleted);
+        Log.d(TAG, "optimizeRoute: viewDragged" + viewDragged);
+//        try {
+//            JSONObject jObject = new JSONObject(opt_on);
+//            MapsDataParser parser = new MapsDataParser(jObject);
+//            waypoint_order = parser.get_waypoint_order();
+//            Log.d(TAG, "optimizeRoute: here " + waypoint_order);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+        if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
+                !somethingDeleted && !viewDragged) return;
+        Log.d(TAG, "optimizeRoute: 2");
         StringBuffer waypoints_coordinates;
         waypoints_coordinates = getWaypointsCoordinates();
 
@@ -502,6 +552,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             saveApiResult(false);
 
             opt_on = task_opt_is_true.get();
+            Log.d(TAG, "hello : " + opt_on);
             saveApiResult(true);
 
         } catch (ExecutionException e) {
@@ -520,14 +571,19 @@ public class CurrentTripActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            progressBar.setVisibility(View.GONE);
-        }
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                progressBar.setVisibility(View.GONE);
+                somethingDeleted = false;
+                customStopAdded = false;
+                viewDragged = false;
+//                saveApiResult(optimization);
+            }
 
         @Override
         protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "doInBackground: we are here");
             optimizeRoute();
             return null;
         }
@@ -615,6 +671,7 @@ public class CurrentTripActivity extends AppCompatActivity {
             saved_api_ids.clear();
             for (String s : data_models_map.keySet())
                 saved_api_ids.add(s);
+
             editor.putString("saved_api_ids", saved_api_ids.toString());
             editor.commit();
             adapter.notifyItemRemoved(current_position);
@@ -683,6 +740,7 @@ public class CurrentTripActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... urls) {
+            Log.d(TAG, "doInBackground: down");
             URL url;
             StringBuilder result = new StringBuilder();
             try {
