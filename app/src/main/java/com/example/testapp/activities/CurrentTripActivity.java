@@ -310,6 +310,8 @@ public class CurrentTripActivity extends AppCompatActivity {
 
                     waypoints_coordinates_opt_on = getWaypoints_coordinates_opt_on();
                     waypoints_coordinates = getWaypointsCoordinates();
+                    Log.d(TAG, "In CurrTrip wc_opt_on is "+waypoints_coordinates_opt_on);
+                    Log.d(TAG, "In CurrTrip wc_opt_off is "+waypoints_coordinates);
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization", optimization);
                     intent.putExtra("origin", origin);
@@ -542,6 +544,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         Log.d(TAG, "optimizeRoute: 2");
 
         waypoints_coordinates = getWaypointsCoordinates();
+        waypoints_coordinates_opt_on = getWaypoints_coordinates_opt_on();
 
         setTmpLocation();
 
@@ -785,9 +788,21 @@ public class CurrentTripActivity extends AppCompatActivity {
             data_models_lat.add(lat);
             data_models_lon.add(lon);
         }
+        if(waypoint_order.isEmpty()){
+            try {
+                loadApiResult(true);
+                Log.d(TAG, "opt_on is "+opt_on);
+                JSONObject jObject = new JSONObject(opt_on);
+                MapsDataParser parser = new MapsDataParser(jObject);
+                waypoint_order = parser.get_waypoint_order();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         for (int index : waypoint_order) {
             wp.append("|").append(data_models_lat.get(index)).append(",").append(data_models_lon.get(index));
         }
+        Log.d(TAG, "getWaypoints_coordinates_opt_on() called returns " + wp);
         return wp;
     }
 
