@@ -80,6 +80,16 @@
         />
 
     <Button
+        android:id="@+id/emptyTripBtn"
+        android:layout_above="@id/doneBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EMPTY TRIP"
+        />
+
+    <Button
         android:id="@+id/doneBtn"
         android:visibility="gone"
         android:layout_width="70dp"

@@ -43,9 +43,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.MapsActivity" />
+        <activity android:name=".activities.MapsActivity"
+            android:theme="@style/Theme.AppCompat"/>
         <activity android:name=".activities.PhoneAuthActivity" />
-        <activity android:name=".activities.CurrentTripActivity" />
+        <activity
+            android:name=".activities.CurrentTripActivity"
+            android:theme="@style/Theme.AppCompat"
+            />
     </application>
 
 </manifest>

@@ -1,7 +1,9 @@
 package com.example.testapp.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -24,6 +26,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -70,7 +73,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends AppCompatActivity {
+public class CurrentTripActivity extends Activity {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -84,7 +87,7 @@ public class CurrentTripActivity extends AppCompatActivity {
     List<ExploreModel> model_opt_off = new ArrayList<>();
     List<ExploreModel> model_opt_on = new ArrayList<>();
     Integer[] colors = null;
-    Button route, editBtn, doneBtn, customStopBtn, deleteCard,navigationBtn;
+    Button route, editBtn, doneBtn, customStopBtn, deleteCard,emptyTripBtn;
     com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
     LinearLayout removeItem;
@@ -122,6 +125,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         removeItem = findViewById(R.id.removeItemFromTrip);
         editBtn = findViewById(R.id.editBtn);
         doneBtn = findViewById(R.id.doneBtn);
+        emptyTripBtn = findViewById(R.id.emptyTripBtn);
         customStopBtn = findViewById(R.id.customStop);
         progressBar = findViewById(R.id.curr_trip_progress);
         deleteCard = findViewById(R.id.curr_trip_delete);
@@ -328,6 +332,44 @@ public class CurrentTripActivity extends AppCompatActivity {
             }
         });
 
+        emptyTripBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(data_models_map.size() > 0){
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(CurrentTripActivity.this);
+                    builder1.setMessage("DO YOU WANT TO COMPLETELY REMOVE TRIP ITEMS?");
+                    builder1.setCancelable(true);
+
+                    builder1.setPositiveButton(
+                            "Yes",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    data_models_map.clear();
+                                    model_opt_on.clear();
+                                    model_opt_off.clear();
+                                    saveTripData();
+                                    showEmptyTripUI();
+                                    dialog.dismiss();
+                                }
+                            });
+
+                    builder1.setNegativeButton(
+                            "No, Thanks",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"TRIP ALREADY EMPTY",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -492,6 +534,7 @@ public class CurrentTripActivity extends AppCompatActivity {
         opt_layout.setVisibility(View.GONE);
         removeItem.setVisibility(View.GONE);
         route.setVisibility(View.GONE);
+        emptyTripBtn.setVisibility(View.GONE);
         editBtn.setVisibility(View.GONE);
         doneBtn.setVisibility(View.GONE);
     }
