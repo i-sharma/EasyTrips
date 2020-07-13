@@ -46,6 +46,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.JsonObject;
 import com.suke.widget.SwitchButton;
 
 import org.json.JSONException;
@@ -544,7 +545,6 @@ public class CurrentTripActivity extends AppCompatActivity {
         Log.d(TAG, "optimizeRoute: 2");
 
         waypoints_coordinates = getWaypointsCoordinates();
-        waypoints_coordinates_opt_on = getWaypoints_coordinates_opt_on();
 
         setTmpLocation();
 
@@ -845,7 +845,6 @@ public class CurrentTripActivity extends AppCompatActivity {
                 for (String i : data_models_map.keySet()) {
                     saved_api_ids.add(i);
                 }
-                ;
                 Collections.sort(saved_api_ids);
                 editor.putString("saved_api_ids", saved_api_ids.toString());
                 editor.commit();
@@ -863,6 +862,13 @@ public class CurrentTripActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            JSONObject jObject = new JSONObject(opt_on);
+            MapsDataParser parser = new MapsDataParser(jObject);
+            waypoint_order = parser.get_waypoint_order();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
