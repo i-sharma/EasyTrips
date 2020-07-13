@@ -393,7 +393,11 @@ public class CurrentTripActivity extends AppCompatActivity {
                     somethingDeleted = true;
                     boolean was_checked = switchButton.isChecked();
                     switchButton.setChecked(false); //because it may not be optimized.
+                    removeItem.setVisibility(View.GONE);
+                    progressBar.setVisibility(View.VISIBLE);
                     removeFromModel(was_checked);
+                    progressBar.setVisibility(View.GONE);
+                    removeItem.setVisibility(View.VISIBLE);
                     optimization = false;
                     saveTripData();
                     if (data_models_map.keySet().size() == 0) {
