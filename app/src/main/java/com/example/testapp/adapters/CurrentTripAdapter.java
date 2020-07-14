@@ -1,16 +1,18 @@
 package com.example.testapp.adapters;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.PopupMenu;
 
 import com.bumptech.glide.Glide;
 import com.example.testapp.R;
@@ -25,6 +27,9 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private static final String TAG = "CurrentTripAdapter";
     private List<ExploreModel> models;
     private Context context;
+    int origin_index = -1, destination_index = -1;
+//    private CurrentTripAdapter.OnItemClickListener listener;
+
 
     Random rnd = new Random();
     int currentColor;
@@ -60,7 +65,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         int currentItemWidth = itemWidth;
         int height = holder.itemView.getLayoutParams().height;
@@ -72,6 +77,19 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             params.setMargins(0,0,itemMargin, 0);
         }
         holder.itemView.setLayoutParams(params);
+
+
+        if(origin_index == position){
+            holder.origin.setVisibility(View.VISIBLE);
+        }else{
+            holder.origin.setVisibility(View.INVISIBLE);
+        }
+
+        if(destination_index == position){
+            holder.dest.setVisibility(View.VISIBLE);
+        }else {
+            holder.dest.setVisibility(View.INVISIBLE);
+        }
 //        if(mParent!=null) {
 //            currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
 //            mParent.setBackgroundColor(currentColor);
@@ -79,13 +97,14 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 //        }
     }
 
-    class ViewHolder extends DragItemAdapter.ViewHolder {
+    public class ViewHolder extends DragItemAdapter.ViewHolder implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
         private View v;
-        private ImageView imageView;
+        private ImageView imageView, origin, dest;
         private TextView title;
         private TextView time_to_cover;
-        private Button delete;
+        private Button delete, menu_button;
+        public boolean isClicked = true;
 
         ViewHolder(View view) {
             super(view, R.id.layout_current_trip_item, dragOnLongPress);
@@ -94,6 +113,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             title = v.findViewById(R.id.title);
             time_to_cover = v.findViewById(R.id.time_to_cover);
             delete = v.findViewById(R.id.curr_trip_delete);
+            menu_button = v.findViewById(R.id.curr_trip_menu_button);
+            origin = v.findViewById(R.id.origin);
+            dest = v.findViewById(R.id.destination);
+            menu_button.setOnClickListener(this);
         }
 
         void setData(int position){
@@ -114,6 +137,41 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                         .load(R.drawable.custom_location)
                         .into(imageView);
             }
+        }
+
+        @Override
+        public void onClick(View v) {
+            showPopupMenu(v);
+        }
+
+        private void showPopupMenu(View v){
+            PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
+            popupMenu.inflate(R.menu.menu_curr_trip);
+            popupMenu.setOnMenuItemClickListener(this);
+            popupMenu.show();
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            switch (item.getItemId()){
+                case R.id.set_origin:
+                    origin_index = getAdapterPosition();
+                    notifyDataSetChanged();
+                    Log.d(TAG, "onMenuItemClick: " + isClicked);
+                    return true;
+                case R.id.set_dest:
+                    destination_index = getAdapterPosition();
+                    notifyDataSetChanged();
+                    return true;
+                case R.id.set_waypoint:
+                    if(getAdapterPosition() == origin_index)
+                        origin_index = -1;
+                    if(getAdapterPosition() == destination_index)
+                        destination_index = -1;
+                    notifyDataSetChanged();
+                    return true;
+            }
+            return false;
         }
     }
 

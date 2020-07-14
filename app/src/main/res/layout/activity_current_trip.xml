@@ -34,7 +34,8 @@
     <Button
         android:id="@+id/customStop"
         android:visibility="gone"
-        android:layout_marginTop="40dp"
+        tools:visibility="visible"
+        android:layout_marginTop="20dp"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
         android:background="@drawable/current_trip_round_gray"
@@ -49,7 +50,7 @@
         android:layout_alignParentTop="true"
         android:layout_below="@id/customStop"
         android:layout_centerInParent="true"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="25dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -67,6 +68,15 @@
     </RelativeLayout>
 
     <Button
+        android:id="@+id/emptyTripBtn"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/empty_trip"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        />
+
+    <Button
         android:id="@+id/editBtn"
         android:text="Edit Trip"
         android:textColor="#fff"
@@ -79,15 +89,7 @@
         android:layout_height="wrap_content"
         />
 
-    <Button
-        android:id="@+id/emptyTripBtn"
-        android:layout_above="@id/doneBtn"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="EMPTY TRIP"
-        />
+
 
     <Button
         android:id="@+id/doneBtn"

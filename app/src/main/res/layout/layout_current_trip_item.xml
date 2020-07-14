@@ -7,86 +7,126 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
+
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="120dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        app:cardCornerRadius="20dp"
-
+        android:layout_marginTop="100dp"
         >
 
-        <RelativeLayout
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:background="#fff"
+            android:layout_height="50dp"
+            android:id="@+id/origin"
+            android:background="@drawable/origin"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:id="@+id/destination"
+            android:layout_below="@id/cardView"
+            android:background="@drawable/destination"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+
+            />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            app:cardCornerRadius="20dp"
+            android:layout_below="@id/origin"
             >
-
-            <ImageView
-                android:id="@+id/image"
-                android:src="@drawable/wait"
-                android:scaleType="fitXY"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp" />
-
-            <TextView
-                android:id="@+id/title"
-                android:textColor="#262626"
-                android:layout_below="@id/image"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:maxLines="3"
-                android:layout_centerHorizontal="true"
-                android:gravity="center"
-                android:textSize="15sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <TextView
-                android:id="@+id/time_to_cover"
-                android:drawablePadding="10dp"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:layout_alignParentBottom="true"
-                android:textSize="20sp"
-                android:textColor="#262626"
-                android:background="#D0D3D4"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:gravity="center"/>
-
-            <Button
-                android:id="@+id/info"
-                android:background="@drawable/info"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="20dp"
-                android:layout_marginEnd="20dp"
-                android:tooltipText="@string/time_to_visit"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="10dp"
-                app:srcCompat="@android:drawable/ic_menu_info_details" />
-
-            <Button
-                android:id="@+id/curr_trip_delete"
-                android:background="@drawable/delete_button"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_alignParentLeft="true"
-                android:visibility="gone"
-                android:layout_marginLeft="10dp"
-                android:layout_marginStart="10dp"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="5dp"
-                app:srcCompat="@android:drawable/ic_menu_info_details" />
+                android:layout_height="300dp"
+                android:background="#fff"
+                >
 
 
-        </RelativeLayout>
+
+                <ImageView
+                    android:id="@+id/image"
+                    android:src="@drawable/wait"
+                    android:scaleType="fitXY"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp" />
+
+                <TextView
+                    android:id="@+id/title"
+                    android:textColor="#262626"
+                    android:layout_below="@id/image"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:maxLines="3"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:textSize="15sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/time_to_cover"
+                    android:drawablePadding="10dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:layout_alignParentBottom="true"
+                    android:textSize="20sp"
+                    android:textColor="#262626"
+                    android:background="#D0D3D4"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:gravity="center"/>
+
+                <Button
+                    android:id="@+id/curr_trip_menu_button"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:background="@drawable/vert_three_dots"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="7dp"
+                    android:layout_marginLeft="15dp"
+                    />
 
 
-    </androidx.cardview.widget.CardView>
+                <Button
+                    android:id="@+id/info"
+                    android:background="@drawable/info"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:tooltipText="@string/time_to_visit"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="10dp"
+                    app:srcCompat="@android:drawable/ic_menu_info_details" />
+
+                <Button
+                    android:id="@+id/curr_trip_delete"
+                    android:background="@drawable/delete_button"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentLeft="true"
+                    android:visibility="gone"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="5dp"
+                    app:srcCompat="@android:drawable/ic_menu_info_details" />
+
+
+            </RelativeLayout>
+
+
+        </androidx.cardview.widget.CardView>
+    </RelativeLayout>
+
 
 </LinearLayout>

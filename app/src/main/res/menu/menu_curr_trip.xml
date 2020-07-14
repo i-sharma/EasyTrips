@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/set_origin"
+        android:title="Set as Origin" />
+    <item
+        android:id="@+id/set_dest"
+        android:title="Set as Destination" />
+    <item
+        android:id="@+id/set_waypoint"
+        android:title="Set back as Waypoint " />
+</menu>
