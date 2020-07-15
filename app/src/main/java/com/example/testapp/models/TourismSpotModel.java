@@ -2,7 +2,7 @@ package com.example.testapp.models;
 
 import java.io.Serializable;
 
-public class ExploreModel implements Serializable {
+public class TourismSpotModel implements Serializable {
     public String title, short_description, image_name, opening_hours,lat;
     public String description, distance_from_delhi_airport, fb_img_url, entry_fee, few_essential_tips;
     public String formatted_address;
@@ -18,9 +18,28 @@ public class ExploreModel implements Serializable {
 
     Boolean isCustom = false;
 
-    public ExploreModel() {}
+    public void setOrigin(Boolean origin) {
+        isOrigin = origin;
+    }
 
-    public ExploreModel(String id,String title,String lat,String lon,Boolean isCustom, String time) {
+    public void setDestination(Boolean destination) {
+        isDestination = destination;
+    }
+
+    public Boolean getOrigin() {
+        return isOrigin;
+    }
+
+    public Boolean getDestination() {
+        return isDestination;
+    }
+
+    Boolean isOrigin = false;
+    Boolean isDestination = false;
+
+    public TourismSpotModel() {}
+
+    public TourismSpotModel(String id, String title, String lat, String lon, Boolean isCustom, String time) {
         this.lat = lat;
         this.lon = lon;
         this.title = title;
@@ -29,11 +48,11 @@ public class ExploreModel implements Serializable {
         this.id = id;
     }
 
-    public ExploreModel(String title, String short_description, String lat, String duration_required_to_visit,
-                        String image_name, String opening_hours, String fb_img_url, String id,
-                        String description, String distance_from_delhi_airport, String entry_fee,
-                        String few_essential_tips, String formatted_address, String must_visit,
-                        String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
+    public TourismSpotModel(String title, String short_description, String lat, String duration_required_to_visit,
+                            String image_name, String opening_hours, String fb_img_url, String id,
+                            String description, String distance_from_delhi_airport, String entry_fee,
+                            String few_essential_tips, String formatted_address, String must_visit,
+                            String n_ratings, String nearest_metro_station, String rating, String tip, String lon) {
         this.title = title;
         this.tip = tip;
         this.lon = lon;

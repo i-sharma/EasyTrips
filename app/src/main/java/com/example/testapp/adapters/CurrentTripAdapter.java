@@ -1,6 +1,7 @@
 package com.example.testapp.adapters;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,8 +17,9 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.bumptech.glide.Glide;
 import com.example.testapp.R;
+import com.example.testapp.activities.CurrentTripActivity;
 import com.example.testapp.dragListView.DragItemAdapter;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 
 import java.util.List;
 import java.util.Random;
@@ -25,26 +27,35 @@ import java.util.Random;
 public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapter.ViewHolder> {
 
     private static final String TAG = "CurrentTripAdapter";
-    private List<ExploreModel> models;
+    private List<TourismSpotModel> models;
     private Context context;
     int origin_index = -1, destination_index = -1;
-//    private CurrentTripAdapter.OnItemClickListener listener;
-
-
+    private IActivityMethods iActivityMethods;
     Random rnd = new Random();
     int currentColor;
     private boolean dragOnLongPress;
     private DisplayMetrics metrics;
     private int itemMargin = 0, itemWidth = 0;
     private ViewGroup mParent;
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
 
-    public CurrentTripAdapter(List<ExploreModel> models, Context context, DisplayMetrics metrics, boolean dragOnLongPress) {
+    public CurrentTripAdapter(List<TourismSpotModel> models, Context context, DisplayMetrics metrics, boolean dragOnLongPress) {
         this.models = models;
         this.context = context;
         this.dragOnLongPress = dragOnLongPress;
         this.metrics = metrics;
         setItemList(models);
         setHasStableIds(true);
+        try {
+            iActivityMethods = (IActivityMethods) context;
+        }catch (ClassCastException e) {
+            throw new ClassCastException("Activity must implement AdapterCallback.");
+        }
+        sharedPref = context.getSharedPreferences(
+                context.getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
+
     }
 
     @Override
@@ -79,13 +90,13 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         holder.itemView.setLayoutParams(params);
 
 
-        if(origin_index == position){
+        if(models.get(position).getOrigin()){
             holder.origin.setVisibility(View.VISIBLE);
         }else{
             holder.origin.setVisibility(View.INVISIBLE);
         }
 
-        if(destination_index == position){
+        if(models.get(position).getDestination()){
             holder.dest.setVisibility(View.VISIBLE);
         }else {
             holder.dest.setVisibility(View.INVISIBLE);
@@ -153,26 +164,51 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
         @Override
         public boolean onMenuItemClick(MenuItem item) {
+            loadSharedPref();
             switch (item.getItemId()){
                 case R.id.set_origin:
+                    if(origin_index != getAdapterPosition() && origin_index != -1){
+                        models.get(origin_index).setOrigin(false);
+                    }
                     origin_index = getAdapterPosition();
+                    models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
-                    Log.d(TAG, "onMenuItemClick: " + isClicked);
+                    saveSharedPref();
+                    iActivityMethods.saveTripData();
                     return true;
                 case R.id.set_dest:
+                    if(destination_index != getAdapterPosition() && destination_index != -1){
+                        models.get(destination_index).setDestination(false);
+                    }
                     destination_index = getAdapterPosition();
+                    models.get(getAdapterPosition()).setDestination(true);
+                    saveSharedPref();
                     notifyDataSetChanged();
+                    iActivityMethods.saveTripData();
                     return true;
                 case R.id.set_waypoint:
-                    if(getAdapterPosition() == origin_index)
-                        origin_index = -1;
-                    if(getAdapterPosition() == destination_index)
-                        destination_index = -1;
+                    if(models.get(getAdapterPosition()).getOrigin())
+                        models.get(getAdapterPosition()).setOrigin(false);
+                    if(models.get(getAdapterPosition()).getDestination())
+                        models.get(getAdapterPosition()).setDestination(false);
+                    saveSharedPref();
                     notifyDataSetChanged();
+                    iActivityMethods.saveTripData();
                     return true;
             }
             return false;
         }
+    }
+
+    private void loadSharedPref(){
+        origin_index = sharedPref.getInt("origin_index", -1);
+        destination_index = sharedPref.getInt("destination_index", -1);
+    }
+
+    private void saveSharedPref() {
+        editor.putInt("origin_index", origin_index);
+        editor.putInt("destination_index", destination_index);
+        editor.commit();
     }
 
     public void setItemMargin(int itemMargin){
@@ -181,6 +217,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
     public void updateDisplayMetrics(){
         itemWidth = metrics.widthPixels - itemMargin * 2;
+    }
+
+    public static interface IActivityMethods {
+        void saveTripData();
     }
 
 }

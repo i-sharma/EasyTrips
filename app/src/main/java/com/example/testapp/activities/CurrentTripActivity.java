@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.testapp.R;
 import com.example.testapp.adapters.CurrentTripAdapter;
 import com.example.testapp.dragListView.DragListView;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.utils.MapsDataParser;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
@@ -49,11 +47,8 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.gson.JsonObject;
 import com.suke.widget.SwitchButton;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -64,7 +59,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,7 +68,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends Activity {
+public class CurrentTripActivity extends Activity implements CurrentTripAdapter.IActivityMethods{
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -85,8 +79,8 @@ public class CurrentTripActivity extends Activity {
     PlacesClient placesClient;
     DragListView dragListView;
     CurrentTripAdapter adapter;
-    List<ExploreModel> model_opt_off = new ArrayList<>();
-    List<ExploreModel> model_opt_on = new ArrayList<>();
+    List<TourismSpotModel> model_opt_off = new ArrayList<>();
+    List<TourismSpotModel> model_opt_on = new ArrayList<>();
     Integer[] colors = null;
     Button route, editBtn, doneBtn, customStopBtn, deleteCard,emptyTripBtn;
     com.suke.widget.SwitchButton switchButton;
@@ -96,7 +90,7 @@ public class CurrentTripActivity extends Activity {
     BottomNavigationView navigation;
     String opt_off, opt_on, url_opt_is_false,url_opt_is_true;
     StringBuffer waypoints_coordinates,waypoints_coordinates_opt_on;
-    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
+    LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
     Boolean same, somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
@@ -201,7 +195,7 @@ public class CurrentTripActivity extends Activity {
         protected Void doInBackground(Void... voids) {
             data_models_map = new LinkedHashMap<>();
             saved_api_ids = new ArrayList<>();
-            for (ExploreModel model : model_opt_off) {
+            for (TourismSpotModel model : model_opt_off) {
                 data_models_map.put(model.getId(), model);
                 saved_api_ids.add(model.getId());
             }
@@ -243,7 +237,7 @@ public class CurrentTripActivity extends Activity {
                 String time = "NO ESTIMATE";
                 optimization = false;
                 customStopAdded = true;
-                ExploreModel customModel = new ExploreModel(id, title, lat, lon, true, time);
+                TourismSpotModel customModel = new TourismSpotModel(id, title, lat, lon, true, time);
                 boolean was_checked = switchButton.isChecked();
                 boolean was_empty = model_opt_off.isEmpty();
                 switchButton.setChecked(false);
@@ -254,8 +248,8 @@ public class CurrentTripActivity extends Activity {
                     model_opt_on.add(current_position, customModel);
                     model_opt_off.add(0, customModel);
                 }
-                LinkedHashMap<String, ExploreModel> tmp = new LinkedHashMap<>();
-                for (ExploreModel m : model_opt_off) {
+                LinkedHashMap<String, TourismSpotModel> tmp = new LinkedHashMap<>();
+                for (TourismSpotModel m : model_opt_off) {
                     tmp.put(m.getId(), m);
                 }
                 data_models_map.clear();
@@ -957,13 +951,15 @@ public class CurrentTripActivity extends Activity {
         loadTripData();
     }
 
-    private void saveTripData() {
+    @Override
+    public void saveTripData() {
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
             ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
             outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
+            Log.d(TAG, "saveTripData: called");
         } catch (IOException e) {
             e.printStackTrace();
         }

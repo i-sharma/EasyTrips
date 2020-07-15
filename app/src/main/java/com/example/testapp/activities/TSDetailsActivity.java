@@ -17,7 +17,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import com.example.testapp.R;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -44,7 +44,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     final long ONE_MEGABYTE = 1024 * 1024;
 
     int already_present_in_trip;
-    ExploreModel obj;
+    TourismSpotModel obj;
     String click_position;
 
     private final int START_NOT_ALREADY_ADDED = 0;
@@ -52,7 +52,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     private final int IN_ACTIVITY_ADD_BUTTON_CLICKED = 2;
     private final int IN_ACTIVITY_DELETE_BUTTON_CLICKED = 3;
 
-    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
+    LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +81,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         delete_button = findViewById(R.id.ts_details_delete_button);
 
         Intent it = getIntent();
-        obj = (ExploreModel) it.getSerializableExtra("snapshot");
+        obj = (TourismSpotModel) it.getSerializableExtra("snapshot");
 //        already_present_in_trip = it.getIntExtra("already_present_in_trip", 0);
         click_position = Integer.toString(it.getIntExtra("click_position", -1));
         loadTripData();
@@ -156,7 +156,7 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         return super.onKeyDown(keyCode, event);
     }
 
-    private void set_content(ExploreModel obj) {
+    private void set_content(TourismSpotModel obj) {
         if(obj == null)
             return;
         if(obj.getTitle() != "Not found" && obj.getTitle() != ""){

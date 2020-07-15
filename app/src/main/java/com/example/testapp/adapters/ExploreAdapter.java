@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.R;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -20,7 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-public class ExploreAdapter extends FirestoreRecyclerAdapter<ExploreModel, ExploreAdapter.ExploreViewHolder> {
+public class ExploreAdapter extends FirestoreRecyclerAdapter<TourismSpotModel, ExploreAdapter.ExploreViewHolder> {
 
     private static final String TAG = "ExploreAdapter";
     FirebaseStorage storage;
@@ -33,7 +33,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<ExploreModel, Explo
     private OnItemClickListener listener;
 
 
-    public ExploreAdapter(@NonNull FirestoreRecyclerOptions<ExploreModel> options, Resources res) {
+    public ExploreAdapter(@NonNull FirestoreRecyclerOptions<TourismSpotModel> options, Resources res) {
         super(options);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
@@ -42,7 +42,7 @@ public class ExploreAdapter extends FirestoreRecyclerAdapter<ExploreModel, Explo
 
     @Override
     protected void onBindViewHolder(@NonNull final ExploreViewHolder holder, int position,
-                                    @NonNull ExploreModel model) {
+                                    @NonNull TourismSpotModel model) {
         holder.setTitle(model.getTitle());
         holder.setShortDescription(model.getShort_description());
 

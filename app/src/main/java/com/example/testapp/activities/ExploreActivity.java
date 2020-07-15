@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -20,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.testapp.R;
 import com.example.testapp.adapters.ExploreAdapter;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -37,7 +36,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 
@@ -61,7 +59,7 @@ public class ExploreActivity extends AppCompatActivity {
     BottomNavigationView navigation;
 
 //    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
-    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
+    LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,9 +153,9 @@ public class ExploreActivity extends AppCompatActivity {
                 .collection("delhi_data")
                 .orderBy("priority", Query.Direction.ASCENDING);
 
-        FirestoreRecyclerOptions<ExploreModel> options = new FirestoreRecyclerOptions
-                .Builder<ExploreModel>()
-                .setQuery(query, ExploreModel.class)
+        FirestoreRecyclerOptions<TourismSpotModel> options = new FirestoreRecyclerOptions
+                .Builder<TourismSpotModel>()
+                .setQuery(query, TourismSpotModel.class)
                 .build();
 
         adapter = new ExploreAdapter(options, getResources());
@@ -175,7 +173,7 @@ public class ExploreActivity extends AppCompatActivity {
             public void onViewClick(DocumentSnapshot documentSnapshot, int position) {
                 last_click_position = position;
                 Intent it = new Intent(ExploreActivity.this, TSDetailsActivity.class);
-                it.putExtra("snapshot", documentSnapshot.toObject(ExploreModel.class));
+                it.putExtra("snapshot", documentSnapshot.toObject(TourismSpotModel.class));
                 it.putExtra("click_position", position+1);
                 startActivityForResult(it, BOOL_ADD_TO_TRIP);
             }

@@ -14,8 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.testapp.adapters.ExploreAdapter;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.utils.MapsDataParser;
 import com.example.testapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
@@ -47,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Switch optimize_switch;
     String opt_off,opt_on,waypoints_coordinates_opt_off,waypoints_coordinates_opt_on;
     private GoogleMap map;
-    LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
+    LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
 
     @Override

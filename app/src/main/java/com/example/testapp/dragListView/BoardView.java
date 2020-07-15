@@ -42,12 +42,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.testapp.dragListView.AutoScroller;
-import com.example.testapp.dragListView.ColumnProperties;
-import com.example.testapp.dragListView.DragItem;
-import com.example.testapp.dragListView.DragItemAdapter;
-import com.example.testapp.dragListView.DragItemRecyclerView;
-import com.example.testapp.models.ExploreModel;
+import com.example.testapp.models.TourismSpotModel;
 
 
 import java.util.ArrayList;
@@ -371,7 +366,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
                 // Check if it is ok to drop the item in the new column first
                 int newPosition = currentList.getDragPositionForY(getRelativeViewTouchY(currentList));
                 if (mBoardCallback == null || mBoardCallback.canDropItemAtPosition(mDragStartColumn, mDragStartRow, newColumn, newPosition)) {
-                    ExploreModel item = (ExploreModel)mCurrentRecyclerView.removeDragItemAndEnd();
+                    TourismSpotModel item = (TourismSpotModel)mCurrentRecyclerView.removeDragItemAndEnd();
                     if (item != null) {
                         mCurrentRecyclerView = currentList;
                         mCurrentRecyclerView.addDragItemAndStart(getRelativeViewTouchY(mCurrentRecyclerView), item, itemId);
@@ -544,7 +539,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         }
     }
 
-    public void addItem(int column, int row, ExploreModel item, boolean scrollToItem) {
+    public void addItem(int column, int row, TourismSpotModel item, boolean scrollToItem) {
         if (!isDragging() && mLists.size() > column && mLists.get(column).getAdapter().getItemCount() >= row) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(column).getAdapter();
             adapter.addItem(row, item);
@@ -558,7 +553,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         if (!isDragging() && mLists.size() > fromColumn && mLists.get(fromColumn).getAdapter().getItemCount() > fromRow
                 && mLists.size() > toColumn && mLists.get(toColumn).getAdapter().getItemCount() >= toRow) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(fromColumn).getAdapter();
-            ExploreModel item = (ExploreModel)adapter.removeItem(fromRow);
+            TourismSpotModel item = (TourismSpotModel)adapter.removeItem(fromRow);
             adapter = (DragItemAdapter) mLists.get(toColumn).getAdapter();
             adapter.addItem(toRow, item);
             if (scrollToItem) {
@@ -581,7 +576,7 @@ public class BoardView extends HorizontalScrollView implements AutoScroller.Auto
         }
     }
 
-    public void replaceItem(int column, int row, ExploreModel item, boolean scrollToItem) {
+    public void replaceItem(int column, int row, TourismSpotModel item, boolean scrollToItem) {
         if (!isDragging() && mLists.size() > column && mLists.get(column).getAdapter().getItemCount() > row) {
             DragItemAdapter adapter = (DragItemAdapter) mLists.get(column).getAdapter();
             adapter.removeItem(row);
