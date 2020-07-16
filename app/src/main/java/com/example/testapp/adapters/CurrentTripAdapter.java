@@ -30,7 +30,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private List<TourismSpotModel> models;
     private Context context;
     int origin_index = -1, destination_index = -1;
-    private IActivityMethods iActivityMethods;
+//    private IActivityMethods iActivityMethods;
     Random rnd = new Random();
     int currentColor;
     private boolean dragOnLongPress;
@@ -49,11 +49,11 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         this.metrics = metrics;
         setItemList(models);
         setHasStableIds(true);
-        try {
-            iActivityMethods = (IActivityMethods) context;
-        }catch (ClassCastException e) {
-            throw new ClassCastException("Activity must implement AdapterCallback.");
-        }
+//        try {
+//            iActivityMethods = (IActivityMethods) context;
+//        }catch (ClassCastException e) {
+//            throw new ClassCastException("Activity must implement AdapterCallback.");
+//        }
         sharedPref = context.getSharedPreferences(
                 context.getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
@@ -182,7 +182,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
                     saveSharedPref();
-                    iActivityMethods.saveTripData();
+//                    iActivityMethods.saveTripData();
 //                    swapItems(getAdapterPosition(), 0);
 
 //                    iActivityMethods.dragItem(getAdapterPosition(), 0);
@@ -197,7 +197,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     notifyDataSetChanged();
 //                    iActivityMethods.dragItem(getAdapterPosition(), getItemCount() - 1);
                     saveSharedPref();
-                    iActivityMethods.saveTripData();
+//                    iActivityMethods.saveTripData();
                     return true;
                 case R.id.set_waypoint:
                     if(models.get(getAdapterPosition()).getOrigin())
@@ -206,7 +206,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                         models.get(getAdapterPosition()).setDestination(false);
                     notifyDataSetChanged();
                     saveSharedPref();
-                    iActivityMethods.saveTripData();
+//                    iActivityMethods.saveTripData();
                     return true;
             }
             return false;
@@ -235,10 +235,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         itemWidth = metrics.widthPixels - itemMargin * 2;
     }
 
-    public static interface IActivityMethods {
-        void saveTripData();
-
-//        void dragItem(int from, int to);
-    }
+//    public static interface IActivityMethods {
+////        void saveTripData();
+//
+////        void dragItem(int from, int to);
+//    }
 
 }

@@ -68,7 +68,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends Activity implements CurrentTripAdapter.IActivityMethods{
+public class CurrentTripActivity extends Activity{
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -400,11 +400,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 route.setVisibility(View.VISIBLE);
                 opt_layout.setVisibility(View.VISIBLE);
                 loadOriginDestIdx();
-//                adapter.swapItems(origin_index, 0);
-//                adapter.swapItems(destination_index, adapter.getItemCount() - 1);
                 swapAdapter(origin_index, destination_index);
-//                adapter.notifyDataSetChanged();
                 swapDataModels(origin_index, destination_index);
+
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged)) {
@@ -566,17 +564,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             Collections.swap(keySetList, dest_idx, n-1);
             Collections.swap(keySetList, org_idx, 0);
         }
-//        Collections.swap(keySetList, from, to);
-
-        // our output map
-        data_models_map = new LinkedHashMap<>();
-
+        data_models_map.clear();
+        saved_api_ids.clear();
         for(String oldSwappedKey:keySetList) {
             data_models_map.put(oldSwappedKey, temp.get(oldSwappedKey));
+            saved_api_ids.add(temp.get(oldSwappedKey).getId());
         }
-        for(String key: data_models_map.keySet()){
-            Log.d(TAG, "swapDataModels: key " + key + " title: " + data_models_map.get(key).getTitle());
-        }
+        editor.putString("saved_api_ids", saved_api_ids.toString());
+        editor.commit();
         saveTripData();
     }
 
@@ -1022,7 +1017,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         loadTripData();
     }
 
-    @Override
+//    @Override
     public void saveTripData() {
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
