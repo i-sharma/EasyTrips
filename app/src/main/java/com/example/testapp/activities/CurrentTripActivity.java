@@ -74,7 +74,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
     private static final String TAG = "MainActivity";
-    int current_position = 0;
+    int current_position = 0 , origin_index, destination_index;
     LatLng origin, destination;
     PlacesClient placesClient;
     DragListView dragListView;
@@ -98,6 +98,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     RelativeLayout opt_layout;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
+
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -181,6 +183,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         createOnClickListeners();
 
     }
+
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
 
@@ -342,6 +345,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     data_models_map.clear();
                                     model_opt_on.clear();
                                     model_opt_off.clear();
+                                    editor.putInt("origin_index", -1);
+                                    editor.putInt("destination_index", -1);
+                                    editor.commit();
                                     saveTripData();
                                     showEmptyTripUI();
                                     dialog.dismiss();
@@ -368,7 +374,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                adapter.setEdit_mode(true);
+                adapter.notifyDataSetChanged();
                 if (data_models_map.size() > 1)
                     dragListView.setDragEnabled(true);
                 customStopBtn.setVisibility(View.VISIBLE);
@@ -383,6 +390,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         doneBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                adapter.setEdit_mode(false);
+                adapter.notifyDataSetChanged();
                 dragListView.setDragEnabled(false);
                 customStopBtn.setVisibility(View.GONE);
                 editBtn.setVisibility(View.VISIBLE);
@@ -390,25 +399,18 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 removeItem.setVisibility(View.GONE);
                 route.setVisibility(View.VISIBLE);
                 opt_layout.setVisibility(View.VISIBLE);
+                loadOriginDestIdx();
+//                adapter.swapItems(origin_index, 0);
+//                adapter.swapItems(destination_index, adapter.getItemCount() - 1);
+                swapAdapter(origin_index, destination_index);
+//                adapter.notifyDataSetChanged();
+                swapDataModels(origin_index, destination_index);
+                saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged)) {
                     opt_off = opt_on = "";
                     OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
                     optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-//                    somethingDeleted = false;
-//                    customStopAdded = false;
-//                    viewDragged = false;
-                    Log.d(TAG, "hello : " + opt_on);
-                    JSONObject jObject = null;
-//                    try {
-//                        jObject = new JSONObject(opt_on);
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    MapsDataParser parser = new MapsDataParser(jObject);
-//                    waypoint_order = parser.get_waypoint_order();
-//                    Log.d(TAG, "onClick: done " + waypoint_order);
-//                    saveApiResult(optimization);
                 }
 
             }
@@ -518,6 +520,75 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         });
 
+    }
+
+    private void swapAdapter(int org_idx, int dest_idx) {
+        int n = adapter.getItemCount();
+//        adapter.swapItems(origin_index, 0);
+//        adapter.swapItems(destination_index, n - 1);
+
+        if(dest_idx == 0 && org_idx == n - 1){
+            adapter.swapItems(n-1, 0);
+        }else if(dest_idx == 0){
+            adapter.swapItems(destination_index, n - 1);
+            adapter.swapItems(origin_index, 0);
+//            Collections.swap(keySetList, dest_idx, n-1);
+//            Collections.swap(keySetList, org_idx, 0);
+        }else if(org_idx == n - 1){
+            adapter.swapItems(origin_index, 0);
+            adapter.swapItems(destination_index, n - 1);
+//            Collections.swap(keySetList, org_idx, 0);
+//            Collections.swap(keySetList, dest_idx, n-1);
+        }else{
+            adapter.swapItems(origin_index, 0);
+            adapter.swapItems(destination_index, n - 1);
+//            Collections.swap(keySetList, dest_idx, n-1);
+//            Collections.swap(keySetList, org_idx, 0);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void swapDataModels(int org_idx, int dest_idx) {
+        LinkedHashMap<String, TourismSpotModel> temp = data_models_map;
+        ArrayList<String> keySetList = new ArrayList<>();
+        keySetList.addAll(data_models_map.keySet());
+        int n = adapter.getItemCount();
+
+        if(dest_idx == 0 && org_idx == n - 1){
+            Collections.swap(keySetList, 0, n-1);
+        }else if(dest_idx == 0){
+            Collections.swap(keySetList, dest_idx, n-1);
+            Collections.swap(keySetList, org_idx, 0);
+        }else if(org_idx == n - 1){
+            Collections.swap(keySetList, org_idx, 0);
+            Collections.swap(keySetList, dest_idx, n-1);
+        }else{
+            Collections.swap(keySetList, dest_idx, n-1);
+            Collections.swap(keySetList, org_idx, 0);
+        }
+//        Collections.swap(keySetList, from, to);
+
+        // our output map
+        data_models_map = new LinkedHashMap<>();
+
+        for(String oldSwappedKey:keySetList) {
+            data_models_map.put(oldSwappedKey, temp.get(oldSwappedKey));
+        }
+        for(String key: data_models_map.keySet()){
+            Log.d(TAG, "swapDataModels: key " + key + " title: " + data_models_map.get(key).getTitle());
+        }
+        saveTripData();
+    }
+
+    private void loadOriginDestIdx(){
+        origin_index = sharedPref.getInt("origin_index", -1);
+        destination_index = sharedPref.getInt("destination_index", -1);
+    }
+
+    private void saveOriginDestIdx() {
+        editor.putInt("origin_index", 0);
+        editor.putInt("destination_index", adapter.getItemCount() - 1);
+        editor.commit();
     }
 
     private void showEmptyTripUI() {

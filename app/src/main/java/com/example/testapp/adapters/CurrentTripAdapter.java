@@ -40,6 +40,8 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
 
+    Boolean edit_mode = false;
+
     public CurrentTripAdapter(List<TourismSpotModel> models, Context context, DisplayMetrics metrics, boolean dragOnLongPress) {
         this.models = models;
         this.context = context;
@@ -100,6 +102,12 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             holder.dest.setVisibility(View.VISIBLE);
         }else {
             holder.dest.setVisibility(View.INVISIBLE);
+        }
+
+        if(edit_mode){
+            holder.menu_button.setVisibility(View.VISIBLE);
+        }else{
+            holder.menu_button.setVisibility(View.INVISIBLE);
         }
 //        if(mParent!=null) {
 //            currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
@@ -167,7 +175,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             loadSharedPref();
             switch (item.getItemId()){
                 case R.id.set_origin:
-                    if(origin_index != getAdapterPosition() && origin_index != -1){
+                    if(origin_index != getAdapterPosition() && origin_index != -1) {
                         models.get(origin_index).setOrigin(false);
                     }
                     origin_index = getAdapterPosition();
@@ -175,6 +183,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     notifyDataSetChanged();
                     saveSharedPref();
                     iActivityMethods.saveTripData();
+//                    swapItems(getAdapterPosition(), 0);
+
+//                    iActivityMethods.dragItem(getAdapterPosition(), 0);
+
                     return true;
                 case R.id.set_dest:
                     if(destination_index != getAdapterPosition() && destination_index != -1){
@@ -182,8 +194,9 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     }
                     destination_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setDestination(true);
-                    saveSharedPref();
                     notifyDataSetChanged();
+//                    iActivityMethods.dragItem(getAdapterPosition(), getItemCount() - 1);
+                    saveSharedPref();
                     iActivityMethods.saveTripData();
                     return true;
                 case R.id.set_waypoint:
@@ -191,8 +204,8 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                         models.get(getAdapterPosition()).setOrigin(false);
                     if(models.get(getAdapterPosition()).getDestination())
                         models.get(getAdapterPosition()).setDestination(false);
-                    saveSharedPref();
                     notifyDataSetChanged();
+                    saveSharedPref();
                     iActivityMethods.saveTripData();
                     return true;
             }
@@ -200,6 +213,9 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         }
     }
 
+    public void setEdit_mode(Boolean val){
+        this.edit_mode = val;
+    }
     private void loadSharedPref(){
         origin_index = sharedPref.getInt("origin_index", -1);
         destination_index = sharedPref.getInt("destination_index", -1);
@@ -221,6 +237,8 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
     public static interface IActivityMethods {
         void saveTripData();
+
+//        void dragItem(int from, int to);
     }
 
 }
