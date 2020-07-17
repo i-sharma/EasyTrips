@@ -261,12 +261,27 @@ public class CurrentTripActivity extends Activity {
                 boolean was_checked = switchButton.isChecked();
                 boolean was_empty = model_opt_off.isEmpty();
                 switchButton.setChecked(false);
-
+                int insert_pos;
                 if (!was_checked) {
-                    model_opt_off.add(current_position, customModel);
+                    if(current_position == 0 && origin_index == 0){
+                        model_opt_off.add(1, customModel);
+                        insert_pos = 1;
+                    }else{
+                        model_opt_off.add(current_position, customModel);
+                        insert_pos = current_position;
+                    }
+
                 } else {
-                    model_opt_on.add(current_position, customModel);
-                    model_opt_off.add(0, customModel);
+                    if(current_position == 0 && origin_index == 0){
+                        model_opt_on.add(1, customModel);
+                        model_opt_off.add(1, customModel);
+                        insert_pos = 1;
+                    }else{
+                        model_opt_on.add(current_position, customModel);
+                        model_opt_off.add(0, customModel);
+                        insert_pos = current_position;
+                    }
+
                 }
                 LinkedHashMap<String, TourismSpotModel> tmp = new LinkedHashMap<>();
                 for (TourismSpotModel m : model_opt_off) {
@@ -281,8 +296,15 @@ public class CurrentTripActivity extends Activity {
                     removeEmptyTripUI();
                     updateModel(0);
                 } else {
-                    adapter.notifyItemInserted(current_position);
+                    adapter.notifyItemInserted(insert_pos);
                 }
+                loadOriginDestIdx();
+                if(insert_pos <= origin_index && origin_index > 0)  origin_index += 1;
+                if(insert_pos <= destination_index && destination_index > 0) destination_index += 1;
+                Log.d(TAG, "onActivityResult: org " + origin_index + " dest " + destination_index);
+                editor.putInt("origin_index", origin_index);
+                editor.putInt("destination_index", destination_index);
+                editor.commit();
 
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
