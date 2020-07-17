@@ -69,7 +69,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends Activity {
+public class CurrentTripActivity extends Activity implements CurrentTripAdapter.ICurrTrip {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -135,6 +135,7 @@ public class CurrentTripActivity extends Activity {
 
         initializePlaces();
         dragListView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
         dragListView.setDragListListener(new DragListView.DragListListener() {
             @Override
             public void onItemDragStarted(int position) {
@@ -152,6 +153,8 @@ public class CurrentTripActivity extends Activity {
                 new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 adapter.notifyDataSetChanged();
                 updateCurrentPosition();
+                loadOriginDestIdx();
+                
 
 
             }
@@ -190,6 +193,18 @@ public class CurrentTripActivity extends Activity {
 
     }
 
+    @Override
+    public void dragTopBottom(Boolean topmost, Boolean bottommost) {
+        if(topmost!=null){
+            dragListView.setCanNotDragAboveTopItem(topmost);
+        }
+        if(bottommost!=null){
+            dragListView.setCanNotDragBelowBottomItem(bottommost);
+        }
+
+
+
+    }
 
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
@@ -417,6 +432,12 @@ public class CurrentTripActivity extends Activity {
                 removeItem.setVisibility(View.VISIBLE);
                 route.setVisibility(View.GONE);
                 opt_layout.setVisibility(View.GONE);
+                if(origin_index == 0){
+                    dragListView.setCanNotDragAboveTopItem(true);
+                }
+                if(destination_index == adapter.getItemCount() - 1){
+                    dragListView.setCanNotDragBelowBottomItem(true);
+                }
             }
         });
 

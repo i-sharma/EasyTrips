@@ -30,7 +30,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private List<TourismSpotModel> models;
     private Context context;
     int origin_index = -1, destination_index = -1;
-//    private IActivityMethods iActivityMethods;
+    private ICurrTrip iCurrTrip;
     Random rnd = new Random();
     int currentColor;
     private boolean dragOnLongPress;
@@ -49,14 +49,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         this.metrics = metrics;
         setItemList(models);
         setHasStableIds(true);
-//        try {
-//            iActivityMethods = (IActivityMethods) context;
-//        }catch (ClassCastException e) {
-//            throw new ClassCastException("Activity must implement AdapterCallback.");
-//        }
         sharedPref = context.getSharedPreferences(
                 context.getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
+        this.iCurrTrip = (ICurrTrip) context;
 
     }
 
@@ -177,6 +173,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                 case R.id.set_origin:
                     if(origin_index != getAdapterPosition() && origin_index != -1) {
                         models.get(origin_index).setOrigin(false);
+                        iCurrTrip.dragTopBottom(false, null);
                     }
                     origin_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setOrigin(true);
@@ -186,6 +183,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                 case R.id.set_dest:
                     if(destination_index != getAdapterPosition() && destination_index != -1){
                         models.get(destination_index).setDestination(false);
+                        iCurrTrip.dragTopBottom(null, false);
                     }
                     destination_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setDestination(true);
@@ -196,11 +194,13 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     if(models.get(getAdapterPosition()).getOrigin()){
                         models.get(getAdapterPosition()).setOrigin(false);
                         origin_index = -1;
+                        iCurrTrip.dragTopBottom(false, null);
                     }
 
                     if(models.get(getAdapterPosition()).getDestination()){
                         models.get(getAdapterPosition()).setDestination(false);
                         destination_index = -1;
+                        iCurrTrip.dragTopBottom(null, false);
                     }
                     notifyDataSetChanged();
                     saveSharedPref();
@@ -232,5 +232,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         itemWidth = metrics.widthPixels - itemMargin * 2;
     }
 
-
+    public interface ICurrTrip{
+        public void dragTopBottom(Boolean topmost, Boolean bottommost);
+    }
 }
