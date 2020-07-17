@@ -171,6 +171,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             loadSharedPref();
             switch (item.getItemId()){
                 case R.id.set_origin:
+                    Log.d(TAG, "onMenuItemClick: org " + origin_index + " pos " + getAdapterPosition());
                     if(origin_index != getAdapterPosition() && origin_index != -1) {
                         models.get(origin_index).setOrigin(false);
                         iCurrTrip.dragTopBottom(false, null);

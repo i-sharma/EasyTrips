@@ -356,6 +356,22 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
+    private void popUpOnlyOneItem(final popup_switch_route code){
+        new SweetAlertDialog(this)
+                .setTitleText("There's only one place in your trip. Add more!")
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        if(code == popup_switch_route.OPT_SWITCH){
+                            switchButton.setChecked(false);
+
+                        }
+                        sweetAlertDialog.dismissWithAnimation();
+                    }
+                })
+                .show();
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private void createOnClickListeners() {
 
@@ -370,8 +386,12 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             @Override
             public void onClick(View view) {
 
-                if(origin_index == -1 || destination_index == -1){
-                    popUpOrgDstNotSet(popup_org_dst_not_set.SHOW_ROUTE);
+                if(adapter.getItemCount() == 1){
+                    popUpOnlyOneItem(popup_switch_route.SHOW_ROUTE);
+                    return;
+                }
+                if((origin_index == -1 || destination_index == -1)){
+                    popUpOrgDstNotSet(popup_switch_route.SHOW_ROUTE);
                     return;
                 }
 
@@ -527,8 +547,12 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                if(adapter.getItemCount() == 1 && isChecked){
+                    popUpOnlyOneItem(popup_switch_route.OPT_SWITCH);
+                    return;
+                }
                 if((origin_index == -1  || destination_index == -1) && isChecked){
-                    popUpOrgDstNotSet(popup_org_dst_not_set.OPT_SWITCH);
+                    popUpOrgDstNotSet(popup_switch_route.OPT_SWITCH);
                     return;
                 }
                 Log.d(TAG, "onCheckedChanged: hello there");
@@ -906,7 +930,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         POS_ZERO_ISORIGIN_AND_ISDEST
     }
 
-    private enum popup_org_dst_not_set{
+    private enum popup_switch_route {
         SHOW_ROUTE,
         OPT_SWITCH
     }
@@ -929,13 +953,27 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         editor.commit();
     }
 
-    private void popUpOrgDstNotSet(final popup_org_dst_not_set code){
+    private void popUpOrgDstNotSet(final popup_switch_route code){
+
+        loadOriginDestIdx();
+        String title = "", content = "";
+        if(origin_index == -1 && destination_index == -1){
+            title = "Set Origin and Destination!";
+            content = "Hey, we need a place to start and one to end. " +
+                    "Please click on Edit Trip button and select where you would like to begin and end. Cheers!";
+        }else if(origin_index == -1){
+            title = "Please Set Origin";
+            content = "Hey, seems like you forgot to tell us where to start your trip. " +
+                    "Please click on Edit Trip button and indicate where you would like to begin. Cheers!";
+        }else if(destination_index == -1){
+            title = "Please Set Destination!";
+            content = "Hey, seems like you forgot to tell us where to end your trip. " +
+                    "Please click on Edit Trip button and indicate where you would like to end. Cheers!";
+        }
 
         new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.CUSTOM_IMAGE_TYPE)
-                .setTitleText("Set Origin and Destination!")
-                .setContentText("Hey, we need a place to start and one to end. " +
-                        "Please click on Edit Trip button and select where you would like to begin and end. Cheers!"
-                )
+                .setTitleText(title)
+                .setContentText(content)
                 .setCustomImage(R.drawable.how_to_set_org_dest)
                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
