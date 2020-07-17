@@ -1,6 +1,8 @@
 package com.example.testapp.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -42,10 +44,14 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     private static final String TAG = "tsDetails";
     StorageReference storageRef = FirebaseStorage.getInstance().getReference();
     final long ONE_MEGABYTE = 1024 * 1024;
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
 
     int already_present_in_trip;
     TourismSpotModel obj;
     String click_position;
+    int destination_index;
+    Boolean set_dest_neg_one = false;
 
     private final int START_NOT_ALREADY_ADDED = 0;
     private final int START_ALREADY_ADDED = 1;
@@ -87,7 +93,9 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         loadTripData();
         updateButtonUI(already_present_in_trip);
 
-
+        sharedPref = getApplicationContext().getSharedPreferences(
+                getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         set_content(obj);
         add_to_trip.setOnClickListener(this);
@@ -148,6 +156,15 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         try {
+            destination_index = sharedPref.getInt("destination_index", -1);
+            if(set_dest_neg_one && destination_index != -1){
+                String last_key = (String)data_models_map.keySet().toArray()[data_models_map.size() - 2];
+                if(data_models_map.get(last_key).getDestination()){
+                    data_models_map.get(last_key).setDestination(false);
+                    editor.putInt("destination_index", -1);
+                    editor.commit();
+                }
+            }
             saveTripData();
         } catch (IOException e) {
             e.printStackTrace();
@@ -242,11 +259,13 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         switch (v.getId()){
             case R.id.ts_details_button_add_to_trip:
                 obj.setId(click_position);
+                set_dest_neg_one = true;
                 data_models_map.put(click_position, obj);
                 updateButtonUI(IN_ACTIVITY_ADD_BUTTON_CLICKED);
                 break;
             case R.id.ts_details_delete_button:
                 data_models_map.remove(click_position);
+                set_dest_neg_one = false;
                 updateButtonUI(IN_ACTIVITY_DELETE_BUTTON_CLICKED);
                 break;
         }

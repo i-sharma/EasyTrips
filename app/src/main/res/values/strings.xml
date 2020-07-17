@@ -8,4 +8,9 @@
     <string name="optimize_switch">OPTIMIZE</string>
     <string name="directions_api_key">***REMOVED***</string>
     <string name="autocomplete_api_key">***REMOVED***</string>
+
+    <string name="dialog_default_title">Here\'s a message!</string>
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="LOADING">Loading...</string>
 </resources>

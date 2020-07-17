@@ -89,4 +89,7 @@ dependencies {
     //OptSwitch
     implementation 'com.github.zcweng:switch-button:0.0.3@aar'
 
+    //PopUp
+    implementation 'com.pnikosis:materialish-progress:1.7'
+
 }

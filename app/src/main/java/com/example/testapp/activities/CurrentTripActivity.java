@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -34,7 +35,9 @@ import com.example.testapp.R;
 import com.example.testapp.adapters.CurrentTripAdapter;
 import com.example.testapp.dragListView.DragListView;
 import com.example.testapp.models.TourismSpotModel;
+import com.example.testapp.pendant_popup.SweetAlertDialog;
 import com.example.testapp.utils.MapsDataParser;
+import com.example.testapp.utils.RemoveFromTripCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -68,13 +71,13 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends Activity{
+public class CurrentTripActivity extends Activity implements RemoveFromTripCallback {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
     private static final String TAG = "MainActivity";
-    int current_position = 0 , origin_index, destination_index;
+    int current_position = 0, origin_index, destination_index;
     LatLng origin, destination;
     PlacesClient placesClient;
     DragListView dragListView;
@@ -82,14 +85,14 @@ public class CurrentTripActivity extends Activity{
     List<TourismSpotModel> model_opt_off = new ArrayList<>();
     List<TourismSpotModel> model_opt_on = new ArrayList<>();
     Integer[] colors = null;
-    Button route, editBtn, doneBtn, customStopBtn, deleteCard,emptyTripBtn;
+    Button route, editBtn, doneBtn, customStopBtn, deleteCard, emptyTripBtn;
     com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
     LinearLayout removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
-    String opt_off, opt_on, url_opt_is_false,url_opt_is_true;
-    StringBuffer waypoints_coordinates,waypoints_coordinates_opt_on;
+    String opt_off, opt_on, url_opt_is_false, url_opt_is_true;
+    StringBuffer waypoints_coordinates, waypoints_coordinates_opt_on;
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
@@ -100,7 +103,6 @@ public class CurrentTripActivity extends Activity{
     SharedPreferences.Editor editor;
 
 
-
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +111,7 @@ public class CurrentTripActivity extends Activity{
         setContentView(R.layout.activity_current_trip);
 
         loadTripData();
+
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -178,10 +181,24 @@ public class CurrentTripActivity extends Activity{
 
         }
 
+
+
         bottomNavigation();
 
         createOnClickListeners();
 
+//        savefiveData();
+    }
+
+    @Override
+    public void postPopup() {
+        progressBar.setVisibility(View.GONE);
+        removeItem.setVisibility(View.VISIBLE);
+        optimization = false;
+        saveTripData();
+        if (data_models_map.keySet().size() == 0) {
+            showEmptyTripUI();
+        }
     }
 
 
@@ -309,12 +326,24 @@ public class CurrentTripActivity extends Activity{
             @Override
             public void onClick(View view) {
 
+//                new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.WARNING_TYPE)
+//                        .setTitleText("Are you sure?")
+//                        .setContentText("Won't be able to recover this file!")
+//                        .setConfirmText("Yes,delete it!")
+//                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+//                            @Override
+//                            public void onClick(SweetAlertDialog sDialog) {
+//                                sDialog.dismissWithAnimation();
+//                            }
+//                        })
+//                        .show();
+
                 if (data_models_map.keySet().size() > 0) {
 
                     waypoints_coordinates_opt_on = getWaypoints_coordinates_opt_on();
                     waypoints_coordinates = getWaypointsCoordinates();
-                    Log.d(TAG, "In CurrTrip wc_opt_on is "+waypoints_coordinates_opt_on);
-                    Log.d(TAG, "In CurrTrip wc_opt_off is "+waypoints_coordinates);
+                    Log.d(TAG, "In CurrTrip wc_opt_on is " + waypoints_coordinates_opt_on);
+                    Log.d(TAG, "In CurrTrip wc_opt_off is " + waypoints_coordinates);
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization", optimization);
                     intent.putExtra("origin", origin);
@@ -333,7 +362,7 @@ public class CurrentTripActivity extends Activity{
         emptyTripBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(data_models_map.size() > 0){
+                if (data_models_map.size() > 0) {
                     AlertDialog.Builder builder1 = new AlertDialog.Builder(CurrentTripActivity.this);
                     builder1.setMessage("DO YOU WANT TO COMPLETELY REMOVE TRIP ITEMS?");
                     builder1.setCancelable(true);
@@ -364,9 +393,8 @@ public class CurrentTripActivity extends Activity{
 
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
-                }
-                else{
-                    Toast.makeText(getBaseContext(),"TRIP ALREADY EMPTY",Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getBaseContext(), "TRIP ALREADY EMPTY", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -400,9 +428,10 @@ public class CurrentTripActivity extends Activity{
                 route.setVisibility(View.VISIBLE);
                 opt_layout.setVisibility(View.VISIBLE);
                 loadOriginDestIdx();
-                swapAdapter(origin_index, destination_index);
-                swapDataModels(origin_index, destination_index);
-
+                if(origin_index!=-1 || destination_index != -1){
+                    swapAdapter();
+                    swapDataModels();
+                }
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged)) {
@@ -433,14 +462,13 @@ public class CurrentTripActivity extends Activity{
                     removeItem.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
                     removeFromModel(was_checked);
-                    progressBar.setVisibility(View.GONE);
-                    removeItem.setVisibility(View.VISIBLE);
-                    optimization = false;
-                    saveTripData();
-                    if (data_models_map.keySet().size() == 0) {
-                        showEmptyTripUI();
-                    }
-
+//                    progressBar.setVisibility(View.GONE);
+//                    removeItem.setVisibility(View.VISIBLE);
+//                    optimization = false;
+//                    saveTripData();
+//                    if (data_models_map.keySet().size() == 0) {
+//                        showEmptyTripUI();
+//                    }
                     return true;
                 }
                 return false;
@@ -468,8 +496,8 @@ public class CurrentTripActivity extends Activity{
                             Log.d(TAG, "onCheckedChanged: tripd " + trip_data_array);
                             Log.d(TAG, "onCheckedChanged: wayp " + waypoint_order);
                             Log.d(TAG, "onCheckedChanged: " + waypoint_order.size() + " "
-                            + data_models_map.keySet().size());
-                            for(String key: data_models_map.keySet()){
+                                    + data_models_map.keySet().size());
+                            for (String key : data_models_map.keySet()) {
                                 Log.d(TAG, "onCheckedChanged: dm " + data_models_map.get(key).getTitle());
                             }
                             if (waypoint_order.size() == data_models_map.keySet().size()) {
@@ -520,53 +548,103 @@ public class CurrentTripActivity extends Activity{
 
     }
 
-    private void swapAdapter(int org_idx, int dest_idx) {
-        int n = adapter.getItemCount();
-//        adapter.swapItems(origin_index, 0);
-//        adapter.swapItems(destination_index, n - 1);
+//    private class RemoveAsyncTask extends AsyncTask<Boolean, Void, Void> {
+//        @Override
+//        protected void onPostExecute(Void aVoid) {
+//            super.onPostExecute(aVoid);
+//            progressBar.setVisibility(View.GONE);
+//            removeItem.setVisibility(View.VISIBLE);
+//            optimization = false;
+//            saveTripData();
+//            if (data_models_map.keySet().size() == 0) {
+//                showEmptyTripUI();
+//            }
+//        }
+//
+//        @Override
+//        protected Void doInBackground(Boolean... bools) {
+//            removeFromModel(bools[0]);
+//
+//            return null;
+//        }
+//    }
 
-        if(dest_idx == 0 && org_idx == n - 1){
-            adapter.swapItems(n-1, 0);
-        }else if(dest_idx == 0){
-            adapter.swapItems(destination_index, n - 1);
+
+    private void swapAdapter() {
+        loadOriginDestIdx();
+        Boolean adap_swapped = false;
+        int n = adapter.getItemCount();
+        if (destination_index == 0 && origin_index == n - 1) {
+            adapter.swapItems(n - 1, 0);
+            adap_swapped = true;
+        }else if(destination_index == origin_index){
             adapter.swapItems(origin_index, 0);
-//            Collections.swap(keySetList, dest_idx, n-1);
-//            Collections.swap(keySetList, org_idx, 0);
-        }else if(org_idx == n - 1){
-            adapter.swapItems(origin_index, 0);
+            adap_swapped = true;
+        } else if (destination_index == 0) {
             adapter.swapItems(destination_index, n - 1);
-//            Collections.swap(keySetList, org_idx, 0);
-//            Collections.swap(keySetList, dest_idx, n-1);
-        }else{
+            if(origin_index != -1)
+                adapter.swapItems(origin_index, 0);
+            adap_swapped = true;
+        } else if (origin_index == n - 1) {
             adapter.swapItems(origin_index, 0);
-            adapter.swapItems(destination_index, n - 1);
-//            Collections.swap(keySetList, dest_idx, n-1);
-//            Collections.swap(keySetList, org_idx, 0);
+            if(destination_index != -1)
+                adapter.swapItems(destination_index, n - 1);
+            adap_swapped = true;
+        } else {
+            if(destination_index != -1){
+                adapter.swapItems(destination_index, n - 1);
+                adap_swapped = true;
+            }
+            if(origin_index != -1){
+                adapter.swapItems(origin_index, 0);
+                adap_swapped = true;
+            }
         }
-        adapter.notifyDataSetChanged();
+        if(adap_swapped)
+            adapter.notifyDataSetChanged();
     }
 
-    private void swapDataModels(int org_idx, int dest_idx) {
-        LinkedHashMap<String, TourismSpotModel> temp = data_models_map;
+    private void swapDataModels() {
+        LinkedHashMap<String, TourismSpotModel> temp = (LinkedHashMap)data_models_map.clone();
         ArrayList<String> keySetList = new ArrayList<>();
         keySetList.addAll(data_models_map.keySet());
         int n = adapter.getItemCount();
-
-        if(dest_idx == 0 && org_idx == n - 1){
-            Collections.swap(keySetList, 0, n-1);
-        }else if(dest_idx == 0){
-            Collections.swap(keySetList, dest_idx, n-1);
-            Collections.swap(keySetList, org_idx, 0);
-        }else if(org_idx == n - 1){
-            Collections.swap(keySetList, org_idx, 0);
-            Collections.swap(keySetList, dest_idx, n-1);
-        }else{
-            Collections.swap(keySetList, dest_idx, n-1);
-            Collections.swap(keySetList, org_idx, 0);
+        loadOriginDestIdx();
+        Boolean dest_at_zero = false, models_swapped = false;
+        if (destination_index == 0 && origin_index == n - 1) {
+            Collections.swap(keySetList, 0, n - 1);
+            models_swapped = true;
+        } else if(destination_index == origin_index){
+            Collections.swap(keySetList, origin_index, 0);
+            dest_at_zero = true;
+            models_swapped = true;
+        }else if (destination_index == 0) {
+            Collections.swap(keySetList, destination_index, n - 1);
+            if(origin_index != -1)
+                Collections.swap(keySetList, origin_index, 0);
+            models_swapped = true;
+        } else if (origin_index == n - 1) {
+            Collections.swap(keySetList, origin_index, 0);
+            if(destination_index != -1)
+                Collections.swap(keySetList, destination_index, n - 1);
+            models_swapped = true;
+        } else {
+            if(destination_index != -1){
+                Collections.swap(keySetList, destination_index, n - 1);
+                models_swapped = true;
+            }if(origin_index != -1){
+                Collections.swap(keySetList, origin_index, 0);
+                models_swapped = true;
+            }
         }
+        if(!models_swapped) return;
+        if(dest_at_zero)    destination_index = 0;
+        else    destination_index = n-1;
+        origin_index = 0;
         data_models_map.clear();
         saved_api_ids.clear();
-        for(String oldSwappedKey:keySetList) {
+
+        for (String oldSwappedKey : keySetList) {
             data_models_map.put(oldSwappedKey, temp.get(oldSwappedKey));
             saved_api_ids.add(temp.get(oldSwappedKey).getId());
         }
@@ -575,14 +653,14 @@ public class CurrentTripActivity extends Activity{
         saveTripData();
     }
 
-    private void loadOriginDestIdx(){
+    private void loadOriginDestIdx() {
         origin_index = sharedPref.getInt("origin_index", -1);
         destination_index = sharedPref.getInt("destination_index", -1);
     }
 
     private void saveOriginDestIdx() {
-        editor.putInt("origin_index", 0);
-        editor.putInt("destination_index", adapter.getItemCount() - 1);
+        editor.putInt("origin_index", origin_index);
+        editor.putInt("destination_index", destination_index);
         editor.commit();
     }
 
@@ -689,15 +767,15 @@ public class CurrentTripActivity extends Activity{
             progressBar.setVisibility(View.VISIBLE);
         }
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                progressBar.setVisibility(View.GONE);
-                somethingDeleted = false;
-                customStopAdded = false;
-                viewDragged = false;
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            progressBar.setVisibility(View.GONE);
+            somethingDeleted = false;
+            customStopAdded = false;
+            viewDragged = false;
 //                saveApiResult(optimization);
-            }
+        }
 
         @Override
         protected Void doInBackground(Void... voids) {
@@ -713,6 +791,7 @@ public class CurrentTripActivity extends Activity{
             return pos;
         return -1;
     }
+
     private void updateCurrentPosition() {
         int position = getCurrentItem();
         if (position != -1) {
@@ -765,39 +844,145 @@ public class CurrentTripActivity extends Activity{
         });
     }
 
+    private enum popup {
+        ONLY_ONE_ELEM, ONLY_ONE_ELEM_ACTION_DEL,
+        POS_ZERO_ISORIGIN, POS_ZERO_NOTORIGIN, POS_ZERO_ISORIGIN_ACTION_DEL,
+        POS_ZERO_NOTORIGIN_ACTION_DEL,
+        POS_LAST_ISDEST, POS_LAST_NOTDEST, POS_LAST_ISDEST_ACTION_DEL,
+        POS_LAST_NOTDEST_ACTION_DEL,
+        POS_MID_DEST_SET, POS_MID_ORIGIN_SET
+    }
 
-    public void removeFromModel(boolean was_checked) {
-        String curr_id;
+    private void change_origin_dest_index() {
+        loadOriginDestIdx();
+        if(current_position < origin_index){
+            origin_index -= 1;
+        }else if(current_position == origin_index){
+            origin_index = -1;
+        }
+
+        if(current_position < destination_index){
+            destination_index -= 1;
+        }else if(current_position == destination_index){
+            destination_index = -1;
+        }
+        editor.putInt("origin_index", origin_index);
+        editor.putInt("destination_index", destination_index);
+        editor.commit();
+    }
+
+    private void showPopUp(final popup code, final Boolean was_checked) {
+        String title = "", content = "", button_message = "";
+        switch (code) {
+            case ONLY_ONE_ELEM:
+                title = "Empty The Trip?";
+                content = "There's only one element in the trip. Do you want to empty it?";
+                button_message = "Yes,remove it!";
+                break;
+            case POS_ZERO_ISORIGIN:
+                title = "Remove Origin?";
+                content = "You are about to remove the Origin of your trip. Don't forget to set a new Origin!";
+                button_message = "Yes, Please!";
+                break;
+            case POS_LAST_ISDEST:
+                Log.d(TAG, "showPopUp: last is dest");
+                title = "Remove Destination?";
+                content = "You are about to remove the Destination of your trip. Don't forget to set a new Destination!";
+                button_message = "Yes, Please!";
+                break;
+        }
+        new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.WARNING_TYPE)
+                .setTitleText(title)
+                .setContentText(content)
+                .setConfirmText(button_message)
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sDialog) {
+                        change_origin_dest_index();
+                        reallyRemoveFromModel(was_checked);
+                        sDialog.dismissWithAnimation();
+                    }
+                })
+                .setCancelText("No way!")
+                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.dismissWithAnimation();
+                    }
+                })
+                .show();
+    }
+
+    public void removeFromModel(boolean was_checked){
+//        String curr_id;
+        Boolean already_removed = false;
         if (data_models_map.isEmpty()) {
             Toast.makeText(getBaseContext(), "Trip is Empty", Toast.LENGTH_SHORT).show();
             showEmptyTripUI();
         } else {
-            if (!was_checked) {
-                curr_id = model_opt_off.get(current_position).getId();
-                model_opt_off.remove(current_position);
+            if (adapter.getItemCount() == 1) {
+                showPopUp(popup.ONLY_ONE_ELEM, was_checked);
             } else {
-                curr_id = model_opt_on.get(current_position).getId();
-                model_opt_on.remove(current_position);
-                for (int i = 0; i < model_opt_off.size(); i++) {
-                    if (model_opt_off.get(i).getId() == curr_id) {
-                        model_opt_off.remove(i);
-                        break;
-                    }
+                loadOriginDestIdx();
+                Log.d(TAG, "removeFromModel: curr " + current_position + " org " + origin_index + " dst "
+                        + destination_index);
+                if (current_position == 0 && origin_index == 0) {
+                    Log.d(TAG, "removeFromModel: here 1");
+                    showPopUp(popup.POS_ZERO_ISORIGIN, was_checked);
+
+                } else if ((current_position == adapter.getItemCount() - 1) &&
+                        (destination_index == adapter.getItemCount() - 1)) {
+                    Log.d(TAG, "removeFromModel: last is dest");
+                    showPopUp(popup.POS_LAST_ISDEST, was_checked);
+                }
+                else {
+                    Log.d(TAG, "removeFromModel: here 2");
+                    change_origin_dest_index();
+                    reallyRemoveFromModel(was_checked);
+
                 }
             }
-            data_models_map.remove(curr_id);
-            saved_api_ids.clear();
-            for (String s : data_models_map.keySet())
-                saved_api_ids.add(s);
-
-            editor.putString("saved_api_ids", saved_api_ids.toString());
-            editor.commit();
-            adapter.notifyItemRemoved(current_position);
-            adapter.notifyItemRangeChanged(current_position, model_opt_off.size() - current_position);
-            updateCurrentPosition();
         }
-
     }
+
+    private void reallyRemoveFromModel(Boolean was_checked) {
+        String curr_id;
+        if (!was_checked) {
+            curr_id = model_opt_off.get(current_position).getId();
+            model_opt_off.remove(current_position);
+        } else {
+            curr_id = model_opt_on.get(current_position).getId();
+            model_opt_on.remove(current_position);
+            for (int i = 0; i < model_opt_off.size(); i++) {
+                if (model_opt_off.get(i).getId() == curr_id) {
+                    model_opt_off.remove(i);
+                    break;
+                }
+            }
+        }
+        data_models_map.remove(curr_id);
+        saved_api_ids.clear();
+        for (String s : data_models_map.keySet())
+            saved_api_ids.add(s);
+
+        editor.putString("saved_api_ids", saved_api_ids.toString());
+        editor.commit();
+        adapter.notifyItemRemoved(current_position);
+        adapter.notifyItemRangeChanged(current_position, model_opt_off.size() - current_position);
+        updateCurrentPosition();
+        progressBar.setVisibility(View.GONE);
+        removeItem.setVisibility(View.VISIBLE);
+        optimization = false;
+        saveTripData();
+        if (data_models_map.keySet().size() == 0) {
+            showEmptyTripUI();
+        }
+    }
+
+
+
+
+
 
     private DisplayMetrics getDisplayMetrics() {
         Display display = getWindowManager().getDefaultDisplay();
@@ -1017,7 +1202,6 @@ public class CurrentTripActivity extends Activity{
         loadTripData();
     }
 
-//    @Override
     public void saveTripData() {
         try {
             File file = new File(getDir("data", MODE_PRIVATE), "data_models_map");
@@ -1025,6 +1209,7 @@ public class CurrentTripActivity extends Activity{
             outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
+            
             Log.d(TAG, "saveTripData: called");
         } catch (IOException e) {
             e.printStackTrace();

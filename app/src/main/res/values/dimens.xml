@@ -6,4 +6,7 @@
     <dimen name="curr_button_bottom_margin">30dp</dimen>
     <dimen name="curr_button_left_right_margin">30dp</dimen>
 
+    <dimen name="alert_width">290dp</dimen>
+    <dimen name="common_circle_width">3dp</dimen>
+    <dimen name="progress_circle_radius">34dp</dimen>
 </resources>

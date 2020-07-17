@@ -182,11 +182,6 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
                     saveSharedPref();
-//                    iActivityMethods.saveTripData();
-//                    swapItems(getAdapterPosition(), 0);
-
-//                    iActivityMethods.dragItem(getAdapterPosition(), 0);
-
                     return true;
                 case R.id.set_dest:
                     if(destination_index != getAdapterPosition() && destination_index != -1){
@@ -195,18 +190,20 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     destination_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setDestination(true);
                     notifyDataSetChanged();
-//                    iActivityMethods.dragItem(getAdapterPosition(), getItemCount() - 1);
                     saveSharedPref();
-//                    iActivityMethods.saveTripData();
                     return true;
                 case R.id.set_waypoint:
-                    if(models.get(getAdapterPosition()).getOrigin())
+                    if(models.get(getAdapterPosition()).getOrigin()){
                         models.get(getAdapterPosition()).setOrigin(false);
-                    if(models.get(getAdapterPosition()).getDestination())
+                        origin_index = -1;
+                    }
+
+                    if(models.get(getAdapterPosition()).getDestination()){
                         models.get(getAdapterPosition()).setDestination(false);
+                        destination_index = -1;
+                    }
                     notifyDataSetChanged();
                     saveSharedPref();
-//                    iActivityMethods.saveTripData();
                     return true;
             }
             return false;
@@ -235,10 +232,5 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         itemWidth = metrics.widthPixels - itemMargin * 2;
     }
 
-//    public static interface IActivityMethods {
-////        void saveTripData();
-//
-////        void dragItem(int from, int to);
-//    }
 
 }
