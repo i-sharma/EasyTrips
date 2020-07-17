@@ -71,7 +71,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
-public class CurrentTripActivity extends Activity implements RemoveFromTripCallback {
+public class CurrentTripActivity extends Activity {
 
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -190,16 +190,16 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
 //        savefiveData();
     }
 
-    @Override
-    public void postPopup() {
-        progressBar.setVisibility(View.GONE);
-        removeItem.setVisibility(View.VISIBLE);
-        optimization = false;
-        saveTripData();
-        if (data_models_map.keySet().size() == 0) {
-            showEmptyTripUI();
-        }
-    }
+//    @Override
+//    public void postPopup() {
+//        progressBar.setVisibility(View.GONE);
+//        removeItem.setVisibility(View.VISIBLE);
+//        optimization = false;
+//        saveTripData();
+//        if (data_models_map.keySet().size() == 0) {
+//            showEmptyTripUI();
+//        }
+//    }
 
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
@@ -459,7 +459,7 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
                     somethingDeleted = true;
                     boolean was_checked = switchButton.isChecked();
                     switchButton.setChecked(false); //because it may not be optimized.
-                    removeItem.setVisibility(View.GONE);
+                    removeItem.setVisibility(View.INVISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     removeFromModel(was_checked);
 //                    progressBar.setVisibility(View.GONE);
@@ -581,6 +581,7 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
             adapter.swapItems(origin_index, 0);
             adap_swapped = true;
         } else if (destination_index == 0) {
+            Log.d(TAG, "swapAdapter: org " + origin_index + " dest " + destination_index);
             adapter.swapItems(destination_index, n - 1);
             if(origin_index != -1)
                 adapter.swapItems(origin_index, 0);
@@ -639,8 +640,8 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
         }
         if(!models_swapped) return;
         if(dest_at_zero)    destination_index = 0;
-        else    destination_index = n-1;
-        origin_index = 0;
+        else if(destination_index != -1)    destination_index = n-1;
+        if(origin_index!=-1)    origin_index = 0;
         data_models_map.clear();
         saved_api_ids.clear();
 
@@ -829,12 +830,10 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
     }
 
     private enum popup {
-        ONLY_ONE_ELEM, ONLY_ONE_ELEM_ACTION_DEL,
-        POS_ZERO_ISORIGIN, POS_ZERO_NOTORIGIN, POS_ZERO_ISORIGIN_ACTION_DEL,
-        POS_ZERO_NOTORIGIN_ACTION_DEL,
-        POS_LAST_ISDEST, POS_LAST_NOTDEST, POS_LAST_ISDEST_ACTION_DEL,
-        POS_LAST_NOTDEST_ACTION_DEL,
-        POS_MID_DEST_SET, POS_MID_ORIGIN_SET
+        ONLY_ONE_ELEM,
+        POS_ZERO_ISORIGIN,
+        POS_LAST_ISDEST,
+        POS_ZERO_ISORIGIN_AND_ISDEST
     }
 
     private void change_origin_dest_index() {
@@ -856,7 +855,7 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
     }
 
     private void showPopUp(final popup code, final Boolean was_checked) {
-        String title = "", content = "", button_message = "";
+        String title = "", content = "", button_message = "Yes, Please!";
         switch (code) {
             case ONLY_ONE_ELEM:
                 title = "Empty The Trip?";
@@ -865,14 +864,15 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
                 break;
             case POS_ZERO_ISORIGIN:
                 title = "Remove Origin?";
-                content = "You are about to remove the Origin of your trip. Don't forget to set a new Origin!";
-                button_message = "Yes, Please!";
+                content = "Are You Sure? Don't forget to set a new Origin!";
                 break;
             case POS_LAST_ISDEST:
-                Log.d(TAG, "showPopUp: last is dest");
                 title = "Remove Destination?";
-                content = "You are about to remove the Destination of your trip. Don't forget to set a new Destination!";
-                button_message = "Yes, Please!";
+                content = "Are You Sure? Don't forget to set a new Destination!";
+                break;
+            case POS_ZERO_ISORIGIN_AND_ISDEST:
+                title = "Remove Origin and Destination?";
+                content = "Sure? Don't forget to set a new Origin and Destination!";
                 break;
         }
         new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.WARNING_TYPE)
@@ -892,6 +892,7 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
                     @Override
                     public void onClick(SweetAlertDialog sweetAlertDialog) {
                         sweetAlertDialog.dismissWithAnimation();
+                        removeItem.setVisibility(View.VISIBLE);
                     }
                 })
                 .show();
@@ -908,19 +909,17 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
                 showPopUp(popup.ONLY_ONE_ELEM, was_checked);
             } else {
                 loadOriginDestIdx();
-                Log.d(TAG, "removeFromModel: curr " + current_position + " org " + origin_index + " dst "
-                        + destination_index);
-                if (current_position == 0 && origin_index == 0) {
-                    Log.d(TAG, "removeFromModel: here 1");
+                if(current_position == 0 && origin_index == 0 && destination_index == 0){
+                    showPopUp(popup.POS_ZERO_ISORIGIN_AND_ISDEST, was_checked);
+                }
+                else if (current_position == 0 && origin_index == 0) {
                     showPopUp(popup.POS_ZERO_ISORIGIN, was_checked);
 
                 } else if ((current_position == adapter.getItemCount() - 1) &&
                         (destination_index == adapter.getItemCount() - 1)) {
-                    Log.d(TAG, "removeFromModel: last is dest");
                     showPopUp(popup.POS_LAST_ISDEST, was_checked);
                 }
                 else {
-                    Log.d(TAG, "removeFromModel: here 2");
                     change_origin_dest_index();
                     reallyRemoveFromModel(was_checked);
 
