@@ -22,7 +22,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -37,7 +36,6 @@ import com.example.testapp.dragListView.DragListView;
 import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.pendant_popup.SweetAlertDialog;
 import com.example.testapp.utils.MapsDataParser;
-import com.example.testapp.utils.RemoveFromTripCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
@@ -96,7 +94,7 @@ public class CurrentTripActivity extends Activity {
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
-    Boolean same, somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean same, somethingSwapped = false, somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
     ProgressBar progressBar;
     RelativeLayout opt_layout;
     SharedPreferences sharedPref;
@@ -173,12 +171,15 @@ public class CurrentTripActivity extends Activity {
             progressBar.setVisibility(View.VISIBLE);
 
             //this is essential for maps activity to work, not required when we access location in app
-            setTmpLocation();
+//            setTmpLocation();
 
             updateModel(0);
 
-            new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-
+            loadOriginDestIdx();
+            if(origin_index != -1 && destination_index != -1){
+                Log.d(TAG, "onCreate: here");
+                new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            }
         }
 
 
@@ -187,19 +188,8 @@ public class CurrentTripActivity extends Activity {
 
         createOnClickListeners();
 
-//        savefiveData();
     }
 
-//    @Override
-//    public void postPopup() {
-//        progressBar.setVisibility(View.GONE);
-//        removeItem.setVisibility(View.VISIBLE);
-//        optimization = false;
-//        saveTripData();
-//        if (data_models_map.keySet().size() == 0) {
-//            showEmptyTripUI();
-//        }
-//    }
 
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
@@ -348,17 +338,10 @@ public class CurrentTripActivity extends Activity {
             @Override
             public void onClick(View view) {
 
-//                new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.WARNING_TYPE)
-//                        .setTitleText("Are you sure?")
-//                        .setContentText("Won't be able to recover this file!")
-//                        .setConfirmText("Yes,delete it!")
-//                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-//                            @Override
-//                            public void onClick(SweetAlertDialog sDialog) {
-//                                sDialog.dismissWithAnimation();
-//                            }
-//                        })
-//                        .show();
+                if(origin_index == -1 || destination_index == -1){
+                    popUpOrgDstNotSet(popup_org_dst_not_set.SHOW_ROUTE);
+                    return;
+                }
 
                 if (data_models_map.keySet().size() > 0) {
 
@@ -456,8 +439,9 @@ public class CurrentTripActivity extends Activity {
                 }
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
-                        viewDragged)) {
+                        viewDragged || somethingSwapped) && origin_index!=-1 && destination_index!=-1) {
                     opt_off = opt_on = "";
+                    Log.d(TAG, "done onClick: org " + origin_index + " dst " + destination_index);
                     OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
                     optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 }
@@ -500,6 +484,11 @@ public class CurrentTripActivity extends Activity {
         switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(SwitchButton view, boolean isChecked) {
+                if((origin_index == -1  || destination_index == -1) && isChecked){
+                    popUpOrgDstNotSet(popup_org_dst_not_set.OPT_SWITCH);
+                    return;
+                }
+                Log.d(TAG, "onCheckedChanged: hello there");
                 optimization = isChecked;
                 if (optimization) {
                     if (data_models_map.keySet().size() > 1) {
@@ -510,27 +499,19 @@ public class CurrentTripActivity extends Activity {
                             jObject = new JSONObject(opt_on);
                             MapsDataParser parser = new MapsDataParser(jObject);
                             waypoint_order = parser.get_waypoint_order();
-                            Log.d(TAG, "onCheckedChanged: 1");
+
                             ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
                             for (int i = 0; i < waypoint_order.size(); i++) {
                                 trip_data_array.add(i);
                             }
-                            Log.d(TAG, "onCheckedChanged: tripd " + trip_data_array);
-                            Log.d(TAG, "onCheckedChanged: wayp " + waypoint_order);
-                            Log.d(TAG, "onCheckedChanged: " + waypoint_order.size() + " "
-                                    + data_models_map.keySet().size());
+                            Log.d(TAG, "onCheckedChanged: wpo " + waypoint_order);
+                            Log.d(TAG, "onCheckedChanged: tda " + trip_data_array);
                             for (String key : data_models_map.keySet()) {
                                 Log.d(TAG, "onCheckedChanged: dm " + data_models_map.get(key).getTitle());
                             }
-                            if (waypoint_order.size() == data_models_map.keySet().size()) {
+                            if (waypoint_order.size() == data_models_map.keySet().size() - 1 ||
+                            waypoint_order.size() == data_models_map.keySet().size() - 2) {
                                 same = true;
-                                Log.d(TAG, "onCheckedChanged: 2");
-//                                ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
-//                                for (int i = 0; i < waypoint_order.size(); i++) {
-//                                    trip_data_array.add(i);
-//                                }
-//                                Log.d(TAG, "onCheckedChanged: tripd " + trip_data_array);
-//                                Log.d(TAG, "onCheckedChanged: wayp " + waypoint_order);
                                 for (int i = 0; i < waypoint_order.size(); i++) {
                                     if (waypoint_order.get(i) != trip_data_array.get(i)) {
                                         same = false;
@@ -623,8 +604,11 @@ public class CurrentTripActivity extends Activity {
                 adap_swapped = true;
             }
         }
-        if(adap_swapped)
+        if(adap_swapped){
             adapter.notifyDataSetChanged();
+
+        }
+
     }
 
     private void swapDataModels() {
@@ -661,6 +645,7 @@ public class CurrentTripActivity extends Activity {
             }
         }
         if(!models_swapped) return;
+        somethingSwapped = true;
         if(dest_at_zero)    destination_index = 0;
         else if(destination_index != -1)    destination_index = n-1;
         if(origin_index!=-1)    origin_index = 0;
@@ -715,8 +700,16 @@ public class CurrentTripActivity extends Activity {
     private void applyModel_opt_on() {
         // waypoint (0,3,1,2)    (0,1,2,3)
         model_opt_on = new ArrayList<>();
+//        int count = 0;
+        if(0 == origin_index){
+            model_opt_on.add(model_opt_off.get(0));
+        }
+        Log.d(TAG, "applyModel_opt_on: " + waypoint_order);
         for (int index : waypoint_order) {
-            model_opt_on.add(model_opt_off.get(index));
+            model_opt_on.add(model_opt_off.get(index+1));
+        }
+        if(destination_index == adapter.getItemCount() - 1){
+            model_opt_on.add(model_opt_off.get(destination_index));
         }
         current_position = 0;
         updateModel(current_position);
@@ -725,25 +718,34 @@ public class CurrentTripActivity extends Activity {
     private void optimizeRoute() {
 
         ArrayList<String> temp = new ArrayList<>();
+        int count = 0;
+        String origin_key = "", dest_key = "";
         for (String s : data_models_map.keySet()) {
             // Check if string contains only numbers
             temp.add(s);
+            if(count == origin_index){
+                origin_key = s;
+            }if(count == destination_index){
+                dest_key = s;
+            }
+            count += 1;
         }
         Collections.sort(temp);
 
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
-                !somethingDeleted && !viewDragged) return;
-        Log.d(TAG, "optimizeRoute: 2");
+                !somethingDeleted && !viewDragged && !somethingSwapped) return;
+
 
         waypoints_coordinates = getWaypointsCoordinates();
 
-        setTmpLocation();
+        setLatLong(origin_key, dest_key);
 
         url_opt_is_false = getUrl(origin, destination, false, waypoints_coordinates);
         url_opt_is_true = getUrl(origin, destination, true, waypoints_coordinates);
-
+        Log.d(TAG, "optimizeRoute: url off " + url_opt_is_false);
+        Log.d(TAG, "optimizeRoute: url on " + url_opt_is_true);
         DownloadTask task_opt_is_false, task_opt_is_true;
         task_opt_is_false = new DownloadTask();
         task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url_opt_is_false);
@@ -752,10 +754,12 @@ public class CurrentTripActivity extends Activity {
 
         try {
             opt_off = task_opt_is_false.get();
+            Log.d(TAG, "optimizeRoute: opt_off " + opt_off);
+
             saveApiResult(false);
 
             opt_on = task_opt_is_true.get();
-            Log.d(TAG, "hello : " + opt_on);
+            Log.d(TAG, "optimizeRoute: opt_on " + opt_on);
             saveApiResult(true);
 
         } catch (ExecutionException e) {
@@ -781,6 +785,7 @@ public class CurrentTripActivity extends Activity {
             somethingDeleted = false;
             customStopAdded = false;
             viewDragged = false;
+            somethingSwapped = false;
 //                saveApiResult(optimization);
         }
 
@@ -851,11 +856,16 @@ public class CurrentTripActivity extends Activity {
         });
     }
 
-    private enum popup {
+    private enum popup_remove {
         ONLY_ONE_ELEM,
         POS_ZERO_ISORIGIN,
         POS_LAST_ISDEST,
         POS_ZERO_ISORIGIN_AND_ISDEST
+    }
+
+    private enum popup_org_dst_not_set{
+        SHOW_ROUTE,
+        OPT_SWITCH
     }
 
     private void change_origin_dest_index() {
@@ -876,7 +886,29 @@ public class CurrentTripActivity extends Activity {
         editor.commit();
     }
 
-    private void showPopUp(final popup code, final Boolean was_checked) {
+    private void popUpOrgDstNotSet(final popup_org_dst_not_set code){
+
+        new SweetAlertDialog(CurrentTripActivity.this, SweetAlertDialog.CUSTOM_IMAGE_TYPE)
+                .setTitleText("Set Origin and Destination!")
+                .setContentText("Hey, we need a place to start and one to end. " +
+                        "Please click on Edit Trip button and select where you would like to begin and end. Cheers!"
+                )
+                .setCustomImage(R.drawable.how_to_set_org_dest)
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        switch(code){
+                            case OPT_SWITCH:
+                                switchButton.setChecked(false);
+                                break;
+                        }
+                        sweetAlertDialog.dismissWithAnimation();
+                    }
+                })
+                .show();
+    }
+
+    private void popUpOnRemove(final popup_remove code, final Boolean was_checked) {
         String title = "", content = "", button_message = "Yes, Please!";
         switch (code) {
             case ONLY_ONE_ELEM:
@@ -928,18 +960,18 @@ public class CurrentTripActivity extends Activity {
             showEmptyTripUI();
         } else {
             if (adapter.getItemCount() == 1) {
-                showPopUp(popup.ONLY_ONE_ELEM, was_checked);
+                popUpOnRemove(popup_remove.ONLY_ONE_ELEM, was_checked);
             } else {
                 loadOriginDestIdx();
                 if(current_position == 0 && origin_index == 0 && destination_index == 0){
-                    showPopUp(popup.POS_ZERO_ISORIGIN_AND_ISDEST, was_checked);
+                    popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN_AND_ISDEST, was_checked);
                 }
                 else if (current_position == 0 && origin_index == 0) {
-                    showPopUp(popup.POS_ZERO_ISORIGIN, was_checked);
+                    popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN, was_checked);
 
                 } else if ((current_position == adapter.getItemCount() - 1) &&
                         (destination_index == adapter.getItemCount() - 1)) {
-                    showPopUp(popup.POS_LAST_ISDEST, was_checked);
+                    popUpOnRemove(popup_remove.POS_LAST_ISDEST, was_checked);
                 }
                 else {
                     change_origin_dest_index();
@@ -1005,7 +1037,7 @@ public class CurrentTripActivity extends Activity {
         adapter.updateDisplayMetrics();
         dragListView.setAdapter(adapter, true);
         dragListView.setCanDragHorizontally(true);
-        dragListView.getRecyclerView().scrollToPosition(start_position);
+        dragListView.getRecyclerView().smoothScrollToPosition(start_position);
         progressBar.setVisibility(View.GONE);
 
     }
@@ -1080,11 +1112,15 @@ public class CurrentTripActivity extends Activity {
         StringBuffer wp = new StringBuffer("");
         ArrayList<String> data_models_lat = new ArrayList<>();
         ArrayList<String> data_models_lon = new ArrayList<>();
+        int count = 0;
         for (String id : data_models_map.keySet()) {
-            String lat = data_models_map.get(id).getLat();
-            String lon = data_models_map.get(id).getLon();
-            data_models_lat.add(lat);
-            data_models_lon.add(lon);
+            if(count != origin_index && count != destination_index){
+                String lat = data_models_map.get(id).getLat();
+                String lon = data_models_map.get(id).getLon();
+                data_models_lat.add(lat);
+                data_models_lon.add(lon);
+            }
+            count += 1;
         }
         if(waypoint_order.isEmpty()){
             try {
@@ -1097,6 +1133,9 @@ public class CurrentTripActivity extends Activity {
                 e.printStackTrace();
             }
         }
+        if(waypoint_order.size() != data_models_lat.size()){
+            Toast.makeText(this, "Problem in getWaypoints_coordinates_opt_on", Toast.LENGTH_SHORT).show();
+        }
         for (int index : waypoint_order) {
             wp.append("|").append(data_models_lat.get(index)).append(",").append(data_models_lon.get(index));
         }
@@ -1108,28 +1147,29 @@ public class CurrentTripActivity extends Activity {
 
         StringBuffer waypoints_coordinates = new StringBuffer("");
 
+        int count = 0;
         for (String id : data_models_map.keySet()) {
-
-            String lon = data_models_map.get(id).getLon();
-            String lat = data_models_map.get(id).getLat();
-
-            waypoints_coordinates.append("|").append(lat).append(",").append(lon);
-
+            if(count!=origin_index && count!=destination_index){
+                String lon = data_models_map.get(id).getLon();
+                String lat = data_models_map.get(id).getLat();
+                waypoints_coordinates.append("|").append(lat).append(",").append(lon);
+            }
+            count += 1;
         }
         return waypoints_coordinates;
     }
 
-    private void setTmpLocation() {
-        double hotel_lat = 28.651685;
-        double hotel_lon = 77.217220;
+    private void setLatLong(String origin_key, String dest_key) {
 
         LatLng tmp_origin, tmp_destination;
-        tmp_origin = new LatLng(hotel_lat, hotel_lon);
-        tmp_destination = tmp_origin;
+        origin = new LatLng(Double.valueOf(data_models_map.get(origin_key).getLat()),
+                Double.valueOf(data_models_map.get(origin_key).getLon()));
+        destination = new LatLng(Double.valueOf(data_models_map.get(dest_key).getLat()),
+                Double.valueOf(data_models_map.get(dest_key).getLon()));
 
         //change this
-        origin = tmp_origin;
-        destination = tmp_destination;
+//        origin = tmp_origin;
+//        destination = tmp_destination;
     }
 
     private void saveApiResult(Boolean opt) {
