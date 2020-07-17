@@ -158,9 +158,15 @@ public class TSDetailsActivity extends AppCompatActivity implements View.OnClick
         try {
             destination_index = sharedPref.getInt("destination_index", -1);
             if(set_dest_neg_one && destination_index != -1){
-                String last_key = (String)data_models_map.keySet().toArray()[data_models_map.size() - 2];
-                if(data_models_map.get(last_key).getDestination()){
-                    data_models_map.get(last_key).setDestination(false);
+                String dest_key;
+                if(destination_index == 0){
+                    dest_key = (String)data_models_map.keySet().toArray()[0];
+                }else{
+                    dest_key = (String)data_models_map.keySet().toArray()[data_models_map.size() - 2];
+                }
+
+                if(data_models_map.get(dest_key).getDestination()){
+                    data_models_map.get(dest_key).setDestination(false);
                     editor.putInt("destination_index", -1);
                     editor.commit();
                 }

@@ -710,22 +710,6 @@ public class CurrentTripActivity extends Activity implements RemoveFromTripCallb
 
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
-        Log.d(TAG, "optimizeRoute: shared " + shared_pref_ids);
-        Log.d(TAG, "optimizeRoute: temp " + temp);
-
-        Log.d(TAG, "optimizeRoute: 1");
-        Log.d(TAG, "optimizeRoute: customStopAdded" + customStopAdded);
-        Log.d(TAG, "optimizeRoute: somethingDeleted" + somethingDeleted);
-        Log.d(TAG, "optimizeRoute: viewDragged" + viewDragged);
-//        try {
-//            JSONObject jObject = new JSONObject(opt_on);
-//            MapsDataParser parser = new MapsDataParser(jObject);
-//            waypoint_order = parser.get_waypoint_order();
-//            Log.d(TAG, "optimizeRoute: here " + waypoint_order);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged) return;
         Log.d(TAG, "optimizeRoute: 2");
