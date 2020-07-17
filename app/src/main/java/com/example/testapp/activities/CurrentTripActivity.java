@@ -154,8 +154,24 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 adapter.notifyDataSetChanged();
                 updateCurrentPosition();
                 loadOriginDestIdx();
-                
+                if(fromPosition < origin_index && toPosition >= origin_index){
+                    origin_index -= 1;
+                }else if(fromPosition > origin_index && toPosition <=origin_index){
+                    origin_index += 1;
+                }else if(fromPosition == origin_index){
+                    origin_index = toPosition;
+                }
 
+
+                if(fromPosition < destination_index && toPosition >= destination_index){
+                    destination_index -= 1;
+                }else if(fromPosition > destination_index && toPosition <=destination_index){
+                    destination_index += 1;
+                }else if(fromPosition == destination_index){
+                    destination_index = toPosition;
+                }
+
+                saveOriginDestIdx();
 
             }
         });
@@ -267,6 +283,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 boolean was_empty = model_opt_off.isEmpty();
                 switchButton.setChecked(false);
                 int insert_pos;
+                loadOriginDestIdx();
                 if (!was_checked) {
                     if(current_position == 0 && origin_index == 0){
                         model_opt_off.add(1, customModel);
@@ -458,10 +475,15 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     swapAdapter();
                     swapDataModels();
                 }
+                if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
+                        viewDragged || somethingSwapped)){
+                    switchButton.setChecked(false);
+                }
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged || somethingSwapped) && origin_index!=-1 && destination_index!=-1) {
                     opt_off = opt_on = "";
+
                     Log.d(TAG, "done onClick: org " + origin_index + " dst " + destination_index);
                     OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
                     optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -1153,9 +1175,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }
-        if(waypoint_order.size() != data_models_lat.size()){
-            Toast.makeText(this, "Problem in getWaypoints_coordinates_opt_on", Toast.LENGTH_SHORT).show();
         }
         for (int index : waypoint_order) {
             wp.append("|").append(data_models_lat.get(index)).append(",").append(data_models_lon.get(index));
