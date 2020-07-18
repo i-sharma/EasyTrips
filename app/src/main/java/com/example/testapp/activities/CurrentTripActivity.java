@@ -524,20 +524,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     v.performClick();
                     removeItem.setBackgroundColor(0x00000000);
-                    loadTripData();
+//                    loadTripData();
                     somethingDeleted = true;
                     boolean was_checked = switchButton.isChecked();
                     switchButton.setChecked(false); //because it may not be optimized.
                     removeItem.setVisibility(View.INVISIBLE);
                     progressBar.setVisibility(View.VISIBLE);
                     removeFromModel(was_checked);
-//                    progressBar.setVisibility(View.GONE);
-//                    removeItem.setVisibility(View.VISIBLE);
-//                    optimization = false;
-//                    saveTripData();
-//                    if (data_models_map.keySet().size() == 0) {
-//                        showEmptyTripUI();
-//                    }
                     return true;
                 }
                 return false;
@@ -617,27 +610,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         });
 
     }
-
-//    private class RemoveAsyncTask extends AsyncTask<Boolean, Void, Void> {
-//        @Override
-//        protected void onPostExecute(Void aVoid) {
-//            super.onPostExecute(aVoid);
-//            progressBar.setVisibility(View.GONE);
-//            removeItem.setVisibility(View.VISIBLE);
-//            optimization = false;
-//            saveTripData();
-//            if (data_models_map.keySet().size() == 0) {
-//                showEmptyTripUI();
-//            }
-//        }
-//
-//        @Override
-//        protected Void doInBackground(Boolean... bools) {
-//            removeFromModel(bools[0]);
-//
-//            return null;
-//        }
-//    }
 
 
     private void swapAdapter() {
@@ -1044,14 +1016,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 popUpOnRemove(popup_remove.ONLY_ONE_ELEM, was_checked);
             } else {
                 loadOriginDestIdx();
-                if(current_position == 0 && origin_index == 0 && destination_index == 0){
+                if(current_position == origin_index && destination_index == current_position){
                     popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN_AND_ISDEST, was_checked);
                 }
-                else if (current_position == 0 && origin_index == 0) {
+                else if (current_position == origin_index) {
                     popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN, was_checked);
 
-                } else if ((current_position == adapter.getItemCount() - 1) &&
-                        (destination_index == adapter.getItemCount() - 1)) {
+                } else if (current_position == destination_index) {
                     popUpOnRemove(popup_remove.POS_LAST_ISDEST, was_checked);
                 }
                 else {
