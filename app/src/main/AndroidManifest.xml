@@ -45,6 +45,7 @@
         <activity android:name=".activities.LoginActivity" />
         <activity android:name=".activities.MapsActivity"
             android:theme="@style/Theme.AppCompat"/>
+        <activity android:name=".activities.GraphicalAnalysisActivity"/>
         <activity android:name=".activities.PhoneAuthActivity" />
         <activity
             android:name=".activities.CurrentTripActivity"

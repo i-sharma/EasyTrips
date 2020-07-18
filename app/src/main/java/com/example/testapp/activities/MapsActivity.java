@@ -26,7 +26,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
+
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,12 +47,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     LatLng origin,destination;
     Boolean optimization,same;
-    Button changeMapType,navigationBtn;
+    Button changeMapType,navigationBtn,analyticsBtn;
     Switch optimize_switch;
     String opt_off,opt_on,waypoints_coordinates_opt_off,waypoints_coordinates_opt_on;
     private GoogleMap map;
     LinkedHashMap<String, ExploreModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
+    long dist_opt_off,dist_opt_on,time_opt_off,time_opt_on;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         loadTripData();
+        loadApiResult(false);
+        loadApiResult(true);
 
         Intent it = getIntent();
         optimization = it.getExtras().getBoolean("optimization");
@@ -71,6 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
+        analyticsBtn = findViewById(R.id.analyticsBtn);
         optimize_switch = findViewById(R.id.optimize_switch);
         changeMapType = findViewById(R.id.change_map_type);
         navigationBtn = findViewById(R.id.navigationBtn);
@@ -86,7 +94,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void getDistanceAndTime() {
+        JSONObject jObject_on,jObject_off;
+        try {
+            jObject_on = new JSONObject(opt_on);
+            jObject_off = new JSONObject(opt_off);
+            MapsDataParser parser_on = new MapsDataParser(jObject_on);
+            MapsDataParser parser_off = new MapsDataParser(jObject_off);
+            dist_opt_on = parser_on.getTotalDistanceAndTime().get(0);
+            time_opt_on = parser_on.getTotalDistanceAndTime().get(1);
+            dist_opt_off = parser_off.getTotalDistanceAndTime().get(0);
+            time_opt_off = parser_off.getTotalDistanceAndTime().get(1);
+            Log.d(TAG, "off distance is "+dist_opt_off);
+            Log.d(TAG, "on distance is "+dist_opt_on);
+            Log.d(TAG, "off time is "+time_opt_off);
+            Log.d(TAG, "on time is "+time_opt_on);
+        }catch (Exception e)    {
+            e.printStackTrace();
+        }
+    }
+
     private void createOnClickListeners() {
+
+        analyticsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //getDistanceAndTime();
+                Intent intent = new Intent(getBaseContext(), GraphicalAnalysisActivity.class);
+                /*intent.putExtra("dist_opt_off",dist_opt_off);
+                intent.putExtra("dist_opt_on",dist_opt_on);
+                intent.putExtra("time_opt_off",time_opt_off);
+                intent.putExtra("time_opt_on",time_opt_on);*/
+                startActivity(intent);
+            }
+        });
+
         optimize_switch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
