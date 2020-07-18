@@ -64,4 +64,10 @@
         <item name="android:paddingRight">21dp</item>
         <item name="android:textColor">@color/button_text_color</item>
     </style>
+    <style name="MyToolbarTheme"
+        parent="@style/ThemeOverlay.AppCompat.Dark">
+        <item name="colorControlNormal">@color/quantum_white_100</item>
+        <item name="titleTextColor">@color/quantum_white_100</item>
+    </style>
+
 </resources>

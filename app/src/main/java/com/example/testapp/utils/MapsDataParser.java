@@ -74,6 +74,38 @@ public class MapsDataParser {
         return routes;
     }
 
+    public ArrayList<Long> getTotalDistanceAndTime(){
+
+        JSONArray jRoutes;
+        JSONArray jLegs;
+        JSONObject jDistance,jDuration;
+        long totalDistance = 0,totalTime = 0;
+
+        try {
+            jRoutes = jObject.getJSONArray("routes");
+
+            for (int i = 0; i < jRoutes.length(); i++) {
+
+                jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
+
+                for (int j = 0; j < jLegs.length(); j++) {
+                    jDistance = ((JSONObject) jLegs.get(j)).getJSONObject("distance");
+                    jDuration = ((JSONObject) jLegs.get(j)).getJSONObject("duration");
+                    totalDistance = totalDistance+jDistance.getLong("value");
+                    totalTime = totalTime+jDuration.getLong("value");
+                }
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        ArrayList<Long> arrayList = new ArrayList<>();
+        arrayList.add(totalDistance);
+        arrayList.add(totalTime);
+        return arrayList;
+    }
+
     public ArrayList<Integer> get_waypoint_order() {
             ArrayList<Integer> arrayList = new ArrayList<>();
             try {
