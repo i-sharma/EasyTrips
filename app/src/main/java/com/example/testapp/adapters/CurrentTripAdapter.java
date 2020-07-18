@@ -181,9 +181,6 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     origin_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
-//                    if(prev_pos!=-1)
-//                        notifyItemChanged(prev_pos);
-//                    notifyItemChanged(origin_index);
                     saveSharedPref();
                     iCurrTrip.updateDataModelsMap(origin_index, true, null,
                             prev_pos, false, null);

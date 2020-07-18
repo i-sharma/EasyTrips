@@ -1049,13 +1049,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 popUpOnRemove(popup_remove.ONLY_ONE_ELEM, was_checked);
             } else {
                 loadOriginDestIdx();
-                if(current_position == origin_index && destination_index == current_position){
+                if(current_position == 0 && origin_index == 0 && destination_index == 0){
                     popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN_AND_ISDEST, was_checked);
                 }
-                else if (current_position == origin_index) {
+                else if (current_position == 0 && origin_index == 0) {
                     popUpOnRemove(popup_remove.POS_ZERO_ISORIGIN, was_checked);
 
-                } else if (current_position == destination_index) {
+                } else if ((current_position == adapter.getItemCount() - 1) &&
+                        (destination_index == adapter.getItemCount() - 1)) {
                     popUpOnRemove(popup_remove.POS_LAST_ISDEST, was_checked);
                 }
                 else {
@@ -1175,7 +1176,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         if (!optimization)
             adapter = new CurrentTripAdapter(model_opt_off, this, getDisplayMetrics(), true);
         else adapter = new CurrentTripAdapter(model_opt_on, this, getDisplayMetrics(), true);
-        adapter.setHasStableIds(true);
         adapter.setItemMargin((int) (getResources().getDimension(R.dimen.pager_margin)));
         adapter.updateDisplayMetrics();
         dragListView.setAdapter(adapter, true);
