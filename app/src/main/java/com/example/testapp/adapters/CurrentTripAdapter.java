@@ -169,53 +169,42 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             loadSharedPref();
-            int prev_pos = -1;
             switch (item.getItemId()){
                 case R.id.set_origin:
                     Log.d(TAG, "onMenuItemClick: org " + origin_index + " pos " + getAdapterPosition());
                     if(origin_index != getAdapterPosition() && origin_index != -1) {
                         models.get(origin_index).setOrigin(false);
                         iCurrTrip.dragTopBottom(false, null);
-                        prev_pos = origin_index;
                     }
                     origin_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
                     saveSharedPref();
-                    iCurrTrip.updateDataModelsMap(origin_index, true, null,
-                            prev_pos, false, null);
                     return true;
                 case R.id.set_dest:
                     if(destination_index != getAdapterPosition() && destination_index != -1){
                         models.get(destination_index).setDestination(false);
                         iCurrTrip.dragTopBottom(null, false);
-                        prev_pos = destination_index;
                     }
                     destination_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setDestination(true);
                     notifyDataSetChanged();
                     saveSharedPref();
-                    iCurrTrip.updateDataModelsMap(destination_index, null, true,
-                            prev_pos, null, false);
                     return true;
                 case R.id.set_waypoint:
-                    Boolean curr_origin = null, curr_dest = null;
                     if(models.get(getAdapterPosition()).getOrigin()){
                         models.get(getAdapterPosition()).setOrigin(false);
                         origin_index = -1;
                         iCurrTrip.dragTopBottom(false, null);
-                        curr_origin = false;
                     }
+
                     if(models.get(getAdapterPosition()).getDestination()){
                         models.get(getAdapterPosition()).setDestination(false);
                         destination_index = -1;
                         iCurrTrip.dragTopBottom(null, false);
-                        curr_dest = false;
                     }
                     notifyDataSetChanged();
                     saveSharedPref();
-                    iCurrTrip.updateDataModelsMap(getAdapterPosition(), curr_origin, curr_dest,
-                            -1, null, null);
                     return true;
             }
             return false;
@@ -246,7 +235,5 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
     public interface ICurrTrip{
         public void dragTopBottom(Boolean topmost, Boolean bottommost);
-        public void updateDataModelsMap(int curr_pos, Boolean curr_origin, Boolean curr_dest,
-                                        int prev_pos, Boolean prev_origin, Boolean prev_dest);
     }
 }

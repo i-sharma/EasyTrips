@@ -386,7 +386,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             @Override
             public void onClick(View view) {
 
-                loadOriginDestIdx();
                 if(adapter.getItemCount() == 1){
                     popUpOnlyOneItem(popup_switch_route.SHOW_ROUTE);
                     return;
@@ -992,7 +991,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     private void popUpOnRemove(final popup_remove code, final Boolean was_checked) {
         String title = "", content = "", button_message = "Yes, Please!";
-        loadOriginDestIdx();
         switch (code) {
             case ONLY_ONE_ELEM:
                 title = "Empty The Trip?";
@@ -1063,63 +1061,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
             }
         }
-    }
-
-//    private class DownloadTask extends AsyncTask<String, Integer, String> {
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//            progressBar.setVisibility(View.VISIBLE);
-//        }
-//
-//        @Override
-//        protected String doInBackground(String... urls) {
-//            Log.d(TAG, "doInBackground: down");
-//            URL url;
-//            StringBuilder result = new StringBuilder();
-//            try {
-//                url = new URL(urls[0]);
-//                InputStream in = url.openStream();
-//                InputStreamReader reader = new InputStreamReader(in);
-//                char[] buffer = new char[1024];
-//                int bytesRead = reader.read(buffer);
-//                while (bytesRead != -1) {
-//
-//                    result.append(buffer, 0, bytesRead);
-//                    bytesRead = reader.read(buffer);
-//
-//                }
-//                return result.toString();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//            return "not possible";
-//        }
-//
-//        @Override
-//        protected void onPostExecute(String result) {
-//            super.onPostExecute(result);
-//        }
-//    }
-
-    @Override
-    public void updateDataModelsMap(int curr_pos, Boolean curr_origin, Boolean curr_dest,
-                                    int prev_pos, Boolean prev_origin, Boolean prev_dest){
-        loadTripData();
-        String[] arr = data_models_map.keySet().toArray(new String[0]);
-        if(prev_pos!=-1){
-            if(prev_origin!=null)
-                data_models_map.get(arr[prev_pos]).setOrigin(prev_origin);
-            if(prev_dest != null)
-                data_models_map.get(arr[prev_pos]).setDestination(prev_dest);
-        }
-        if(curr_pos!=-1){
-            if(curr_origin!=null)
-                data_models_map.get(arr[curr_pos]).setOrigin(curr_origin);
-            if(curr_dest != null)
-                data_models_map.get(arr[curr_pos]).setDestination(curr_dest);
-        }
-        saveTripData();
     }
 
     private void reallyRemoveFromModel(Boolean was_checked) {
