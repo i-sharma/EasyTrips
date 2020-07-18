@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -65,10 +64,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
@@ -1068,61 +1065,61 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         }
     }
 
-    private class UpdateDataModelTask extends AsyncTask<UpdateDMTaskParams, Void, Void> {
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            loadTripData();
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            saveTripData();
-        }
-
-        @Override
-        protected Void doInBackground(UpdateDMTaskParams... params) {
-            String[] arr = data_models_map.keySet().toArray(new String[0]);
-            if(params[0].prev_pos!=-1){
-                if(params[0].prev_origin!=null)
-                    data_models_map.get(arr[params[0].prev_pos]).setOrigin(params[0].prev_origin);
-                if(params[0].prev_dest != null)
-                    data_models_map.get(arr[params[0].prev_pos]).setDestination(params[0].prev_dest);
-            }
-            if(params[0].curr_pos!=-1){
-                if(params[0].curr_origin!=null)
-                    data_models_map.get(arr[params[0].curr_pos]).setOrigin(params[0].curr_origin);
-                if(params[0].curr_dest != null)
-                    data_models_map.get(arr[params[0].curr_pos]).setDestination(params[0].curr_dest);
-            }
-            return null;
-        }
-    }
-
-    private static class UpdateDMTaskParams {
-        int curr_pos, prev_pos;
-        Boolean curr_origin,curr_dest,prev_origin,prev_dest;
-
-        public UpdateDMTaskParams(int curr_pos, Boolean curr_origin, Boolean curr_dest, int prev_pos, Boolean prev_origin, Boolean prev_dest) {
-            this.curr_pos = curr_pos;
-            this.prev_pos = prev_pos;
-            this.curr_origin = curr_origin;
-            this.curr_dest = curr_dest;
-            this.prev_origin = prev_origin;
-            this.prev_dest = prev_dest;
-        }
-
-    }
+//    private class DownloadTask extends AsyncTask<String, Integer, String> {
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            progressBar.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        protected String doInBackground(String... urls) {
+//            Log.d(TAG, "doInBackground: down");
+//            URL url;
+//            StringBuilder result = new StringBuilder();
+//            try {
+//                url = new URL(urls[0]);
+//                InputStream in = url.openStream();
+//                InputStreamReader reader = new InputStreamReader(in);
+//                char[] buffer = new char[1024];
+//                int bytesRead = reader.read(buffer);
+//                while (bytesRead != -1) {
+//
+//                    result.append(buffer, 0, bytesRead);
+//                    bytesRead = reader.read(buffer);
+//
+//                }
+//                return result.toString();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//            return "not possible";
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String result) {
+//            super.onPostExecute(result);
+//        }
+//    }
 
     @Override
     public void updateDataModelsMap(int curr_pos, Boolean curr_origin, Boolean curr_dest,
                                     int prev_pos, Boolean prev_origin, Boolean prev_dest){
-        UpdateDMTaskParams params = new UpdateDMTaskParams (curr_pos, curr_origin, curr_dest, prev_pos, prev_origin, prev_dest);
-        new UpdateDataModelTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
-
+        loadTripData();
+        String[] arr = data_models_map.keySet().toArray(new String[0]);
+        if(prev_pos!=-1){
+            if(prev_origin!=null)
+                data_models_map.get(arr[prev_pos]).setOrigin(prev_origin);
+            if(prev_dest != null)
+                data_models_map.get(arr[prev_pos]).setDestination(prev_dest);
+        }
+        if(curr_pos!=-1){
+            if(curr_origin!=null)
+                data_models_map.get(arr[curr_pos]).setOrigin(curr_origin);
+            if(curr_dest != null)
+                data_models_map.get(arr[curr_pos]).setDestination(curr_dest);
+        }
+        saveTripData();
     }
 
     private void reallyRemoveFromModel(Boolean was_checked) {
