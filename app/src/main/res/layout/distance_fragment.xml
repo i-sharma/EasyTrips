@@ -1,30 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/road"
+    android:background="@drawable/green_analysis"
+    android:id="@+id/distance_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/off_dist"
-        android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/cardview_dark_background"
         android:layout_width="wrap_content"
+        android:fontFamily="@font/fira_mono_bold"
+        android:textColor="@color/places_text_black_alpha_87"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_marginLeft="82dp"
-        android:layout_marginTop="82dp"
-        android:text="off dist" />
+        android:layout_marginTop="142dp"
+        android:text="off time" />
 
     <TextView
         android:id="@+id/on_dist"
         android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/cardview_dark_background"
+        android:textColor="@color/places_text_black_alpha_87"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/off_dist"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="82dp"
-        android:layout_marginTop="10dp"
-        android:text="on dist" />
+        android:layout_marginTop="240dp"
+        android:text="on time" />
+
+
+    <TextView
+        android:id="@+id/efficiency"
+        android:fontFamily="@font/fira_mono_bold"
+        android:textColor="@color/places_text_black_alpha_87"
+        android:layout_marginLeft="233dp"
+        android:text="100%"
+        android:layout_marginTop="420dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

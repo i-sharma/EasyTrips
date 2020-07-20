@@ -23,7 +23,7 @@ public class GraphicalAnalysisActivity extends AppCompatActivity {
     private TabAdapter adapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private long dist_opt_off,dist_opt_on,time_opt_off,time_opt_on;
+    private long dist_opt_off=0,dist_opt_on=0,time_opt_off=0,time_opt_on=0;
     private String opt_on="",opt_off="";
     private static final String TAG = "GraphicalAnalysis";
 
@@ -77,14 +77,19 @@ public class GraphicalAnalysisActivity extends AppCompatActivity {
             loadApiResult(true);
         }
         try {
-            jObject_on = new JSONObject(opt_on);
             jObject_off = new JSONObject(opt_off);
-            MapsDataParser parser_on = new MapsDataParser(jObject_on);
             MapsDataParser parser_off = new MapsDataParser(jObject_off);
-            dist_opt_on = parser_on.getTotalDistanceAndTime().get(0);
-            time_opt_on = parser_on.getTotalDistanceAndTime().get(1);
             dist_opt_off = parser_off.getTotalDistanceAndTime().get(0);
             time_opt_off = parser_off.getTotalDistanceAndTime().get(1);
+            Log.d(TAG, "getDistanceAndTime: opt_off is" + opt_off);
+
+            if(!opt_on.isEmpty()){
+                jObject_on = new JSONObject(opt_on);
+                MapsDataParser parser_on = new MapsDataParser(jObject_on);
+                dist_opt_on = parser_on.getTotalDistanceAndTime().get(0);
+                time_opt_on = parser_on.getTotalDistanceAndTime().get(1);
+            }
+
             Log.d(TAG, "off distance is "+dist_opt_off);
             Log.d(TAG, "on distance is "+dist_opt_on);
             Log.d(TAG, "off time is "+time_opt_off);

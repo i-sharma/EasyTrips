@@ -84,6 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //this is the condition to call direction api
         if(data_models_map.keySet().size() > 0)  {
+            Log.d(TAG, "onCreate: checking conddd");
             loadApiResult(optimization);
             plotMap(optimization);
         }
@@ -117,12 +118,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         analyticsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //getDistanceAndTime();
+
                 Intent intent = new Intent(getBaseContext(), GraphicalAnalysisActivity.class);
-                /*intent.putExtra("dist_opt_off",dist_opt_off);
-                intent.putExtra("dist_opt_on",dist_opt_on);
-                intent.putExtra("time_opt_off",time_opt_off);
-                intent.putExtra("time_opt_on",time_opt_on);*/
+
                 startActivity(intent);
             }
         });
@@ -137,10 +135,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(MapsActivity.this,
                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                 }else{
-                    if(data_models_map.keySet().size() == 1){
+                    if(data_models_map.keySet().size() <= 3){
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
-                    if(data_models_map.keySet().size() > 1){
+                    if(data_models_map.keySet().size() > 3){
                         loadApiResult(optimization);
                         plotMap(optimization);
                     }

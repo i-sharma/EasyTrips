@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -29,7 +28,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.testapp.R;
 import com.example.testapp.adapters.CurrentTripAdapter;
 import com.example.testapp.dragListView.DragListView;
@@ -49,9 +47,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suke.widget.SwitchButton;
-
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -105,11 +101,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+            overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
 
         loadTripData();
-
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -403,6 +398,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     Log.d(TAG, "In CurrTrip wc_opt_off is " + waypoints_coordinates);
                     Intent intent = new Intent(getBaseContext(), MapsActivity.class);
                     intent.putExtra("optimization", optimization);
+                    Log.d(TAG, "from CurrTrip To MapsActivity origin is "+origin);
                     intent.putExtra("origin", origin);
                     intent.putExtra("destination", destination);
                     intent.putExtra("waypoints", waypoint_order);
@@ -551,7 +547,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 Log.d(TAG, "onCheckedChanged: hello there");
                 optimization = isChecked;
                 if (optimization) {
-                    if (data_models_map.keySet().size() > 1) {
+                    if (data_models_map.keySet().size() > 3) {
                         loadApiResult(optimization);
                         //opt_on has response //create new model as model_opt_on
                         JSONObject jObject;
@@ -770,26 +766,28 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             count += 1;
         }
         Collections.sort(temp);
-
+        setLatLong(origin_key, dest_key);
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged && !somethingSwapped) return;
 
+        Log.d(TAG, "optimizeRoute api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
 
-        setLatLong(origin_key, dest_key);
-
         url_opt_is_false = getUrl(origin, destination, false, waypoints_coordinates);
-        url_opt_is_true = getUrl(origin, destination, true, waypoints_coordinates);
         Log.d(TAG, "optimizeRoute: url off " + url_opt_is_false);
-        Log.d(TAG, "optimizeRoute: url on " + url_opt_is_true);
-        DownloadTask task_opt_is_false, task_opt_is_true;
+        DownloadTask task_opt_is_false,task_opt_is_true = null;
         task_opt_is_false = new DownloadTask();
         task_opt_is_false.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url_opt_is_false);
-        task_opt_is_true = new DownloadTask();
-        task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url_opt_is_true);
+
+        if(data_models_map.size() > 3){
+            url_opt_is_true = getUrl(origin, destination, true, waypoints_coordinates);
+            Log.d(TAG, "optimizeRoute: url on " + url_opt_is_true);
+            task_opt_is_true = new DownloadTask();
+            task_opt_is_true.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url_opt_is_true);
+        }
 
         try {
             opt_off = task_opt_is_false.get();
@@ -797,8 +795,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
             saveApiResult(false);
 
-            opt_on = task_opt_is_true.get();
-            Log.d(TAG, "optimizeRoute: opt_on " + opt_on);
+            if(data_models_map.size() > 3 && task_opt_is_true != null) {
+                opt_on = task_opt_is_true.get();
+                Log.d(TAG, "optimizeRoute: opt_on " + opt_on);
+            }else{
+                opt_on = "";
+            }
+            
             saveApiResult(true);
 
         } catch (ExecutionException e) {
@@ -1111,7 +1114,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         String waypoints = "waypoints=optimize:" + opt + waypoints_coordinates.toString();
 
         // Building the parameters to the web service
-        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + waypoints;
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
+
+        if(data_models_map.size() > 2)
+            parameters +=  "&" + waypoints;
 
         // Output format
         String output = "json";
@@ -1162,6 +1168,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     private StringBuffer getWaypoints_coordinates_opt_on(){
         StringBuffer wp = new StringBuffer("");
+        if(data_models_map.size() <= 3) return wp;
         ArrayList<String> data_models_lat = new ArrayList<>();
         ArrayList<String> data_models_lon = new ArrayList<>();
         int count = 0;
@@ -1177,7 +1184,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         if(waypoint_order.isEmpty()){
             try {
                 loadApiResult(true);
-                Log.d(TAG, "opt_on is "+opt_on);
                 JSONObject jObject = new JSONObject(opt_on);
                 MapsDataParser parser = new MapsDataParser(jObject);
                 waypoint_order = parser.get_waypoint_order();
@@ -1209,6 +1215,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     }
 
     private void setLatLong(String origin_key, String dest_key) {
+
+        loadOriginDestIdx();
 
         LatLng tmp_origin, tmp_destination;
         origin = new LatLng(Double.valueOf(data_models_map.get(origin_key).getLat()),

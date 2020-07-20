@@ -1,65 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/sand_clock"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/time_fragment"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/before_opt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/before_opt"
-        android:layout_marginTop="40dp"/>
 
     <TextView
         android:id="@+id/off_time"
         android:layout_width="wrap_content"
         android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/cardview_dark_background"
+        android:textColor="@color/places_text_black_alpha_87"
         android:layout_height="wrap_content"
         android:layout_marginLeft="82dp"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="142dp"
         android:text="off time" />
-
-    <ImageView
-        android:id="@+id/after_opt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="13dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/after_opt" />
 
     <TextView
         android:id="@+id/on_time"
         android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/cardview_dark_background"
+        android:textColor="@color/places_text_black_alpha_87"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/after_opt"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="82dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="240dp"
         android:text="on time" />
 
-    <ImageView
-        android:id="@+id/eff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="13dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/eff" />
 
     <TextView
         android:id="@+id/efficiency"
         android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/cardview_dark_background"
-        android:layout_below="@id/eff"
-        android:layout_marginLeft="42dp"
-        android:text="1 - (on_time)/(off_time)"
-        android:layout_marginTop="10dp"
+        android:textColor="@color/places_text_black_alpha_87"
+        android:layout_marginLeft="233dp"
+        android:text="100%"
+        android:layout_marginTop="420dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-</LinearLayout>
+</RelativeLayout>
