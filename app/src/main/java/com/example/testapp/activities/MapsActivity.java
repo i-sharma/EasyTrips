@@ -24,6 +24,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.common.collect.Maps;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
 
 import org.json.JSONException;
@@ -44,7 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String TAG = "MapsActivity";
 
     LatLng origin,destination;
-    Boolean optimization,same;
+    Boolean optimization;
     Button changeMapType,navigationBtn,analyticsBtn;
     Switch optimize_switch;
     String opt_off,opt_on,waypoints_coordinates_opt_off,waypoints_coordinates_opt_on;
@@ -67,7 +68,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         origin = it.getParcelableExtra("origin");
         destination = it.getParcelableExtra("destination");
         waypoint_order = it.getExtras().getIntegerArrayList("waypoints");
-        same = it.getExtras().getBoolean("same");
         waypoints_coordinates_opt_off = it.getExtras().getString("wc_opt_off");
         waypoints_coordinates_opt_on = it.getExtras().getString("wc_opt_on");
 
@@ -131,14 +131,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 optimization = optimize_switch.isChecked();
 
-                if(same){
+                ArrayList<Integer> trip_data_array = new ArrayList<>(waypoint_order.size());
+                for (int i = 0; i < waypoint_order.size(); i++) {
+                    trip_data_array.add(i);
+                }
+
+                Boolean same = false;
+
+                if (waypoint_order.size() == data_models_map.keySet().size() - 1 ||
+                        waypoint_order.size() == data_models_map.keySet().size() - 2) {
+                    same = true;
+                    for (int i = 0; i < waypoint_order.size(); i++) {
+                        if (waypoint_order.get(i) != trip_data_array.get(i)) {
+                            same = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (same) {
                     Toast.makeText(MapsActivity.this,
                             "Trip Already Optimized", Toast.LENGTH_SHORT).show();
                 }else{
                     if(data_models_map.keySet().size() <= 3){
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
-                    if(data_models_map.keySet().size() > 3){
+                    else{
+                        Toast.makeText(MapsActivity.this,
+                                "Optimized", Toast.LENGTH_SHORT).show();
                         loadApiResult(optimization);
                         plotMap(optimization);
                     }

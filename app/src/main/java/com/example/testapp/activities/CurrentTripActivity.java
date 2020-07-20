@@ -402,7 +402,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     intent.putExtra("origin", origin);
                     intent.putExtra("destination", destination);
                     intent.putExtra("waypoints", waypoint_order);
-                    intent.putExtra("same", same);
                     intent.putExtra("wc_opt_off", waypoints_coordinates.toString());
                     intent.putExtra("wc_opt_on", waypoints_coordinates_opt_on.toString());
                     startActivity(intent);
