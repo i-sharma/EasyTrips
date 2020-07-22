@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/time_fragment"
+    android:background="@drawable/green_analysis"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -29,12 +30,12 @@
 
     <TextView
         android:id="@+id/efficiency"
-        android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/places_text_black_alpha_87"
-        android:layout_marginLeft="233dp"
-        android:text="100%"
-        android:layout_marginTop="420dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="228dp"
+        android:layout_marginTop="412dp"
+        android:fontFamily="@font/fira_mono_bold"
+        android:text="100%"
+        android:textColor="@color/places_text_black_alpha_87" />
 
 </RelativeLayout>

@@ -16,6 +16,8 @@ public class TimeFragment extends Fragment {
     private static final String TAG = "TimeFragment";
     RelativeLayout time_fragment_layout;
     int off_seconds,on_seconds;
+    Double e;
+    private static final Double THRESHOLD = 0.05;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,7 +36,18 @@ public class TimeFragment extends Fragment {
         int p3 = p2 % 60;
         p2 = p2 / 60;
 
-        off_time.setText("" + p2 + " hours " + p3 + " minutes " + p1 + " seconds");
+        String off_time_text = "";
+
+        if(p2 != 0)
+            off_time_text += p2 + " hours ";
+
+        if(p3 != 0)
+            off_time_text += p3 + " minutes ";
+
+        if(p1 != 0)
+            off_time_text += p1 + " seconds ";
+
+        off_time.setText(off_time_text);
 
         on_seconds = Integer.parseInt(time_opt_on);
         if(on_seconds == 0) on_seconds = off_seconds;
@@ -44,9 +57,20 @@ public class TimeFragment extends Fragment {
         p3 = p2 % 60;
         p2 = p2 / 60;
 
-        on_time.setText("" + p2 + " hours " + p3 + " minutes " + p1 + " seconds");
+        String on_time_text = "";
 
-        Double e = 1 - (double)(on_seconds)/(off_seconds);
+        if(p2 != 0)
+            on_time_text += p2 + " hours ";
+
+        if(p3 != 0)
+            on_time_text += p3 + " minutes ";
+
+        if(p1 != 0)
+            on_time_text += p1 + " seconds ";
+
+        on_time.setText(on_time_text);
+
+        e = 1 - (double)(on_seconds)/(off_seconds);
         String eff = String.format("%.2f",e*100);
         efficiency.setText(eff + "%");
 
@@ -56,16 +80,22 @@ public class TimeFragment extends Fragment {
     }
 
     void setUI(){
-        if(on_seconds == 0 || on_seconds == off_seconds){
+        if(e < THRESHOLD && e > 0){
             efficiency.setVisibility(View.GONE);
-            time_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
+            time_fragment_layout.setBackgroundResource(R.drawable.blue_analysis);
         }
-        else if(on_seconds < off_seconds){
-            time_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
-        }
-        else {
-            efficiency.setVisibility(View.GONE);
-            time_fragment_layout.setBackgroundResource(R.drawable.red_distance_analysis);
+        else{
+            if(on_seconds == 0 || on_seconds == off_seconds){
+                efficiency.setVisibility(View.GONE);
+                time_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
+            }
+            else if(on_seconds < off_seconds){
+                time_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
+            }
+            else {
+                efficiency.setVisibility(View.GONE);
+                time_fragment_layout.setBackgroundResource(R.drawable.red_time_analysis);
+            }
         }
     }
 

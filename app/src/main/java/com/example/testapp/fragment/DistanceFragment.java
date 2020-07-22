@@ -16,6 +16,8 @@ public class DistanceFragment extends Fragment {
     private static final String TAG = "DistFragment";
     RelativeLayout distance_fragment_layout;
     int off_meters,on_meters;
+    Double e;
+    private static final Double THRESHOLD = 0.05;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,10 +35,25 @@ public class DistanceFragment extends Fragment {
         on_meters  = Integer.parseInt(dist_opt_on);
         if(on_meters == 0) on_meters = off_meters;
 
-        off_dist.setText(off_meters/1000 + " kms " + off_meters % 1000 + " meters");
-        on_dist.setText(on_meters/1000 + " kms " + on_meters % 1000 + " meters");
+        String off_dist_text = "";
 
-        Double e = 1 - (double)(on_meters)/(off_meters);
+        if(off_meters/1000 != 0)
+            off_dist_text += off_meters/1000 + " kms ";
+        if(off_meters % 1000 != 0)
+            off_dist_text = off_meters % 1000 + " meters";
+
+        off_dist.setText(off_dist_text);
+
+        String on_dist_text= "";
+
+        if(on_meters/1000 != 0)
+            on_dist_text += on_meters/1000 + " kms ";
+        if(on_meters % 1000 != 0)
+            on_dist_text = on_meters % 1000 + " meters";
+
+        on_dist.setText(on_dist_text);
+
+        e = 1 - (double)(on_meters)/(off_meters);
         String eff = String.format("%.2f",e*100);
         efficiency.setText(eff + "%");
 
@@ -46,16 +63,22 @@ public class DistanceFragment extends Fragment {
     }
 
     private void setUI() {
-        if(on_meters == 0 || on_meters == off_meters){
+        if(e < THRESHOLD && e > 0){
             efficiency.setVisibility(View.GONE);
-            distance_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
+            distance_fragment_layout.setBackgroundResource(R.drawable.blue_analysis);
         }
-        else if(on_meters < off_meters){
-            distance_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
-        }
-        else {
-            efficiency.setVisibility(View.GONE);
-            distance_fragment_layout.setBackgroundResource(R.drawable.red_distance_analysis);
+        else{
+            if(on_meters == 0 || on_meters == off_meters){
+                efficiency.setVisibility(View.GONE);
+                distance_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
+            }
+            else if(on_meters < off_meters){
+                distance_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
+            }
+            else {
+                efficiency.setVisibility(View.GONE);
+                distance_fragment_layout.setBackgroundResource(R.drawable.red_dist_analysis);
+            }
         }
     }
 
