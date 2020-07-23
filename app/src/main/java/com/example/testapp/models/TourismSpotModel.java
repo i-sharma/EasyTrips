@@ -39,13 +39,14 @@ public class TourismSpotModel implements Serializable {
 
     public TourismSpotModel() {}
 
-    public TourismSpotModel(String id, String title, String lat, String lon, Boolean isCustom, String time) {
+    public TourismSpotModel(String id, String title, String lat, String lon, Boolean isCustom, String time, String fb_img_url) {
         this.lat = lat;
         this.lon = lon;
         this.title = title;
         this.isCustom = isCustom;
         this.duration_required_to_visit = time;
         this.id = id;
+        this.fb_img_url = fb_img_url;
     }
 
     public TourismSpotModel(String title, String short_description, String lat, String duration_required_to_visit,

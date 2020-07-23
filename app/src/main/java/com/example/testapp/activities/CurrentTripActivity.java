@@ -303,51 +303,123 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     }
                     if(city!=null)  break;
                 }
-                
-                PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
-                String photoref_raw = ((photoMetadata.toString().split("photoReference="))[1]);
-                
-                String photoref = photoref_raw.substring(0, photoref_raw.length()-1);
+                List<PhotoMetadata> photoMetadatas = place.getPhotoMetadatas();
+                if(photoMetadatas != null){
+                    Log.d(TAG, "onActivityResult: photometadata " + photoMetadatas);
+                    if(photoMetadatas.size() > 0){
+                        PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
+                        String photoref_raw = ((photoMetadata.toString().split("photoReference="))[1]);
+
+                        String photoref = photoref_raw.substring(0, photoref_raw.length()-1);
 
 
-                CustomImgUrlApi customImgUrlApi = retrofit.create(CustomImgUrlApi.class);
-                Log.d(TAG, "onActivityResult: city " + city);
-                Log.d(TAG, "onActivityResult: photoref " + photoref);
-                Log.d(TAG, "onActivityResult: id " + id);
-                Call<CustomImgUrlModel.ResponseBase> call = customImgUrlApi.getUrl(id, photoref, city);
+                        CustomImgUrlApi customImgUrlApi = retrofit.create(CustomImgUrlApi.class);
+//                        Log.d(TAG, "onActivityResult: city " + city);
+//                        Log.d(TAG, "onActivityResult: photoref " + photoref);
+//                        Log.d(TAG, "onActivityResult: id " + id);
+                        Call<CustomImgUrlModel.ResponseBase> call = customImgUrlApi.getUrl(id, photoref, city);
 
-//                final String[] image_url = {null};
-                Log.d(TAG, "onActivityResult: before call");
-                call.enqueue(new Callback<CustomImgUrlModel.ResponseBase>() {
-                    @Override
-                    public void onResponse(Call<CustomImgUrlModel.ResponseBase> call, Response<CustomImgUrlModel.ResponseBase> response) {
-                        if(response.isSuccessful()){
-                            CustomImgUrlModel.ResponseBase responseBase = response.body();
-                            Gson gson = new GsonBuilder().create();
-                            if(responseBase.getStatus().equals("SUCCESS")) {
-                                TypeToken<CustomImgUrlModel.SuccessResponse> responseTypeToken = new TypeToken<CustomImgUrlModel.SuccessResponse>() {};
-                                CustomImgUrlModel.SuccessResponse responseDict = gson.fromJson(gson.toJson(responseBase.getResponse()), responseTypeToken.getType());
-//                                image_url[0] = responseDict.getImage_url();
-//                                Log.d(TAG, "onResponse: image url " + image_url[0]);
-                                Log.d(TAG, "onResponse: action " + responseDict.getAction_taken());
-                                loadTripData();
-                                data_models_map.get(id).fb_img_url = responseDict.getImage_url();
-                                saveTripData();
-                                adapter.notifyDataSetChanged();
-//                                if(queue_pos.size() > 0){
-//                                    adapter.customImageInsert(queue_pos.poll());
-//                                }
+//                        Log.d(TAG, "onActivityResult: before call");
+                        call.enqueue(new Callback<CustomImgUrlModel.ResponseBase>() {
+                            @Override
+                            public void onResponse(Call<CustomImgUrlModel.ResponseBase> call, Response<CustomImgUrlModel.ResponseBase> response) {
+                                if(response.isSuccessful()){
+                                    CustomImgUrlModel.ResponseBase responseBase = response.body();
+                                    Gson gson = new GsonBuilder().create();
+                                    if(responseBase.getStatus().equals("SUCCESS")) {
+                                        TypeToken<CustomImgUrlModel.SuccessResponse> responseTypeToken = new TypeToken<CustomImgUrlModel.SuccessResponse>() {};
+                                        CustomImgUrlModel.SuccessResponse responseDict = gson.fromJson(gson.toJson(responseBase.getResponse()), responseTypeToken.getType());
+//                                        Log.d(TAG, "onResponse: action " + responseDict.getAction_taken());
+                                        try{
+                                            if(optimization){
+                                                for(TourismSpotModel each : model_opt_on ){
+                                                    if (each.getId().equals(id)){
+                                                        each.fb_img_url = responseDict.getImage_url();
+                                                        break;
+                                                    }
+                                                }
+                                            }else{
+                                                for(TourismSpotModel each : model_opt_off ){
+                                                    if (each.getId().equals(id)){
+                                                        each.fb_img_url = responseDict.getImage_url();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(data_models_map==null){
+                                                loadTripData();
+                                            }
+                                            adapter.notifyDataSetChanged();
+                                            data_models_map.get(id).fb_img_url = responseDict.getImage_url();
+                                            saveTripData();
 
+                                        }catch (NullPointerException e){
+                                            Log.d(TAG, "onResponse: null pointer");
+
+                                        }
+
+                                    }else{
+                                        Log.d(TAG, "onResponse: very nicely failed");
+                                        try{
+                                            if(optimization){
+                                                for(TourismSpotModel each : model_opt_on ){
+                                                    if (each.getId().equals(id)){
+                                                        each.fb_img_url = "NOT_FOUND";
+                                                        break;
+                                                    }
+                                                }
+                                            }else{
+                                                for(TourismSpotModel each : model_opt_off ){
+                                                    if (each.getId().equals(id)){
+                                                        each.fb_img_url = "NOT_FOUND";
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(data_models_map==null){
+                                                loadTripData();
+                                            }
+                                            adapter.notifyDataSetChanged();
+                                            data_models_map.get(id).fb_img_url = "NOT_FOUND";
+                                            saveTripData();
+                                        }catch (NullPointerException e){
+                                            Log.d(TAG, "onResponse: null pointer");
+                                        }
+
+                                    }
+                                }
                             }
-                        }
-                    }
 
-                    @Override
-                    public void onFailure(Call<CustomImgUrlModel.ResponseBase> call, Throwable t) {
-                        Log.d(TAG, "onFailure: " + t.getCause());
-                        Log.d(TAG, "onResponse: failure");
+                            @Override
+                            public void onFailure(Call<CustomImgUrlModel.ResponseBase> call, Throwable t) {
+                                Log.d(TAG, "onFailure: " + t.getCause());
+                                Log.d(TAG, "onResponse: failure");
+                                if(optimization){
+                                    for(TourismSpotModel each : model_opt_on ){
+                                        if (each.getId().equals(id)){
+                                            each.fb_img_url = "NOT_FOUND";
+                                            break;
+                                        }
+                                    }
+                                }else{
+                                    for(TourismSpotModel each : model_opt_off ){
+                                        if (each.getId().equals(id)){
+                                            each.fb_img_url = "NOT_FOUND";
+                                            break;
+                                        }
+                                    }
+                                }
+                                if(data_models_map==null){
+                                    loadTripData();
+                                }
+                                adapter.notifyDataSetChanged();
+                                data_models_map.get(id).fb_img_url = "NOT_FOUND";
+                                saveTripData();
+                            }
+                        });
+
                     }
-                });
+                }
 
                 assert customLoc != null;
                 String lat = String.valueOf(customLoc.latitude);
@@ -355,7 +427,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 String time = "NO ESTIMATE";
                 optimization = false;
                 customStopAdded = true;
-                TourismSpotModel customModel = new TourismSpotModel(id, title, lat, lon, true, time);
+                TourismSpotModel customModel;
+                if(photoMetadatas != null && photoMetadatas.size()!=0){
+                    customModel = new TourismSpotModel(id, title, lat, lon, true, time, "ONGOING_REQUEST");
+                }else{
+                    Log.d(TAG, "onActivityResult: photometadata not found");
+                    customModel = new TourismSpotModel(id, title, lat, lon, true, time, "NOT_FOUND");
+                }
+
                 boolean was_checked = switchButton.isChecked();
                 boolean was_empty = model_opt_off.isEmpty();
                 switchButton.setChecked(false);
@@ -382,13 +461,16 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     }
 
                 }
-                queue_pos.add(insert_pos);
+//                queue_pos.add(insert_pos);
                 LinkedHashMap<String, TourismSpotModel> tmp = new LinkedHashMap<>();
                 for (TourismSpotModel m : model_opt_off) {
                     tmp.put(m.getId(), m);
                 }
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
+//                if(photoMetadatas == null || photoMetadatas.size() == 0){
+//                    data_models_map.get(id).fb_img_url = "NOT_FOUND";
+//
                 if (data_models_map.size() > 1)
                     dragListView.setDragEnabled(true);
                 saveTripData();

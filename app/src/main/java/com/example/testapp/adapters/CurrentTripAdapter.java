@@ -40,7 +40,6 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private ViewGroup mParent;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-    List<ViewHolder> viewHolders = new ArrayList<>();
 
     Boolean edit_mode = false;
 
@@ -89,11 +88,24 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         }
         holder.itemView.setLayoutParams(params);
 
-        if(models.get(position).getFb_image_url()!=""){
+        if(models.get(position).getFb_image_url()==null ||
+                (models.get(position).getFb_image_url().equals("NOT_FOUND"))){
             Glide.with(context)
-                    .load(models.get(position).getFb_image_url())
-                    .placeholder(R.drawable.wait)
+                    .load(R.drawable.custom_location)
                     .into(holder.imageView);
+        }else {
+            if(models.get(position).getFb_image_url().equals("ONGOING_REQUEST")){
+
+                Glide.with(context)
+                        .load(R.drawable.wait)
+                        .into(holder.imageView);
+            }else{
+                Glide.with(context)
+                        .load(models.get(position).getFb_image_url())
+                        .placeholder(R.drawable.wait)
+                        .error(R.drawable.custom_location)
+                        .into(holder.imageView);
+            }
         }
 
         if(models.get(position).getOrigin()){
@@ -113,16 +125,8 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         }else{
             holder.menu_button.setVisibility(View.INVISIBLE);
         }
-//        if(mParent!=null) {
-//            currentColor = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
-//            mParent.setBackgroundColor(currentColor);
-
-//        }
     }
 
-    public void customImageInsert(int pos){
-
-    }
 
     public class ViewHolder extends DragItemAdapter.ViewHolder implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
@@ -152,20 +156,6 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             title.setText(models.get(position).getTitle());
             time_to_cover.setText(models.get(position).getDuration_required_to_visit());
 
-            Boolean isCustom = models.get(position).getIsCustom();
-
-            if(!isCustom){
-                Glide.with(context)
-                        .load(models.get(position).getFb_image_url())
-                        .placeholder(R.drawable.wait)
-                        .into(imageView);
-            }
-
-//            else{
-//                Glide.with(context)
-//                        .load(R.drawable.custom_location)
-//                        .into(imageView);
-//            }
         }
 
         @Override
