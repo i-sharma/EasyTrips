@@ -73,7 +73,7 @@ public class DistanceFragment extends Fragment {
                 distance_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
             }
             else if(on_meters < off_meters){
-                distance_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
+                distance_fragment_layout.setBackgroundResource(R.drawable.green_dist_analysis);
             }
             else {
                 efficiency.setVisibility(View.GONE);

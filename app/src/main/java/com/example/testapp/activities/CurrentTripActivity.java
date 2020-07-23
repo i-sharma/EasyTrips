@@ -56,7 +56,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -103,6 +105,12 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         super.onCreate(savedInstanceState);
             overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
+
+        /*if(!isInternetAvailable()){
+            Intent intent = new Intent(getBaseContext(), ExploreActivity.class);
+            Toast.makeText(getBaseContext(),"NO INTERNET CONNECTION",Toast.LENGTH_LONG).show();
+            startActivity(intent);
+        }*/
 
         loadTripData();
 
@@ -196,13 +204,23 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         }
 
-
-
         bottomNavigation();
 
         createOnClickListeners();
 
     }
+/*
+
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress address = InetAddress.getByName("www.google.com");
+            return !address.equals("");
+        } catch (UnknownHostException e) {
+            // Log error
+        }
+        return false;
+    }
+*/
 
     @Override
     public void dragTopBottom(Boolean topmost, Boolean bottommost) {
@@ -216,7 +234,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
 
     }
-
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
 
