@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -31,12 +32,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.testapp.R;
 import com.example.testapp.adapters.CurrentTripAdapter;
 import com.example.testapp.dragListView.DragListView;
+import com.example.testapp.models.CustomImgUrlModel;
 import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.pendant_popup.SweetAlertDialog;
+import com.example.testapp.utils.CustomImgUrlApi;
 import com.example.testapp.utils.MapsDataParser;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AddressComponent;
+import com.google.android.libraries.places.api.model.AddressComponents;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -46,6 +52,10 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+import com.google.rpc.Help;
 import com.suke.widget.SwitchButton;
 import org.json.JSONObject;
 import java.io.File;
@@ -59,14 +69,25 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends Activity implements CurrentTripAdapter.ICurrTrip {
 
+    Queue<Integer> queue_pos = new LinkedList<>();
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
@@ -95,7 +116,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     RelativeLayout opt_layout;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-
+    Retrofit retrofit;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -199,7 +220,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
 
         bottomNavigation();
-
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://easytrips-custom-images.herokuapp.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
         createOnClickListeners();
 
     }
@@ -267,6 +291,64 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 String title = place.getName();
                 String id = place.getId();
                 LatLng customLoc = place.getLatLng();
+
+                String city = null;
+                AddressComponents addressComponents = place.getAddressComponents();
+                for(AddressComponent each : addressComponents.asList()){
+                    for(String string: each.getTypes()){
+                        if(string.equals("locality")){
+                            city = each.getName();
+                            break;
+                        }
+                    }
+                    if(city!=null)  break;
+                }
+                
+                PhotoMetadata photoMetadata = place.getPhotoMetadatas().get(0);
+                String photoref_raw = ((photoMetadata.toString().split("photoReference="))[1]);
+                
+                String photoref = photoref_raw.substring(0, photoref_raw.length()-1);
+
+
+                CustomImgUrlApi customImgUrlApi = retrofit.create(CustomImgUrlApi.class);
+                Log.d(TAG, "onActivityResult: city " + city);
+                Log.d(TAG, "onActivityResult: photoref " + photoref);
+                Log.d(TAG, "onActivityResult: id " + id);
+                Call<CustomImgUrlModel.ResponseBase> call = customImgUrlApi.getUrl(id, photoref, city);
+
+//                final String[] image_url = {null};
+                Log.d(TAG, "onActivityResult: before call");
+                call.enqueue(new Callback<CustomImgUrlModel.ResponseBase>() {
+                    @Override
+                    public void onResponse(Call<CustomImgUrlModel.ResponseBase> call, Response<CustomImgUrlModel.ResponseBase> response) {
+                        if(response.isSuccessful()){
+                            CustomImgUrlModel.ResponseBase responseBase = response.body();
+                            Gson gson = new GsonBuilder().create();
+                            if(responseBase.getStatus().equals("SUCCESS")) {
+                                TypeToken<CustomImgUrlModel.SuccessResponse> responseTypeToken = new TypeToken<CustomImgUrlModel.SuccessResponse>() {};
+                                CustomImgUrlModel.SuccessResponse responseDict = gson.fromJson(gson.toJson(responseBase.getResponse()), responseTypeToken.getType());
+//                                image_url[0] = responseDict.getImage_url();
+//                                Log.d(TAG, "onResponse: image url " + image_url[0]);
+                                Log.d(TAG, "onResponse: action " + responseDict.getAction_taken());
+                                loadTripData();
+                                data_models_map.get(id).fb_img_url = responseDict.getImage_url();
+                                saveTripData();
+                                adapter.notifyDataSetChanged();
+//                                if(queue_pos.size() > 0){
+//                                    adapter.customImageInsert(queue_pos.poll());
+//                                }
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<CustomImgUrlModel.ResponseBase> call, Throwable t) {
+                        Log.d(TAG, "onFailure: " + t.getCause());
+                        Log.d(TAG, "onResponse: failure");
+                    }
+                });
+
                 assert customLoc != null;
                 String lat = String.valueOf(customLoc.latitude);
                 String lon = String.valueOf(customLoc.longitude);
@@ -300,6 +382,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     }
 
                 }
+                queue_pos.add(insert_pos);
                 LinkedHashMap<String, TourismSpotModel> tmp = new LinkedHashMap<>();
                 for (TourismSpotModel m : model_opt_off) {
                     tmp.put(m.getId(), m);
@@ -335,7 +418,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     public void onSearchCalled() {
         // Set the fields to specify which types of place data to return.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG);
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG,Place.Field.PHOTO_METADATAS
+                ,Place.Field.ADDRESS_COMPONENTS,Place.Field.OPENING_HOURS);
         // Start the autocomplete intent.
 
         //these are bounds for delhi -> update these bounds in firestore database

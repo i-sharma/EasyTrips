@@ -21,6 +21,7 @@ import com.example.testapp.activities.CurrentTripActivity;
 import com.example.testapp.dragListView.DragItemAdapter;
 import com.example.testapp.models.TourismSpotModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +40,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
     private ViewGroup mParent;
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
+    List<ViewHolder> viewHolders = new ArrayList<>();
 
     Boolean edit_mode = false;
 
@@ -87,6 +89,12 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
         }
         holder.itemView.setLayoutParams(params);
 
+        if(models.get(position).getFb_image_url()!=""){
+            Glide.with(context)
+                    .load(models.get(position).getFb_image_url())
+                    .placeholder(R.drawable.wait)
+                    .into(holder.imageView);
+        }
 
         if(models.get(position).getOrigin()){
             holder.origin.setVisibility(View.VISIBLE);
@@ -112,6 +120,10 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 //        }
     }
 
+    public void customImageInsert(int pos){
+
+    }
+
     public class ViewHolder extends DragItemAdapter.ViewHolder implements View.OnClickListener, PopupMenu.OnMenuItemClickListener {
 
         private View v;
@@ -134,6 +146,8 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
             menu_button.setOnClickListener(this);
         }
 
+
+
         void setData(int position){
             title.setText(models.get(position).getTitle());
             time_to_cover.setText(models.get(position).getDuration_required_to_visit());
@@ -147,11 +161,11 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                         .into(imageView);
             }
 
-            else{
-                Glide.with(context)
-                        .load(R.drawable.custom_location)
-                        .into(imageView);
-            }
+//            else{
+//                Glide.with(context)
+//                        .load(R.drawable.custom_location)
+//                        .into(imageView);
+//            }
         }
 
         @Override
