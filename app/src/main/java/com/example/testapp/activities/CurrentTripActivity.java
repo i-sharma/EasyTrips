@@ -93,6 +93,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
     Boolean same, somethingSwapped = false, somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean orgDstChanged = false;
     ProgressBar progressBar;
     RelativeLayout opt_layout;
     SharedPreferences sharedPref;
@@ -230,9 +231,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         if(bottommost!=null){
             dragListView.setCanNotDragBelowBottomItem(bottommost);
         }
+    }
 
-
-
+    @Override
+    public void orgDstChanged(){
+        orgDstChanged = true;
     }
 
     private class DragEndedAsync extends AsyncTask<Void, Integer, Void> {
@@ -504,7 +507,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 opt_layout.setVisibility(View.VISIBLE);
                 loadOriginDestIdx();
                 loadApiResult(false); loadApiResult(true);
-                if(origin_index!=-1 || destination_index != -1){
+                if((origin_index!=-1 || destination_index != -1) && orgDstChanged){
                     swapAdapter();
                     swapDataModels();
                 }
@@ -717,6 +720,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         }
         if(!models_swapped) return;
+        Log.d(TAG, "swapDataModels: swapped ");
         somethingSwapped = true;
         if(dest_at_zero)    destination_index = 0;
         else if(destination_index != -1)    destination_index = n-1;
@@ -810,7 +814,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged && !somethingSwapped) return;
-
         Log.d(TAG, "optimizeRoute api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
@@ -864,6 +867,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             customStopAdded = false;
             viewDragged = false;
             somethingSwapped = false;
+            orgDstChanged = false;
 //                saveApiResult(optimization);
         }
 
