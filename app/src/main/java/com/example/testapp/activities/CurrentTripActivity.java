@@ -503,6 +503,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 route.setVisibility(View.VISIBLE);
                 opt_layout.setVisibility(View.VISIBLE);
                 loadOriginDestIdx();
+                loadApiResult(false); loadApiResult(true);
                 if(origin_index!=-1 || destination_index != -1){
                     swapAdapter();
                     swapDataModels();
@@ -514,11 +515,17 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged || somethingSwapped) && origin_index!=-1 && destination_index!=-1) {
-                    opt_off = opt_on = "";
 
                     Log.d(TAG, "done onClick: org " + origin_index + " dst " + destination_index);
                     OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
                     optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    if(opt_off == "") {
+                        Log.d(TAG, "doneBtn Pressed no api found");
+                        //saveApiResult(false);   saveApiResult(true);
+                        if(opt_off == "")
+                            Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                 }
 
             }
@@ -549,6 +556,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         });
 
+
         switchButton.setOnCheckedChangeListener(new SwitchButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(SwitchButton view, boolean isChecked) {
@@ -565,6 +573,19 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 if (optimization) {
                     if (data_models_map.keySet().size() > 3) {
                         loadApiResult(optimization);
+
+                        if(opt_on == "" || opt_off == "") {
+                            Log.d(TAG, "switchBtn Pressed no api found");
+                            /*switchButton.setOnCheckedChangeListener (null);
+                            switchButton.setChecked(false);
+                            switchButton.setOnCheckedChangeListener (this);*/
+                            new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                            if(opt_on == "")
+                                Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                            saveApiResult(false);   saveApiResult(true);
+                            return;
+                        }
+
                         //opt_on has response //create new model as model_opt_on
                         JSONObject jObject;
                         try {
@@ -582,7 +603,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                 Log.d(TAG, "onCheckedChanged: dm " + data_models_map.get(key).getTitle());
                             }
                             if (waypoint_order.size() == data_models_map.keySet().size() - 1 ||
-                            waypoint_order.size() == data_models_map.keySet().size() - 2) {
+                                    waypoint_order.size() == data_models_map.keySet().size() - 2) {
                                 same = true;
                                 for (int i = 0; i < waypoint_order.size(); i++) {
                                     if (waypoint_order.get(i) != trip_data_array.get(i)) {
@@ -768,6 +789,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     private void optimizeRoute() {
 
+        Log.d(TAG, "optimizeRoute: is being called");
+        
         ArrayList<String> temp = new ArrayList<>();
         int count = 0;
         String origin_key = "", dest_key = "";
@@ -807,24 +830,21 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
         try {
             opt_off = task_opt_is_false.get();
-            Log.d(TAG, "optimizeRoute: opt_off " + opt_off);
-
-            saveApiResult(false);
+            Log.d(TAG, "optimizeRoute: opt_off is " + opt_off);
 
             if(data_models_map.size() > 3 && task_opt_is_true != null) {
                 opt_on = task_opt_is_true.get();
-                Log.d(TAG, "optimizeRoute: opt_on " + opt_on);
+                Log.d(TAG, "optimizeRoute: opt_on is " + opt_on);
             }else{
                 opt_on = "";
             }
-            
-            saveApiResult(true);
 
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+        saveApiResult(false);   saveApiResult(true);
+
     }
 
 
@@ -1173,7 +1193,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return "not possible";
+            return "";
         }
 
         @Override
