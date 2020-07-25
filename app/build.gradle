@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.testapp"
-        minSdkVersion 21
+        minSdkVersion 22
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -103,4 +103,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 
+    //Location GPS
+//    implementation 'com.github.robinkrsingh:easylocation:0.1.0'
+    implementation 'com.github.prabhat1707:EasyWayLocation:2.0'
 }

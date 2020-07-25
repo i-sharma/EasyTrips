@@ -1,16 +1,25 @@
 package com.example.testapp.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,11 +28,15 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.easywaylocation.EasyWayLocation;
+import com.example.easywaylocation.GetLocationDetail;
+import com.example.easywaylocation.Listener;
 import com.example.testapp.R;
 import com.example.testapp.adapters.ExploreAdapter;
 import com.example.testapp.models.TourismSpotModel;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,18 +46,21 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.maps.android.data.Point;
+//import com.robin.locationgetter.EasyLocation;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 
 
 public class ExploreActivity extends AppCompatActivity {
     private static final String TAG = "Explore";
 
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private FusedLocationProviderClient mFusedLocationClient;
     LatLng origin,destination;
     SharedPreferences sharedPref;
@@ -62,24 +78,30 @@ public class ExploreActivity extends AppCompatActivity {
     private ExploreAdapter adapter;
     BottomNavigationView navigation;
 
-//    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+    ImageView explore_city_image;
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_explore);
-
+        explore_city_image = findViewById(R.id.explore_city_image);
         currentUser = mAuth.getCurrentUser();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        //fetchLocation();
 
+
+        explore_city_image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fetchLocation();
+            }
+        });
         rootRef = FirebaseFirestore.getInstance();
         sharedPref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
-        String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
-        Log.d(TAG, "onCreate: shared pref " + shared_pref_ids);
+
 //        loadTripData();
         setUpRecyclerView();
         adapter.startListening();
@@ -93,8 +115,15 @@ public class ExploreActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+//        easyWayLocation.endUpdates();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+//        easyWayLocation.startLocation();
 //        loadTripData();
     }
 
@@ -185,106 +214,84 @@ public class ExploreActivity extends AppCompatActivity {
                 startActivityForResult(it, BOOL_ADD_TO_TRIP);
             }
 
-//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//            @Override
-//            public void onButtonClick(int position, ImageView done) {
-//                Toast.makeText(Explore.this, "Heres the position: " +
-//                        position, Toast.LENGTH_SHORT).show();
-//                Drawable drawable = done.getDrawable();
-//
-//                if(drawable instanceof AnimatedVectorDrawableCompat){
-//                    avd = (AnimatedVectorDrawableCompat) drawable;
-//                    avd.start();
-//                }
-//                else if(drawable instanceof AnimatedVectorDrawable){
-//                    avd2 = (AnimatedVectorDrawable) drawable;
-//                    avd2.start();
-//
-//                }
-//
-//            }
-
         });
 
     }
 
 
+    public void getCityName(final Location location, final OnGeocoderFinishedListener listener) {
+        new AsyncTask<Void, Integer, List<Address>>() {
+            @Override
+            protected List<Address> doInBackground(Void... arg0) {
+                Geocoder coder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+                List<Address> results = null;
+                try {
+                    results = coder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    // nothing
+                }
+                return results;
+            }
+
+            @Override
+            protected void onPostExecute(List<Address> results) {
+                if (results != null && listener != null) {
+                    listener.onFinished(results);
+                }
+            }
+        }.execute();
+    }
+
+    public abstract class OnGeocoderFinishedListener {
+        public abstract void onFinished(List<Address> results);
+    }
 
     private void fetchLocation() {
 
-        if (ContextCompat.checkSelfPermission(getBaseContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getParent(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                new AlertDialog.Builder(this)
-                        .setTitle("Required Location Permission")
-                        .setMessage("Give permission to access this feature")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(getParent(),
-                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .create()
-                        .show();
-
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(getParent(),
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-
+        if (ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions((Activity)this, new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, 10);
+        }else{
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                // Logic to handle location object
+                                Log.d(TAG, "onFinished: 1");
 
-                                double lat1,lon1;
+                                Location location_new = new Location("");
+                                location_new.setLongitude(26.8396);
+                                location_new.setLatitude(80.9631);
+                                getCityName(location, new OnGeocoderFinishedListener() {
+                                    @Override
+                                    public void onFinished(List<Address> results) {
+                                        Log.d(TAG, "onFinished: 2" + results);
+//                                        Log.d(TAG, "onFinished: " + );
+                                        if(results != null && results.size() > 0){
+                                            if(results.get(0).getLocality()!=null){
+                                                Toast.makeText(ExploreActivity.this, "City: " + results.get(0).getLocality(),
+                                                        Toast.LENGTH_SHORT).show();
+                                            }
+                                            else{
+                                                Toast.makeText(ExploreActivity.this, "City not found: lat " + location.getLatitude()
+                                                         + " lon " + location.getLongitude() , Toast.LENGTH_SHORT).show();
+                                            }
+                                        }else{
+                                            Toast.makeText(ExploreActivity.this, "City not found: lat " + location.getLatitude()
+                                                    + " lon " + location.getLongitude() , Toast.LENGTH_SHORT).show();
+                                        }
 
-                                lat1 = location.getLatitude();
-                                lon1 = location.getLongitude();
-
-                                //**********Remember to change origin to lat1 and lat2.
-                                origin = new LatLng(lat1,lon1);
-                                destination = origin;
-                                //Toast.makeText(Explore.this, "latitude is"+origin.latitude+"\nlongitude is"+origin.longitude, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                            }else{
+                                Toast.makeText(ExploreActivity.this, "Unable to fetch lat lon", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
-
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
     }
 
 
