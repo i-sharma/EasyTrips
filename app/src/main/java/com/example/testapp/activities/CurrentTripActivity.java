@@ -175,28 +175,31 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             @Override
             public void onItemDragEnded(int fromPosition, int toPosition) {
                 dragListView.getRecyclerView().smoothScrollToPosition(toPosition);
-                new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                adapter.notifyDataSetChanged();
-                updateCurrentPosition();
-                loadOriginDestIdx();
-                if(fromPosition < origin_index && toPosition >= origin_index){
-                    origin_index -= 1;
-                }else if(fromPosition > origin_index && toPosition <=origin_index){
-                    origin_index += 1;
-                }else if(fromPosition == origin_index){
-                    origin_index = toPosition;
+                if(fromPosition != toPosition){
+                    new DragEndedAsync().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    adapter.notifyDataSetChanged();
+                    updateCurrentPosition();
+                    loadOriginDestIdx();
+                    if(fromPosition < origin_index && toPosition >= origin_index){
+                        origin_index -= 1;
+                    }else if(fromPosition > origin_index && toPosition <=origin_index){
+                        origin_index += 1;
+                    }else if(fromPosition == origin_index){
+                        origin_index = toPosition;
+                    }
+
+
+                    if(fromPosition < destination_index && toPosition >= destination_index){
+                        destination_index -= 1;
+                    }else if(fromPosition > destination_index && toPosition <=destination_index){
+                        destination_index += 1;
+                    }else if(fromPosition == destination_index){
+                        destination_index = toPosition;
+                    }
+
+                    saveOriginDestIdx();
                 }
 
-
-                if(fromPosition < destination_index && toPosition >= destination_index){
-                    destination_index -= 1;
-                }else if(fromPosition > destination_index && toPosition <=destination_index){
-                    destination_index += 1;
-                }else if(fromPosition == destination_index){
-                    destination_index = toPosition;
-                }
-
-                saveOriginDestIdx();
 
             }
         });
