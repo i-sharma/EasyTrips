@@ -69,7 +69,8 @@
         android:layout_marginRight="10dp"
         android:background="#ffffff"
         android:fontFamily="@font/fira_mono_bold"
-        android:text="Congrats ! We have saved your distance covered by "
+        android:text="Congrats ! You have saved your distance covered by "
+        android:gravity="center"
         android:textColor="@color/quantum_deeppurple900"
         />
 

@@ -255,7 +255,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         protected void onPreExecute() {
             super.onPreExecute();
             viewDragged = true;
-
         }
 
         @Override
@@ -276,6 +275,72 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             super.onPostExecute(aVoid);
             saveTripData();
         }
+    }
+
+    private boolean validateApiResult() {
+
+        JSONObject jObject;
+        String status;
+        try {
+            jObject = new JSONObject(opt_on);
+            MapsDataParser parser = new MapsDataParser(jObject);
+            status = parser.getStatus();
+        }
+        catch (Exception e){
+            status = "";
+            e.printStackTrace();
+        }
+
+        if(status == ""){
+            //show NO API RESULT FOUND as NO INTERNET
+            showNoInternetSnackBar();
+            return false;
+        }
+        else if(status == "NOT_FOUND"){
+            //show dialog for some reason
+            return false;
+        }
+        else if(status == "ZERO_RESULTS"){
+            //show dialog for some reason
+
+            return false;
+
+        }
+        else if(status == "MAX_WAYPOINTS_EXCEEDED"){
+            //show dialog for some reason
+
+            return false;
+
+        }
+        else if(status == "MAX_ROUTE_LENGTH_EXCEEDED"){
+            //show dialog for some reason
+
+            return false;
+
+        }
+        else if(status == "INVALID_REQUEST"){
+            //show dialog for some reason
+
+            return false;
+
+        }
+        else if(status == "OVER_DAILY_LIMIT"){
+            return false;
+
+        }
+        else if(status == "OVER_QUERY_LIMIT"){
+            return false;
+
+        }
+        else if(status == "REQUEST_DENIED"){
+            return false;
+
+        }
+        else if(status == "UNKNOWN_ERROR"){
+            return false;
+        }
+
+        return true;
     }
 
     private void initializePlaces() {
@@ -809,7 +874,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     Snacky.builder()
                                             .setActivity(CurrentTripActivity.this)
                                             .setText(R.string.trip_already_optimized)
-                                            .setBackgroundColor(Color.GREEN)
+                                            .setBackgroundColor(R.drawable.current_trip_round_green)
                                             .setTextTypeface(Typeface.SANS_SERIF)
                                             .setTextTypefaceStyle(BOLD)
                                             .setMaxLines(2)
@@ -841,7 +906,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         Snacky.builder()
                                 .setActivity(CurrentTripActivity.this)
                                 .setText(R.string.trip_already_optimized)
-                                .setBackgroundColor(Color.GREEN)
+                                .setBackgroundColor(R.drawable.current_trip_round_green)
                                 .setTextTypeface(Typeface.SANS_SERIF)
                                 .setTextTypefaceStyle(BOLD)
                                 .setMaxLines(2)
@@ -1001,6 +1066,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     private void applyModel_opt_on() {
         // waypoint (0,3,1,2)    (0,1,2,3)
+
+        if(validateApiResult() == false){
+            return;
+        }
+
         model_opt_on = new ArrayList<>();
 //        int count = 0;
         if(0 == origin_index){
@@ -1018,6 +1088,12 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     }
 
     private void optimizeRoute() {
+
+        //11 = 9 + 2 (9 waypts and 2 means origin and dest)
+        if(data_models_map.size() > 11){
+            //showWayptsLimitExceedDialog
+            return;
+        }
 
         Log.d(TAG, "optimizeRoute: is being called");
         

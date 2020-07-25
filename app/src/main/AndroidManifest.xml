@@ -14,7 +14,9 @@
         android:roundIcon="@mipmap/ic_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".activities.YourTripsActivity"></activity>
+        <activity android:name=".activities.YourTripsActivity"
+            android:screenOrientation="portrait">
+        </activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -24,18 +26,23 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".activities.AccountActivity" />
-        <activity android:name=".activities.UserNameActivity" />
+        <activity android:name=".activities.AccountActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.UserNameActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activities.TSDetailsActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activities.ExploreActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.ExploreActivity" />
         </activity>
-        <activity android:name=".activities.ExploreActivity" />
+        <activity android:name=".activities.ExploreActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activities.SplashScreenActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -43,13 +50,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.LoginActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".activities.MapsActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat"/>
-        <activity android:name=".activities.GraphicalAnalysisActivity"/>
-        <activity android:name=".activities.PhoneAuthActivity" />
+        <activity android:name=".activities.GraphicalAnalysisActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.PhoneAuthActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".activities.CurrentTripActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat"
             />
     </application>

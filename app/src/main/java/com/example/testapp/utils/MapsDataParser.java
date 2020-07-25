@@ -3,6 +3,7 @@ package com.example.testapp.utils;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -72,6 +73,19 @@ public class MapsDataParser {
 
 
         return routes;
+    }
+
+    public String getStatus(){
+        String status;
+
+        try{
+            status = jObject.getString("status");
+        }
+        catch (Exception e){
+            status = "";
+            e.printStackTrace();
+        }
+        return status;
     }
 
     public ArrayList<Long> getTotalDistanceAndTime(){
