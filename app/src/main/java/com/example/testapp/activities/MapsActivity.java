@@ -183,8 +183,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Log.d(TAG, "onClick: wc_opt_on is "+ waypoints_coordinates_opt_on);
 
-                String url_opt_off = "https://www.google.com/maps/dir/?api=1&destination=28.651685,77.217220&origin=28.651685,77.217220&waypoints="+waypoints_coordinates_opt_off+"&travelmode=driving&dir_action=navigate";
-                String url_opt_on = "https://www.google.com/maps/dir/?api=1&destination=28.651685,77.217220&origin=28.651685,77.217220&waypoints="+waypoints_coordinates_opt_on+"&travelmode=driving&dir_action=navigate";
+                String url_opt_off = "https://www.google.com/maps/dir/?api=1&destination="+destination.latitude+","+destination.longitude+"&origin="+origin.latitude+","+origin.longitude+"&waypoints="+waypoints_coordinates_opt_off+"&travelmode=driving&dir_action=navigate";
+                String url_opt_on = "https://www.google.com/maps/dir/?api=1&destination="+destination.latitude+","+destination.longitude+"&origin="+origin.latitude+","+origin.longitude+"&waypoints="+waypoints_coordinates_opt_on+"&travelmode=driving&dir_action=navigate";
 
                 if(optimization){
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url_opt_on));

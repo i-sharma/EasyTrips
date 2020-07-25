@@ -13,7 +13,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -71,127 +73,175 @@ public class ExploreActivity extends AppCompatActivity {
     private ExploreAdapter adapter;
     BottomNavigationView navigation;
 
-    ImageView explore_city_image;
+    Button explore_city_name;
+    ImageView explore_text;
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ProgressBar progressBar;
+    private int city_code;
+    private String current_city_name, lat_lon_str;
+
     enum city_options  {
             DELHI, CURR_LOC
     }
     city_options selected_city = null;
-    enum city_fetch_status {
-        LOCATION_NOT_FOUND, LOCALITY_NULL, FOUND
-    }
+
+    CFAlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_explore);
-        explore_city_image = findViewById(R.id.explore_city_image);
-        progressBar = findViewById(R.id.explore_progress);
-        currentUser = mAuth.getCurrentUser();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-
-        explore_city_image.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                fetchLocation();
-                CFAlertDialog.Builder builder = new CFAlertDialog.Builder(ExploreActivity.this);
-                builder.setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT);
-                builder.setTitle("Where would you like to Explore?");
-                builder.setSingleChoiceItems(new String[]{"Delhi", "Detect my Current Location"}, 3, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int index) {
-                        switch (index){
-                            case 0 :
-                                selected_city = city_options.DELHI;
-                                break;
-                            case 1:
-                                selected_city = city_options.CURR_LOC;
-                                break;
-                        }
-                    }
-                });
-                builder.addButton("DONE", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.CENTER, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        progressBar.setVisibility(View.VISIBLE);
-                        if(selected_city == city_options.DELHI){
-                            save_shared_pref(0, "Delhi");
-                            updateUI(0, "Delhi");
-                        }else if(selected_city == city_options.CURR_LOC){
-                            String city = fetchLocation();
-                            if(city != null){
-                                save_shared_pref(Integer.valueOf(city.charAt(0)), city.substring(1));
-                                updateUI(Integer.valueOf(city.charAt(0)), city.substring(1));
-                            }else{
-                                updateUI(3, null);
-                            }
-                        }
-
-
-                    }
-                });
-                builder.show();
-            }
-        });
         rootRef = FirebaseFirestore.getInstance();
         sharedPref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
         editor = sharedPref.edit();
+        explore_city_name = findViewById(R.id.explore_city_name);
+        explore_text = findViewById(R.id.explore_text);
+        progressBar = findViewById(R.id.explore_progress);
+        currentUser = mAuth.getCurrentUser();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        buildCitySelector();
+        load_shared_pref();
+        updateUI(city_code, current_city_name);
+        explore_city_name.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    explore_city_name.setBackgroundResource(R.drawable.rounded_button_dark_yellow);
+                    return true;
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    v.performClick();
+                    explore_city_name.setBackgroundResource(R.drawable.rounded_button_yellow);
+//                    explore_city_name.setBackgroundResource(android.R.drawable.btn_default);
+//                    explore_city_name.setBackgroundColor(0x00000000);
+                    builder.show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
 //        loadTripData();
-        setUpRecyclerView();
-        adapter.startListening();
+//        setUpRecyclerView();
+//        adapter.startListening();
         bottomNavigation();
     }
 
+    private void buildCitySelector() {
+        builder = new CFAlertDialog.Builder(ExploreActivity.this);
+        builder.setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT);
+        builder.setTitle("Where would you like to Explore?");
+        builder.setSingleChoiceItems(new String[]{"Delhi", "Detect my Current Location"}, 3, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                switch (index){
+                    case 0 :
+                        selected_city = city_options.DELHI;
+                        break;
+                    case 1:
+                        selected_city = city_options.CURR_LOC;
+                        break;
+                }
+            }
+        });
+        builder.addButton("DONE", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.CENTER, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                if(selected_city == city_options.DELHI){
+                    save_shared_pref(0, "Delhi", null, null);
+                    updateUI(0, "Delhi");
+                }else if(selected_city == city_options.CURR_LOC){
+                    progressBar.setVisibility(View.VISIBLE);
+                    fetchLocation();
+                }
 
-    
+
+            }
+        });
+    }
+
 
     private void updateUI(int i, String city) {
+        progressBar.setVisibility(View.GONE);
         switch (i){
+            case -1:
+                explore_city_name.setText("Choose City");
+                explore_text.setBackgroundResource(R.drawable.explore_case_neg_1);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+                break;
             case 0:
-                Toast.makeText(this, "Delhi", Toast.LENGTH_SHORT).show();
+                setUpRecyclerView();
+                adapter.startListening();
+                explore_city_name.setText(city);
+                explore_text.setVisibility(View.GONE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
                 break;
             case 1:
-                Toast.makeText(this, "City: " + city, Toast.LENGTH_SHORT).show();
-
+                explore_city_name.setText(city);
+                explore_text.setBackgroundResource(R.drawable.explore_case_1_2);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
                 break;
             case 2:
-                Toast.makeText(this, "LatLon: " + city, Toast.LENGTH_SHORT).show();
-
+                explore_city_name.setText("Current City");
+                explore_text.setBackgroundResource(R.drawable.explore_case_1_2);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
                 break;
             case 3:
+                explore_city_name.setText("Choose City");
+                explore_text.setBackgroundResource(R.drawable.explore_case_3);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+
                 Toast.makeText(this, "City could not be fetched", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
 
-    private void save_shared_pref(Integer status, String city) {
+    private void save_shared_pref(Integer status, String city, Double lat, Double lon) {
+        Log.d(TAG, "save_shared_pref: status " + status + " city " + city + " lat " + lat + " lon " + lon);
+        if(status == null){
+            status = -1;
+        }
+        if(city == null){
+            city = "";
+        }
+        if(lat == null){
+            lat = -1.0;
+        }
+        if(lon == null){
+            lon = -1.0;
+        }
+
         editor.putInt("city_code", status);
         editor.putString("current_city", city);
+        editor.putString("lat_lon_str", lat+" "+lon);
         editor.commit();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        loadTripData();
+    private void load_shared_pref() {
+        city_code = sharedPref.getInt("city_code", -1);
+        current_city_name = sharedPref.getString("current_city", "");
+        lat_lon_str = sharedPref.getString("lat_lon_str", "");
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-//        easyWayLocation.endUpdates();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        easyWayLocation.startLocation();
-//        loadTripData();
-    }
 
     @Override
     protected void onDestroy() {
@@ -312,11 +362,9 @@ public class ExploreActivity extends AppCompatActivity {
         public abstract void onFinished(List<Address> results);
     }
 
-    private String fetchLocation() {
-        final city_fetch_status[] status = {null};
-        final String[] response = {null};
+    private void fetchLocation() {
 
-        while (ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        if (ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
         {
             ActivityCompat.requestPermissions((Activity)this, new String[]{
                     android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -337,49 +385,26 @@ public class ExploreActivity extends AppCompatActivity {
 //                                        Log.d(TAG, "onFinished: " + );
                                         if(results != null && results.size() > 0){
                                             if(results.get(0).getLocality()!=null){
-                                                Log.d(TAG, "onFinished: 11");
-                                                status[0] = city_fetch_status.FOUND;
-                                                response[0] = results.get(0).getLocality();
+                                                save_shared_pref(1, results.get(0).getLocality(), location.getLatitude(), location.getLongitude());
+                                                updateUI(1, results.get(0).getLocality());
                                             }
                                             else {
-                                                Log.d(TAG, "onFinished: 22");
-                                                status[0] = city_fetch_status.LOCALITY_NULL;
-                                                response[0] = location.getLatitude() + " " +  location.getLongitude();
+                                                save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                                updateUI(2, location.getLatitude() + " " +  location.getLongitude());
                                             }
                                         }else{
-                                            Log.d(TAG, "onFinished: 33");
-                                            status[0] = city_fetch_status.LOCALITY_NULL;
-                                            response[0] = location.getLatitude() + " " +  location.getLongitude();
+                                            save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                            updateUI(2, location.getLatitude() + " " +  location.getLongitude());
                                         }
                                     }
                                 });
                             }else{
-                                Log.d(TAG, "onFinished: 44");
-                                status[0] = city_fetch_status.LOCATION_NOT_FOUND;
+                                save_shared_pref(3, null, null, null);
+                                updateUI(3, null);
                             }
                         }
                     });
-        }else{
-
         }
-        if(status[0]!=null){
-            Log.d(TAG, "onFinished: status not null ");
-            switch (status[0]){
-                case FOUND:
-                    Log.d(TAG, "onFinished: resp " + response[0]);
-                    return "1"+response[0];
-//                break;
-                case LOCALITY_NULL:
-                    return "2" + response[0];
-//                break;
-                case LOCATION_NOT_FOUND:
-                    return null;
-//                break;
-            }
-        }
-        Log.d(TAG, "onFinished: status null");
-
-        return null;
     }
 
 

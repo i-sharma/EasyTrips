@@ -39,9 +39,11 @@ import com.example.testapp.utils.CustomImgUrlApi;
 import com.example.testapp.utils.MapsDataParser;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AddressComponent;
 import com.google.android.libraries.places.api.model.AddressComponents;
+import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.PhotoMetadata;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -55,6 +57,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.maps.android.SphericalUtil;
 import com.google.rpc.Help;
 import com.suke.widget.SwitchButton;
 import org.json.JSONObject;
@@ -120,6 +123,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     Retrofit retrofit;
+    private int city_code;
+    private String current_city_name;
+    private String lat_lon_str;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -523,23 +529,58 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         }
     }
+    private void load_shared_pref() {
+        city_code = sharedPref.getInt("city_code", -1);
+        current_city_name = sharedPref.getString("current_city", "");
+        lat_lon_str = sharedPref.getString("lat_lon_str", "");
+    }
 
     public void onSearchCalled() {
         // Set the fields to specify which types of place data to return.
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG,Place.Field.PHOTO_METADATAS
                 ,Place.Field.ADDRESS_COMPONENTS,Place.Field.OPENING_HOURS);
         // Start the autocomplete intent.
-
+        Intent intent;
         //these are bounds for delhi -> update these bounds in firestore database
         LatLng northEast = new LatLng(28.847711, 77.341943);
         LatLng southWest = new LatLng(28.476807, 76.958110);
 
-        Intent intent = new Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")  //INDIA
-//                .setHint("Stops within Delhi")
-//                .setLocationRestriction(RectangularBounds.newInstance(
-//                        southWest, northEast))
+        intent = new Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")
+//                        .setHint("Stops within Delhi")
+//                        .setLocationRestriction(RectangularBounds.newInstance(
+//                                southWest, northEast))
                 .build(this);
+//        load_shared_pref();
+//        switch (city_code){
+//            case 0:
+//
+//                break;
+//            case 1:
+//                String[] lat_lon = lat_lon_str.split(" ");
+//                LatLng center =  new LatLng(Double.valueOf(lat_lon[0]), Double.valueOf(lat_lon[1]));
+//                LatLng northSide = SphericalUtil.computeOffset(center, 100000, 0);
+//                LatLng southSide = SphericalUtil.computeOffset(center, 100000, 180);
+//                LatLng eastSide = SphericalUtil.computeOffset(center, 100000, 90);
+//                LatLng westSide = SphericalUtil.computeOffset(center, 100000, 270);
+//                LatLngBounds bounds = LatLngBounds.builder()
+//                        .include(northSide)
+//                        .include(southSide)
+//                        .build();
+//                intent = new Autocomplete.IntentBuilder(
+//                        AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")
+////                        .setHint("Stops within " + current_city_name)
+////                        .setLocationRestriction()
+//                        .build(this);
+//                break;
+//            case 2:
+//
+//                break;
+//
+//
+//        }
+
+
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 
@@ -727,6 +768,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     v.performClick();
+
                     removeItem.setBackgroundColor(0x00000000);
 //                    loadTripData();
                     somethingDeleted = true;
