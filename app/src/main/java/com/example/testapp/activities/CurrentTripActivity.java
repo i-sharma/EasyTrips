@@ -287,6 +287,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                final Boolean[] map_altered = {false};
+                final String[] image_url = {null};
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 String title = place.getName();
                 String id = place.getId();
@@ -312,14 +314,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
                         String photoref = photoref_raw.substring(0, photoref_raw.length()-1);
 
-
                         CustomImgUrlApi customImgUrlApi = retrofit.create(CustomImgUrlApi.class);
-//                        Log.d(TAG, "onActivityResult: city " + city);
-//                        Log.d(TAG, "onActivityResult: photoref " + photoref);
-//                        Log.d(TAG, "onActivityResult: id " + id);
                         Call<CustomImgUrlModel.ResponseBase> call = customImgUrlApi.getUrl(id, photoref, city);
 
-//                        Log.d(TAG, "onActivityResult: before call");
+
+
                         call.enqueue(new Callback<CustomImgUrlModel.ResponseBase>() {
                             @Override
                             public void onResponse(Call<CustomImgUrlModel.ResponseBase> call, Response<CustomImgUrlModel.ResponseBase> response) {
@@ -329,8 +328,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     if(responseBase.getStatus().equals("SUCCESS")) {
                                         TypeToken<CustomImgUrlModel.SuccessResponse> responseTypeToken = new TypeToken<CustomImgUrlModel.SuccessResponse>() {};
                                         CustomImgUrlModel.SuccessResponse responseDict = gson.fromJson(gson.toJson(responseBase.getResponse()), responseTypeToken.getType());
-//                                        Log.d(TAG, "onResponse: action " + responseDict.getAction_taken());
-                                        try{
+                                        if(map_altered[0]){
                                             if(optimization){
                                                 for(TourismSpotModel each : model_opt_on ){
                                                     if (each.getId().equals(id)){
@@ -352,15 +350,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                             adapter.notifyDataSetChanged();
                                             data_models_map.get(id).fb_img_url = responseDict.getImage_url();
                                             saveTripData();
-
-                                        }catch (NullPointerException e){
-                                            Log.d(TAG, "onResponse: null pointer");
-
+                                        }else{
+                                            image_url[0] = responseDict.getImage_url();
+                                            map_altered[0] = true;
                                         }
-
                                     }else{
                                         Log.d(TAG, "onResponse: very nicely failed");
-                                        try{
+
+                                        if(map_altered[0]){
                                             if(optimization){
                                                 for(TourismSpotModel each : model_opt_on ){
                                                     if (each.getId().equals(id)){
@@ -382,10 +379,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                             adapter.notifyDataSetChanged();
                                             data_models_map.get(id).fb_img_url = "NOT_FOUND";
                                             saveTripData();
-                                        }catch (NullPointerException e){
-                                            Log.d(TAG, "onResponse: null pointer");
+                                        }else{
+                                            image_url[0] = "NOT_FOUND";
+                                            map_altered[0] = true;
                                         }
-
                                     }
                                 }
                             }
@@ -394,27 +391,35 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                             public void onFailure(Call<CustomImgUrlModel.ResponseBase> call, Throwable t) {
                                 Log.d(TAG, "onFailure: " + t.getCause());
                                 Log.d(TAG, "onResponse: failure");
-                                if(optimization){
-                                    for(TourismSpotModel each : model_opt_on ){
-                                        if (each.getId().equals(id)){
-                                            each.fb_img_url = "NOT_FOUND";
-                                            break;
+
+                                if(map_altered[0]){
+                                    if(optimization){
+                                        for(TourismSpotModel each : model_opt_on ){
+                                            if (each.getId().equals(id)){
+                                                each.fb_img_url = "NOT_FOUND";
+                                                break;
+                                            }
+                                        }
+                                    }else{
+                                        for(TourismSpotModel each : model_opt_off ){
+                                            if (each.getId().equals(id)){
+                                                each.fb_img_url = "NOT_FOUND";
+                                                break;
+                                            }
                                         }
                                     }
+                                    if(data_models_map==null){
+                                        loadTripData();
+                                    }
+                                    adapter.notifyDataSetChanged();
+                                    data_models_map.get(id).fb_img_url = "NOT_FOUND";
+                                    saveTripData();
                                 }else{
-                                    for(TourismSpotModel each : model_opt_off ){
-                                        if (each.getId().equals(id)){
-                                            each.fb_img_url = "NOT_FOUND";
-                                            break;
-                                        }
-                                    }
+                                    image_url[0] = "NOT_FOUND";
+                                    map_altered[0] = true;
                                 }
-                                if(data_models_map==null){
-                                    loadTripData();
-                                }
-                                adapter.notifyDataSetChanged();
-                                data_models_map.get(id).fb_img_url = "NOT_FOUND";
-                                saveTripData();
+
+
                             }
                         });
 
@@ -428,16 +433,26 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 optimization = false;
                 customStopAdded = true;
                 TourismSpotModel customModel;
+                boolean was_checked = switchButton.isChecked();
+                boolean was_empty = model_opt_off.isEmpty();
+                switchButton.setChecked(false);
+
+
                 if(photoMetadatas != null && photoMetadatas.size()!=0){
-                    customModel = new TourismSpotModel(id, title, lat, lon, true, time, "ONGOING_REQUEST");
+                    if(!map_altered[0]) {
+                        customModel = new TourismSpotModel(id, title, lat, lon, true, time, "ONGOING_REQUEST");
+                    }else{
+                        customModel = new TourismSpotModel(id, title, lat, lon, true, time, image_url[0]);
+                    }
+
                 }else{
                     Log.d(TAG, "onActivityResult: photometadata not found");
                     customModel = new TourismSpotModel(id, title, lat, lon, true, time, "NOT_FOUND");
                 }
 
-                boolean was_checked = switchButton.isChecked();
-                boolean was_empty = model_opt_off.isEmpty();
-                switchButton.setChecked(false);
+
+
+
                 int insert_pos;
                 loadOriginDestIdx();
                 if (!was_checked) {
@@ -468,6 +483,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
+                if(!map_altered[0]){
+                    map_altered[0] = true;
+                }
 //                if(photoMetadatas == null || photoMetadatas.size() == 0){
 //                    data_models_map.get(id).fb_img_url = "NOT_FOUND";
 //
