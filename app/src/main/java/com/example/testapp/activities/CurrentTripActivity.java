@@ -107,12 +107,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
 
-        /*if(!isInternetAvailable()){
-            Intent intent = new Intent(getBaseContext(), ExploreActivity.class);
-            Toast.makeText(getBaseContext(),"NO INTERNET CONNECTION",Toast.LENGTH_LONG).show();
-            startActivity(intent);
-        }*/
-
         loadTripData();
 
         Intent i = getIntent();
@@ -210,18 +204,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         createOnClickListeners();
 
     }
-/*
-
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress address = InetAddress.getByName("www.google.com");
-            return !address.equals("");
-        } catch (UnknownHostException e) {
-            // Log error
-        }
-        return false;
-    }
-*/
 
     @Override
     public void dragTopBottom(Boolean topmost, Boolean bottommost) {
@@ -530,7 +512,17 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         return;
                     }
                 }
-
+                if(opt_on == "" || opt_off == "") {
+                    Log.d(TAG, "doneBtn Pressed no api found");
+                            /*switchButton.setOnCheckedChangeListener (null);
+                            switchButton.setChecked(false);
+                            switchButton.setOnCheckedChangeListener (this);*/
+                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    if(opt_off == "")
+                        Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                    saveApiResult(false);   saveApiResult(true);
+                    return;
+                }
             }
         });
 
@@ -811,9 +803,18 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         Collections.sort(temp);
         setLatLong(origin_key, dest_key);
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
+        Log.d(TAG, "optimizeRoute: temp is " + temp.toString() );
+        Log.d(TAG, "optimizeRoute: shared_pref_ids is " + shared_pref_ids);
 
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
-                !somethingDeleted && !viewDragged && !somethingSwapped) return;
+                !somethingDeleted && !viewDragged && !somethingSwapped){
+            Log.d(TAG, "checking whether new api is req or not");
+            Log.d(TAG, "customStopAdded : " + customStopAdded);
+            Log.d(TAG, "somethingDeleted : " + somethingDeleted);
+            Log.d(TAG, "viewDragged : " + viewDragged);
+            Log.d(TAG, "somethingSwapped : " + somethingSwapped);
+            return;
+        }
         Log.d(TAG, "optimizeRoute api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
