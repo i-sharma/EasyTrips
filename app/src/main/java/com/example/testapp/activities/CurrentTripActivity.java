@@ -1288,7 +1288,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         saved_api_ids.clear();
         for (String s : data_models_map.keySet())
             saved_api_ids.add(s);
-
         editor.putString("saved_api_ids", saved_api_ids.toString());
         editor.commit();
         adapter.notifyItemRemoved(current_position);
@@ -1469,13 +1468,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 outputStream.writeObject(opt_off);
                 outputStream.flush();
                 outputStream.close();
+                saved_api_ids.clear();
                 for (String i : data_models_map.keySet()) {
                     saved_api_ids.add(i);
                 }
                 Collections.sort(saved_api_ids);
                 editor.putString("saved_api_ids", saved_api_ids.toString());
                 editor.commit();
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
