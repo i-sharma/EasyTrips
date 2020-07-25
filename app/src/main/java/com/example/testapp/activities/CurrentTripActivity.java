@@ -497,9 +497,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
                 }
 //                queue_pos.add(insert_pos);
+                saved_api_ids.clear();
                 LinkedHashMap<String, TourismSpotModel> tmp = new LinkedHashMap<>();
                 for (TourismSpotModel m : model_opt_off) {
                     tmp.put(m.getId(), m);
+                    saved_api_ids.add(m.getId());
                 }
                 data_models_map.clear();
                 data_models_map.putAll(tmp);
@@ -522,6 +524,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 if(insert_pos <= origin_index && origin_index > 0)  origin_index += 1;
                 if(insert_pos <= destination_index && destination_index > 0) destination_index += 1;
                 Log.d(TAG, "onActivityResult: org " + origin_index + " dest " + destination_index);
+                editor.putString("saved_api_ids", saved_api_ids.toString());
                 editor.putInt("origin_index", origin_index);
                 editor.putInt("destination_index", destination_index);
                 editor.commit();
@@ -996,9 +999,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         setLatLong(origin_key, dest_key);
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
+        Log.d(TAG, "optimizeRoute: here boy " + temp);
+        Log.d(TAG, "optimizeRoute: here boy " + shared_pref_ids);
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged && !somethingSwapped) return;
-        Log.d(TAG, "optimizeRoute api getting called");
+        Log.d(TAG, "optimizeRoute: here boy api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
 
