@@ -108,7 +108,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     Button route, editBtn, doneBtn, customStopBtn, deleteCard, emptyTripBtn;
     com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
-    LinearLayout removeItem;
+    Button removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
     String opt_off, opt_on, url_opt_is_false, url_opt_is_true;
@@ -763,13 +763,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             public boolean onTouch(View v, MotionEvent event) {
 
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    removeItem.setBackgroundColor(getResources().getColor(R.color.light_red));
+                    removeItem.setBackgroundResource(R.drawable.rounded_button_light_red);
                     return true;
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     v.performClick();
-
-                    removeItem.setBackgroundColor(0x00000000);
+                    removeItem.setBackgroundResource(R.drawable.rounded_button_red);
+//                    removeItem.setBackgroundColor(0x00000000);
 //                    loadTripData();
                     somethingDeleted = true;
                     boolean was_checked = switchButton.isChecked();

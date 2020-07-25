@@ -188,7 +188,7 @@ public class ExploreActivity extends AppCompatActivity {
                 break;
             case 1:
                 explore_city_name.setText(city);
-                explore_text.setBackgroundResource(R.drawable.explore_case_1_2);
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
                 explore_text.setVisibility(View.VISIBLE);
                 if(recyclerView!=null){
                     recyclerView.setVisibility(View.GONE);
@@ -196,7 +196,7 @@ public class ExploreActivity extends AppCompatActivity {
                 break;
             case 2:
                 explore_city_name.setText("Current City");
-                explore_text.setBackgroundResource(R.drawable.explore_case_1_2);
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
                 explore_text.setVisibility(View.VISIBLE);
                 if(recyclerView!=null){
                     recyclerView.setVisibility(View.GONE);
@@ -204,7 +204,7 @@ public class ExploreActivity extends AppCompatActivity {
                 break;
             case 3:
                 explore_city_name.setText("Choose City");
-                explore_text.setBackgroundResource(R.drawable.explore_case_3);
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
                 explore_text.setVisibility(View.VISIBLE);
                 if(recyclerView!=null){
                     recyclerView.setVisibility(View.GONE);
