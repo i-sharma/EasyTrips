@@ -128,12 +128,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_current_trip);
 
-        /*if(!isInternetAvailable()){
-            Intent intent = new Intent(getBaseContext(), ExploreActivity.class);
-            Toast.makeText(getBaseContext(),"NO INTERNET CONNECTION",Toast.LENGTH_LONG).show();
-            startActivity(intent);
-        }*/
-
         loadTripData();
 
         Intent i = getIntent();
@@ -237,18 +231,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         createOnClickListeners();
 
     }
-/*
-
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress address = InetAddress.getByName("www.google.com");
-            return !address.equals("");
-        } catch (UnknownHostException e) {
-            // Log error
-        }
-        return false;
-    }
-*/
 
     @Override
     public void dragTopBottom(Boolean topmost, Boolean bottommost) {
@@ -720,7 +702,17 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         return;
                     }
                 }
-
+                if(opt_on == "" || opt_off == "") {
+                    Log.d(TAG, "doneBtn Pressed no api found");
+                            /*switchButton.setOnCheckedChangeListener (null);
+                            switchButton.setChecked(false);
+                            switchButton.setOnCheckedChangeListener (this);*/
+                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    if(opt_off == "")
+                        Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                    saveApiResult(false);   saveApiResult(true);
+                    return;
+                }
             }
         });
 
@@ -1002,11 +994,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         setLatLong(origin_key, dest_key);
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
-        Log.d(TAG, "optimizeRoute: here boy " + temp);
-        Log.d(TAG, "optimizeRoute: here boy " + shared_pref_ids);
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
                 !somethingDeleted && !viewDragged && !somethingSwapped) return;
-        Log.d(TAG, "optimizeRoute: here boy api getting called");
+        Log.d(TAG, "optimizeRoute api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
 
@@ -1288,6 +1278,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         saved_api_ids.clear();
         for (String s : data_models_map.keySet())
             saved_api_ids.add(s);
+
         editor.putString("saved_api_ids", saved_api_ids.toString());
         editor.commit();
         adapter.notifyItemRemoved(current_position);
@@ -1475,6 +1466,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 Collections.sort(saved_api_ids);
                 editor.putString("saved_api_ids", saved_api_ids.toString());
                 editor.commit();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
