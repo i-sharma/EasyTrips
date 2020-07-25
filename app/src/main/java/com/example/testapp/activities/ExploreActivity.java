@@ -1,24 +1,32 @@
 package com.example.testapp.activities;
 
-import android.Manifest;
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.crowdfire.cfalertdialog.CFAlertDialog;
 import com.example.testapp.R;
 import com.example.testapp.adapters.ExploreAdapter;
 import com.example.testapp.models.TourismSpotModel;
@@ -39,16 +47,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+
+//import com.robin.locationgetter.EasyLocation;
 
 
 public class ExploreActivity extends AppCompatActivity {
     private static final String TAG = "Explore";
 
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private FusedLocationProviderClient mFusedLocationClient;
     LatLng origin,destination;
     SharedPreferences sharedPref;
-//    SharedPreferences.Editor editor;
+    SharedPreferences.Editor editor;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
@@ -62,41 +73,175 @@ public class ExploreActivity extends AppCompatActivity {
     private ExploreAdapter adapter;
     BottomNavigationView navigation;
 
-//    LinkedHashMap<Integer, HashMap<String,String>> trip_data = new LinkedHashMap<>();
+    Button explore_city_name;
+    ImageView explore_text;
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
+    ProgressBar progressBar;
+    private int city_code;
+    private String current_city_name, lat_lon_str;
+
+    enum city_options  {
+            DELHI, CURR_LOC
+    }
+    city_options selected_city = null;
+
+    CFAlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.fadein, R.anim.fadeout);
         setContentView(R.layout.activity_explore);
-
-        currentUser = mAuth.getCurrentUser();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
-        //fetchLocation();
-
         rootRef = FirebaseFirestore.getInstance();
         sharedPref = getApplicationContext().getSharedPreferences(
                 getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
-        String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
-        Log.d(TAG, "onCreate: shared pref " + shared_pref_ids);
+        editor = sharedPref.edit();
+        explore_city_name = findViewById(R.id.explore_city_name);
+        explore_text = findViewById(R.id.explore_text);
+        progressBar = findViewById(R.id.explore_progress);
+        currentUser = mAuth.getCurrentUser();
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+        buildCitySelector();
+        load_shared_pref();
+        updateUI(city_code, current_city_name);
+        explore_city_name.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    explore_city_name.setBackgroundResource(R.drawable.rounded_button_dark_yellow);
+                    return true;
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    v.performClick();
+                    explore_city_name.setBackgroundResource(R.drawable.rounded_button_yellow);
+//                    explore_city_name.setBackgroundResource(android.R.drawable.btn_default);
+//                    explore_city_name.setBackgroundColor(0x00000000);
+                    builder.show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
 //        loadTripData();
-        setUpRecyclerView();
-        adapter.startListening();
+//        setUpRecyclerView();
+//        adapter.startListening();
         bottomNavigation();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-//        loadTripData();
+    private void buildCitySelector() {
+        builder = new CFAlertDialog.Builder(ExploreActivity.this);
+        builder.setDialogStyle(CFAlertDialog.CFAlertStyle.ALERT);
+        builder.setTitle("Where would you like to Explore?");
+        builder.setSingleChoiceItems(new String[]{"Delhi", "Detect my Current Location"}, 3, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int index) {
+                switch (index){
+                    case 0 :
+                        selected_city = city_options.DELHI;
+                        break;
+                    case 1:
+                        selected_city = city_options.CURR_LOC;
+                        break;
+                }
+            }
+        });
+        builder.addButton("DONE", -1, -1, CFAlertDialog.CFAlertActionStyle.POSITIVE, CFAlertDialog.CFAlertActionAlignment.CENTER, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                if(selected_city == city_options.DELHI){
+                    save_shared_pref(0, "Delhi", null, null);
+                    updateUI(0, "Delhi");
+                }else if(selected_city == city_options.CURR_LOC){
+                    progressBar.setVisibility(View.VISIBLE);
+                    fetchLocation();
+                }
+
+
+            }
+        });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-//        loadTripData();
+
+    private void updateUI(int i, String city) {
+        progressBar.setVisibility(View.GONE);
+        switch (i){
+            case -1:
+                explore_city_name.setText("Choose City");
+                explore_text.setBackgroundResource(R.drawable.explore_case_neg_1);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+                break;
+            case 0:
+                setUpRecyclerView();
+                adapter.startListening();
+                explore_city_name.setText(city);
+                explore_text.setVisibility(View.GONE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+                break;
+            case 1:
+                explore_city_name.setText(city);
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+                break;
+            case 2:
+                explore_city_name.setText("Current City");
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+                break;
+            case 3:
+                explore_city_name.setText("Choose City");
+                explore_text.setBackgroundResource(R.drawable.explore_case123);
+                explore_text.setVisibility(View.VISIBLE);
+                if(recyclerView!=null){
+                    recyclerView.setVisibility(View.GONE);
+                }
+
+                Toast.makeText(this, "City could not be fetched", Toast.LENGTH_SHORT).show();
+                break;
+        }
     }
+
+    private void save_shared_pref(Integer status, String city, Double lat, Double lon) {
+        Log.d(TAG, "save_shared_pref: status " + status + " city " + city + " lat " + lat + " lon " + lon);
+        if(status == null){
+            status = -1;
+        }
+        if(city == null){
+            city = "";
+        }
+        if(lat == null){
+            lat = -1.0;
+        }
+        if(lon == null){
+            lon = -1.0;
+        }
+
+        editor.putInt("city_code", status);
+        editor.putString("current_city", city);
+        editor.putString("lat_lon_str", lat+" "+lon);
+        editor.commit();
+    }
+
+    private void load_shared_pref() {
+        city_code = sharedPref.getInt("city_code", -1);
+        current_city_name = sharedPref.getString("current_city", "");
+        lat_lon_str = sharedPref.getString("lat_lon_str", "");
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -185,106 +330,81 @@ public class ExploreActivity extends AppCompatActivity {
                 startActivityForResult(it, BOOL_ADD_TO_TRIP);
             }
 
-//            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-//            @Override
-//            public void onButtonClick(int position, ImageView done) {
-//                Toast.makeText(Explore.this, "Heres the position: " +
-//                        position, Toast.LENGTH_SHORT).show();
-//                Drawable drawable = done.getDrawable();
-//
-//                if(drawable instanceof AnimatedVectorDrawableCompat){
-//                    avd = (AnimatedVectorDrawableCompat) drawable;
-//                    avd.start();
-//                }
-//                else if(drawable instanceof AnimatedVectorDrawable){
-//                    avd2 = (AnimatedVectorDrawable) drawable;
-//                    avd2.start();
-//
-//                }
-//
-//            }
-
         });
 
     }
 
 
+    public void getCityName(final Location location, final OnGeocoderFinishedListener listener) {
+        new AsyncTask<Void, Integer, List<Address>>() {
+            @Override
+            protected List<Address> doInBackground(Void... arg0) {
+                Geocoder coder = new Geocoder(getApplicationContext(), Locale.ENGLISH);
+                List<Address> results = null;
+                try {
+                    results = coder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    // nothing
+                }
+                return results;
+            }
+
+            @Override
+            protected void onPostExecute(List<Address> results) {
+                if (results != null && listener != null) {
+                    listener.onFinished(results);
+                }
+            }
+        }.execute();
+    }
+
+    public abstract class OnGeocoderFinishedListener {
+        public abstract void onFinished(List<Address> results);
+    }
 
     private void fetchLocation() {
 
-        if (ContextCompat.checkSelfPermission(getBaseContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions((Activity)this, new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, 10);
+        }
 
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getParent(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                new AlertDialog.Builder(this)
-                        .setTitle("Required Location Permission")
-                        .setMessage("Give permission to access this feature")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(getParent(),
-                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-                        })
-                        .create()
-                        .show();
-
-            } else {
-                // No explanation needed; request the permission
-                ActivityCompat.requestPermissions(getParent(),
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-            }
-        } else {
-            // Permission has already been granted
-
+        if(ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                // Logic to handle location object
-
-                                double lat1,lon1;
-
-                                lat1 = location.getLatitude();
-                                lon1 = location.getLongitude();
-
-                                //**********Remember to change origin to lat1 and lat2.
-                                origin = new LatLng(lat1,lon1);
-                                destination = origin;
-                                //Toast.makeText(Explore.this, "latitude is"+origin.latitude+"\nlongitude is"+origin.longitude, Toast.LENGTH_LONG).show();
+                                getCityName(location, new OnGeocoderFinishedListener() {
+                                    @Override
+                                    public void onFinished(List<Address> results) {
+                                        Log.d(TAG, "onFinished: 2" + results);
+//                                        Log.d(TAG, "onFinished: " + );
+                                        if(results != null && results.size() > 0){
+                                            if(results.get(0).getLocality()!=null){
+                                                save_shared_pref(1, results.get(0).getLocality(), location.getLatitude(), location.getLongitude());
+                                                updateUI(1, results.get(0).getLocality());
+                                            }
+                                            else {
+                                                save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                                updateUI(2, location.getLatitude() + " " +  location.getLongitude());
+                                            }
+                                        }else{
+                                            save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                            updateUI(2, location.getLatitude() + " " +  location.getLongitude());
+                                        }
+                                    }
+                                });
+                            }else{
+                                save_shared_pref(3, null, null, null);
+                                updateUI(3, null);
                             }
                         }
                     });
-
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
     }
 
 

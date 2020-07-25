@@ -107,4 +107,6 @@ dependencies {
     implementation 'com.github.matecode:Snacky:1.1.5'
     implementation 'com.google.android.material:material:1.1.0'
 
+    //Spinner
+    implementation 'com.crowdfire.cfalertdialog:cfalertdialog:1.1.0'
 }

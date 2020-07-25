@@ -19,9 +19,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -105,7 +105,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     Button route, editBtn, doneBtn, customStopBtn, deleteCard, emptyTripBtn;
     com.suke.widget.SwitchButton switchButton;
     Boolean optimization = false;
-    LinearLayout removeItem;
+    Button removeItem;
     ImageView empty_trip;
     BottomNavigationView navigation;
     String opt_off, opt_on, url_opt_is_false, url_opt_is_true;
@@ -120,6 +120,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     Retrofit retrofit;
+    private int city_code;
+    private String current_city_name;
+    private String lat_lon_str;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -255,6 +258,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         protected void onPreExecute() {
             super.onPreExecute();
             viewDragged = true;
+
         }
 
         @Override
@@ -590,6 +594,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         }
     }
+    private void load_shared_pref() {
+        city_code = sharedPref.getInt("city_code", -1);
+        current_city_name = sharedPref.getString("current_city", "");
+        lat_lon_str = sharedPref.getString("lat_lon_str", "");
+    }
 
     public void onSearchCalled() {
         // Set the fields to specify which types of place data to return.
@@ -788,17 +797,19 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             }
         });
 
+
         removeItem.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    removeItem.setBackgroundColor(getResources().getColor(R.color.light_red));
+                    removeItem.setBackgroundResource(R.drawable.rounded_button_light_red);
                     return true;
                 }
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     v.performClick();
-                    removeItem.setBackgroundColor(0x00000000);
+                    removeItem.setBackgroundResource(R.drawable.rounded_button_red);
+//                    removeItem.setBackgroundColor(0x00000000);
 //                    loadTripData();
                     somethingDeleted = true;
                     boolean was_checked = switchButton.isChecked();
@@ -1424,6 +1435,11 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             showEmptyTripUI();
         }
     }
+
+
+
+
+
 
     private DisplayMetrics getDisplayMetrics() {
         Display display = getWindowManager().getDefaultDisplay();
