@@ -1540,7 +1540,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             outputStream.writeObject(data_models_map);
             outputStream.flush();
             outputStream.close();
-            
+            editor.commit();
             Log.d(TAG, "saveTripData: called");
         } catch (IOException e) {
             e.printStackTrace();

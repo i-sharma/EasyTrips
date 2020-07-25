@@ -2,8 +2,10 @@ package com.example.testapp.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -45,6 +47,8 @@ public class ExploreActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
     private FusedLocationProviderClient mFusedLocationClient;
     LatLng origin,destination;
+    SharedPreferences sharedPref;
+//    SharedPreferences.Editor editor;
 
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser currentUser;
@@ -72,7 +76,10 @@ public class ExploreActivity extends AppCompatActivity {
         //fetchLocation();
 
         rootRef = FirebaseFirestore.getInstance();
-
+        sharedPref = getApplicationContext().getSharedPreferences(
+                getString(R.string.shared_pref_file_name), Context.MODE_PRIVATE);
+        String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
+        Log.d(TAG, "onCreate: shared pref " + shared_pref_ids);
 //        loadTripData();
         setUpRecyclerView();
         adapter.startListening();
