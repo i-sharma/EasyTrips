@@ -536,9 +536,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")  //INDIA
-                .setHint("Stops within Delhi")
-                .setLocationRestriction(RectangularBounds.newInstance(
-                        southWest, northEast))
+//                .setHint("Stops within Delhi")
+//                .setLocationRestriction(RectangularBounds.newInstance(
+//                        southWest, northEast))
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
