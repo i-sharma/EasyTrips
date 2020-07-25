@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import com.example.testapp.R;
 
@@ -72,7 +74,9 @@ public class TimeFragment extends Fragment {
 
         e = 1 - (double)(on_seconds)/(off_seconds);
         String eff = String.format("%.2f",e*100);
-        efficiency.setText(eff + "%");
+        String preEff = (String) efficiency.getText();
+        preEff += eff;
+        efficiency.setText(preEff + "%");
 
         setUI();
 
@@ -90,7 +94,7 @@ public class TimeFragment extends Fragment {
                 time_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
             }
             else if(on_seconds < off_seconds){
-                time_fragment_layout.setBackgroundResource(R.drawable.green_time_analysis);
+                time_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
             }
             else {
                 efficiency.setVisibility(View.GONE);

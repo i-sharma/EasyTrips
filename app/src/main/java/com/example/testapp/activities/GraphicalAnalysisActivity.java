@@ -1,18 +1,20 @@
 package com.example.testapp.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+
 import com.example.testapp.R;
 import com.example.testapp.adapters.TabAdapter;
 import com.example.testapp.fragment.DistanceFragment;
 import com.example.testapp.fragment.TimeFragment;
 import com.example.testapp.utils.MapsDataParser;
 import com.google.android.material.tabs.TabLayout;
+
 import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -81,7 +83,7 @@ public class GraphicalAnalysisActivity extends AppCompatActivity {
             MapsDataParser parser_off = new MapsDataParser(jObject_off);
             dist_opt_off = parser_off.getTotalDistanceAndTime().get(0);
             time_opt_off = parser_off.getTotalDistanceAndTime().get(1);
-            Log.d(TAG, "getDistanceAndTime: opt_off is" + opt_off);
+            //Log.d(TAG, "getDistanceAndTime: opt_off is" + opt_off);
 
             if(!opt_on.isEmpty()){
                 jObject_on = new JSONObject(opt_on);

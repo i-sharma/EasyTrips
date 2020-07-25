@@ -1,40 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/green_dist_analysis"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/green_analysis"
     android:id="@+id/distance_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/before_opt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30sp"
+        android:layout_centerHorizontal="true"
+        android:letterSpacing="0.1"
+        android:text="BEFORE OPTIMIZATION"
+        android:textColor="#000000"
+        android:textSize="20sp" />
+
+    <TextView
         android:id="@+id/off_dist"
         android:layout_width="wrap_content"
-        android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/places_text_black_alpha_87"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="82dp"
-        android:layout_marginTop="142dp"
-        android:text="off time" />
+        android:background="#ffffff"
+        android:layout_below="@+id/before_opt"
+        android:layout_centerHorizontal="true"
+        android:padding="5sp"
+        android:layout_marginTop="30sp"
+        android:fontFamily="@font/fira_mono_bold"
+        android:text="off time"
+        android:textColor="@color/quantum_deeppurple900"
+        />
+
+    <TextView
+        android:id="@+id/after_opt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30sp"
+        android:layout_below="@id/off_dist"
+        android:layout_centerHorizontal="true"
+        android:letterSpacing="0.1"
+        android:text="AFTER OPTIMIZATION"
+        android:textColor="#000000"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/on_dist"
-        android:fontFamily="@font/fira_mono_bold"
-        android:textColor="@color/places_text_black_alpha_87"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="82dp"
-        android:layout_marginTop="240dp"
-        android:text="on time" />
-
+        android:layout_marginTop="30sp"
+        android:background="#ffffff"
+        android:layout_below="@id/after_opt"
+        android:layout_centerHorizontal="true"
+        android:padding="5sp"
+        android:fontFamily="@font/fira_mono_bold"
+        android:text="on time"
+        android:textColor="@color/quantum_deeppurple900"
+        />
 
     <TextView
         android:id="@+id/efficiency"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="87dp"
-        android:layout_marginTop="430dp"
+        android:layout_below="@+id/on_dist"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50sp"
+        android:layout_marginBottom="100dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="#ffffff"
         android:fontFamily="@font/fira_mono_bold"
-        android:text="100%"
+        android:text="Congrats ! We have saved your time by "
         android:textColor="@color/places_text_black_alpha_87" />
 
 </RelativeLayout>

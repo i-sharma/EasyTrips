@@ -6,10 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -21,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.testapp.R;
 import com.example.testapp.adapters.CurrentTripAdapter;
 import com.example.testapp.dragListView.DragListView;
@@ -55,9 +56,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.rpc.Help;
 import com.suke.widget.SwitchButton;
+
 import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,25 +68,23 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ExecutionException;
 
+import de.mateware.snacky.Snacky;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+
+import static android.graphics.Typeface.BOLD;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends Activity implements CurrentTripAdapter.ICurrTrip {
@@ -113,7 +113,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
     ArrayList<String> saved_api_ids = new ArrayList<>();
-    Boolean same, somethingSwapped = false, somethingDeleted = false, customStopAdded = false, viewDragged = false; //checks if waypoint_order is same for both non optimized and optimized state
+    Boolean same, somethingSwapped = false, somethingDeleted = false, customStopAdded = false, viewDragged = false, noApiFound = true; //checks if waypoint_order is same for both non optimized and optimized state
     Boolean orgDstChanged = false;
     ProgressBar progressBar;
     RelativeLayout opt_layout;
@@ -129,6 +129,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         setContentView(R.layout.activity_current_trip);
 
         loadTripData();
+        loadApiResult(false);
+        loadApiResult(true);
 
         Intent i = getIntent();
         origin = i.getParcelableExtra("origin");
@@ -573,6 +575,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             @Override
             public void onClick(View view) {
 
+                if(opt_off == "") {
+                    Log.d(TAG, "routeBtn Pressed no api found");
+                    showNoInternetSnackBar();
+                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    saveApiResult(false);   saveApiResult(true);
+                    return;
+                }
+
                 if(adapter.getItemCount() == 1){
                     popUpOnlyOneItem(popup_switch_route.SHOW_ROUTE);
                     return;
@@ -638,7 +648,16 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     AlertDialog alert11 = builder1.create();
                     alert11.show();
                 } else {
-                    Toast.makeText(getBaseContext(), "TRIP ALREADY EMPTY", Toast.LENGTH_LONG).show();
+                    Snacky.builder()
+                            .setActivity(CurrentTripActivity.this)
+                            .setText(R.string.empty_trip)
+                            .setBackgroundColor(Color.BLUE)
+                            .setTextTypeface(Typeface.SANS_SERIF)
+                            .setTextTypefaceStyle(BOLD)
+                            .setMaxLines(2)
+                            .setDuration(Snacky.LENGTH_SHORT)
+                            .build()
+                            .show();
                 }
             }
         });
@@ -692,30 +711,23 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         viewDragged || somethingSwapped) && origin_index!=-1 && destination_index!=-1) {
 
                     Log.d(TAG, "done onClick: org " + origin_index + " dst " + destination_index);
-                    OptimizeAsyncTask optimizeAsyncTask = new OptimizeAsyncTask();
-                    optimizeAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                     if(opt_off == "") {
+                        showNoInternetSnackBar();
                         Log.d(TAG, "doneBtn Pressed no api found");
-                        //saveApiResult(false);   saveApiResult(true);
-                        if(opt_off == "")
-                            Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        saveApiResult(false);   saveApiResult(true);
                         return;
                     }
                 }
-                if(opt_on == "" || opt_off == "") {
+                if(opt_off == "") {
+                    showNoInternetSnackBar();
                     Log.d(TAG, "doneBtn Pressed no api found");
-                            /*switchButton.setOnCheckedChangeListener (null);
-                            switchButton.setChecked(false);
-                            switchButton.setOnCheckedChangeListener (this);*/
                     new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                    if(opt_off == "")
-                        Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
                     saveApiResult(false);   saveApiResult(true);
                     return;
                 }
             }
         });
-
 
         removeItem.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -760,13 +772,14 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         loadApiResult(optimization);
 
                         if(opt_on == "" || opt_off == "") {
+                            saveApiResult(false);   saveApiResult(true);
                             Log.d(TAG, "switchBtn Pressed no api found");
                             /*switchButton.setOnCheckedChangeListener (null);
                             switchButton.setChecked(false);
                             switchButton.setOnCheckedChangeListener (this);*/
                             new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                             if(opt_on == "")
-                                Toast.makeText(getBaseContext(), "NO INTERNET CONNECTION", Toast.LENGTH_LONG).show();
+                                showNoInternetSnackBar();
                             saveApiResult(false);   saveApiResult(true);
                             return;
                         }
@@ -799,12 +812,28 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                 }
                                 if (same) {
                                     Log.d(TAG, "onCheckedChanged: 4");
-                                    Toast.makeText(CurrentTripActivity.this,
-                                            "Trip Already Optimized", Toast.LENGTH_SHORT).show();
+                                    Snacky.builder()
+                                            .setActivity(CurrentTripActivity.this)
+                                            .setText(R.string.trip_already_optimized)
+                                            .setBackgroundColor(Color.GREEN)
+                                            .setTextTypeface(Typeface.SANS_SERIF)
+                                            .setTextTypefaceStyle(BOLD)
+                                            .setMaxLines(2)
+                                            .setDuration(Snacky.LENGTH_SHORT)
+                                            .build()
+                                            .show();
                                 } else {
                                     Log.d(TAG, "onCheckedChanged: 5");
-                                    Toast.makeText(CurrentTripActivity.this,
-                                            "Optimized", Toast.LENGTH_SHORT).show();
+                                    Snacky.builder()
+                                            .setActivity(CurrentTripActivity.this)
+                                            .setText(R.string.optimize_switch)
+                                            .setBackgroundColor(Color.GREEN)
+                                            .setTextTypeface(Typeface.SANS_SERIF)
+                                            .setTextTypefaceStyle(BOLD)
+                                            .setMaxLines(2)
+                                            .setDuration(Snacky.LENGTH_SHORT)
+                                            .build()
+                                            .show();
                                     applyModel_opt_on();
                                 }
                             }
@@ -815,7 +844,16 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         }
                     } else {
                         Log.d(TAG, "onCheckedChanged: 7");
-                        Toast.makeText(getBaseContext(), "No further optimization", Toast.LENGTH_SHORT).show();
+                        Snacky.builder()
+                                .setActivity(CurrentTripActivity.this)
+                                .setText(R.string.trip_already_optimized)
+                                .setBackgroundColor(Color.GREEN)
+                                .setTextTypeface(Typeface.SANS_SERIF)
+                                .setTextTypefaceStyle(BOLD)
+                                .setMaxLines(2)
+                                .setDuration(Snacky.LENGTH_SHORT)
+                                .build()
+                                .show();
                     }
                 } else {
                     Log.d(TAG, "onCheckedChanged: 8");
@@ -829,6 +867,18 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     }
 
+    private void showNoInternetSnackBar() {
+        Snacky.builder()
+                .setActivity(CurrentTripActivity.this)
+                .setText(R.string.lost_connection)
+                .setBackgroundColor(Color.RED)
+                .setTextTypeface(Typeface.SANS_SERIF)
+                .setTextTypefaceStyle(BOLD)
+                .setMaxLines(2)
+                .setDuration(Snacky.LENGTH_LONG)
+                .build()
+        .show();
+    }
 
     private void swapAdapter() {
         loadOriginDestIdx();
@@ -995,7 +1045,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         String shared_pref_ids = sharedPref.getString("saved_api_ids", "");
 
         if (temp.toString().equals(shared_pref_ids) && !customStopAdded &&
-                !somethingDeleted && !viewDragged && !somethingSwapped) return;
+                !somethingDeleted && !viewDragged && !somethingSwapped && !noApiFound) return;
         Log.d(TAG, "optimizeRoute api getting called");
 
         waypoints_coordinates = getWaypointsCoordinates();
@@ -1050,6 +1100,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             viewDragged = false;
             somethingSwapped = false;
             orgDstChanged = false;
+            if(opt_off != ""){
+                noApiFound = false;
+            }
 //                saveApiResult(optimization);
         }
 
@@ -1234,7 +1287,16 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 //        String curr_id;
         Boolean already_removed = false;
         if (data_models_map.isEmpty()) {
-            Toast.makeText(getBaseContext(), "Trip is Empty", Toast.LENGTH_SHORT).show();
+            Snacky.builder()
+                    .setActivity(CurrentTripActivity.this)
+                    .setText(R.string.empty_trip)
+                    .setBackgroundColor(Color.BLUE)
+                    .setTextTypeface(Typeface.SANS_SERIF)
+                    .setTextTypefaceStyle(BOLD)
+                    .setMaxLines(2)
+                    .setDuration(Snacky.LENGTH_SHORT)
+                    .build()
+                    .show();
             showEmptyTripUI();
         } else {
             if (adapter.getItemCount() == 1) {
@@ -1292,11 +1354,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             showEmptyTripUI();
         }
     }
-
-
-
-
-
 
     private DisplayMetrics getDisplayMetrics() {
         Display display = getWindowManager().getDefaultDisplay();
@@ -1512,6 +1569,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 opt_off = "";
             }
         }
+        if(opt_off == "")
+            noApiFound = true;
+        else noApiFound = false;
     }
 
     @Override

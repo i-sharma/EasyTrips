@@ -1,6 +1,8 @@
 package com.example.testapp.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -9,14 +11,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.testapp.R;
 import com.example.testapp.models.TourismSpotModel;
 import com.example.testapp.utils.MapsDataParser;
-import com.example.testapp.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,12 +25,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.common.collect.Maps;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +37,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import de.mateware.snacky.Snacky;
+
+import static android.graphics.Typeface.BOLD;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
 
@@ -93,26 +95,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void getDistanceAndTime() {
-        JSONObject jObject_on,jObject_off;
-        try {
-            jObject_on = new JSONObject(opt_on);
-            jObject_off = new JSONObject(opt_off);
-            MapsDataParser parser_on = new MapsDataParser(jObject_on);
-            MapsDataParser parser_off = new MapsDataParser(jObject_off);
-            dist_opt_on = parser_on.getTotalDistanceAndTime().get(0);
-            time_opt_on = parser_on.getTotalDistanceAndTime().get(1);
-            dist_opt_off = parser_off.getTotalDistanceAndTime().get(0);
-            time_opt_off = parser_off.getTotalDistanceAndTime().get(1);
-            Log.d(TAG, "off distance is "+dist_opt_off);
-            Log.d(TAG, "on distance is "+dist_opt_on);
-            Log.d(TAG, "off time is "+time_opt_off);
-            Log.d(TAG, "on time is "+time_opt_on);
-        }catch (Exception e)    {
-            e.printStackTrace();
-        }
-    }
-
     private void createOnClickListeners() {
 
         analyticsBtn.setOnClickListener(new View.OnClickListener() {
@@ -120,7 +102,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View view) {
 
                 if(opt_off == ""){
-                    Toast.makeText(MapsActivity.this,"NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
+                    Snacky.builder()
+                            .setActivity(MapsActivity.this)
+                            .setText(R.string.lost_connection)
+                            .setBackgroundColor(Color.RED)
+                            .setTextTypeface(Typeface.SANS_SERIF)
+                            .setTextTypefaceStyle(BOLD)
+                            .setMaxLines(2)
+                            .setDuration(Snacky.LENGTH_LONG)
+                            .build()
+                            .show();
                 }
                 else {
                     Intent intent = new Intent(getBaseContext(), GraphicalAnalysisActivity.class);
@@ -154,16 +145,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 if (same) {
-                    Toast.makeText(MapsActivity.this,
-                            "Trip Already Optimized", Toast.LENGTH_SHORT).show();
+                    Snacky.builder()
+                            .setActivity(MapsActivity.this)
+                            .setText(R.string.trip_already_optimized)
+                            .setBackgroundColor(Color.GREEN)
+                            .setTextTypeface(Typeface.SANS_SERIF)
+                            .setTextTypefaceStyle(BOLD)
+                            .setMaxLines(2)
+                            .setDuration(Snacky.LENGTH_SHORT)
+                            .build()
+                            .show();
                 }else{
                     if(data_models_map.keySet().size() <= 3){
-                        Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
+                        Snacky.builder()
+                                .setActivity(MapsActivity.this)
+                                .setText(R.string.trip_already_optimized)
+                                .setBackgroundColor(Color.GREEN)
+                                .setTextTypeface(Typeface.SANS_SERIF)
+                                .setTextTypefaceStyle(BOLD)
+                                .setMaxLines(2)
+                                .setDuration(Snacky.LENGTH_SHORT)
+                                .build()
+                                .show();
                     }
                     else{
                         if(optimization)
-                            Toast.makeText(MapsActivity.this,
-                                    "Optimized", Toast.LENGTH_SHORT).show();
+                            Snacky.builder()
+                                    .setActivity(MapsActivity.this)
+                                    .setText(R.string.optimize_switch)
+                                    .setBackgroundColor(Color.GREEN)
+                                    .setTextTypeface(Typeface.SANS_SERIF)
+                                    .setTextTypefaceStyle(BOLD)
+                                    .setMaxLines(2)
+                                    .setDuration(Snacky.LENGTH_SHORT)
+                                    .build()
+                                    .show();
                         loadApiResult(optimization);
                         plotMap(optimization);
                     }
@@ -403,7 +419,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
             else{
-                Toast.makeText(MapsActivity.this,"NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
+                Snacky.builder()
+                        .setActivity(MapsActivity.this)
+                        .setText(R.string.lost_connection)
+                        .setBackgroundColor(Color.RED)
+                        .setTextTypeface(Typeface.SANS_SERIF)
+                        .setTextTypefaceStyle(BOLD)
+                        .setMaxLines(2)
+                        .setDuration(Snacky.LENGTH_LONG)
+                        .build()
+                        .show();
             }
 
         }

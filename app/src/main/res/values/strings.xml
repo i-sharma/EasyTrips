@@ -5,10 +5,12 @@
     <string name="time_to_visit">"expected duration of visit"</string>
     <string name="shared_pref_file_name">shared_pref</string>
     <string name="customStop">ADD CUSTOM STOPS</string>
-    <string name="optimize_switch">OPTIMIZE</string>
+    <string name="optimize_switch">OPTIMIZED</string>
     <string name="directions_api_key">***REMOVED***</string>
     <string name="autocomplete_api_key">***REMOVED***</string>
-
+    <string name="lost_connection">NO INTERNET CONNECTION</string>
+    <string name="empty_trip">TRIP ALREADY EMPTY</string>
+    <string name="trip_already_optimized">TRIP ALREADY OPTIMIZED</string>
     <string name="dialog_default_title">Here\'s a message!</string>
     <string name="dialog_ok">OK</string>
     <string name="dialog_cancel">Cancel</string>

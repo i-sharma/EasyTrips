@@ -1,11 +1,14 @@
 package com.example.testapp.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import com.example.testapp.R;
 
@@ -31,6 +34,9 @@ public class DistanceFragment extends Fragment {
         dist_opt_off = getArguments().getString("dist_opt_off");
         dist_opt_on = getArguments().getString("dist_opt_on");
 
+        Log.d(TAG, "from Bundles  distOptOff is " + dist_opt_off);
+        Log.d(TAG, "from Bundles  distOptOn is " + dist_opt_on);
+
         off_meters = Integer.parseInt(dist_opt_off);
         on_meters  = Integer.parseInt(dist_opt_on);
         if(on_meters == 0) on_meters = off_meters;
@@ -40,7 +46,7 @@ public class DistanceFragment extends Fragment {
         if(off_meters/1000 != 0)
             off_dist_text += off_meters/1000 + " kms ";
         if(off_meters % 1000 != 0)
-            off_dist_text = off_meters % 1000 + " meters";
+            off_dist_text += off_meters % 1000 + " meters";
 
         off_dist.setText(off_dist_text);
 
@@ -49,13 +55,20 @@ public class DistanceFragment extends Fragment {
         if(on_meters/1000 != 0)
             on_dist_text += on_meters/1000 + " kms ";
         if(on_meters % 1000 != 0)
-            on_dist_text = on_meters % 1000 + " meters";
+            on_dist_text += on_meters % 1000 + " meters";
 
         on_dist.setText(on_dist_text);
 
+        Log.d(TAG, "we modified distOptOff to " + off_dist_text);
+        Log.d(TAG, "we modified distOptOn to " + on_dist_text);
+
         e = 1 - (double)(on_meters)/(off_meters);
         String eff = String.format("%.2f",e*100);
-        efficiency.setText(eff + "%");
+        String preEff = (String) efficiency.getText();
+        preEff += eff;
+        efficiency.setText(preEff + "%");
+
+        Log.d(TAG, "efficiency is " + eff);
 
         setUI();
 
@@ -73,7 +86,7 @@ public class DistanceFragment extends Fragment {
                 distance_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
             }
             else if(on_meters < off_meters){
-                distance_fragment_layout.setBackgroundResource(R.drawable.green_dist_analysis);
+                distance_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
             }
             else {
                 efficiency.setVisibility(View.GONE);
