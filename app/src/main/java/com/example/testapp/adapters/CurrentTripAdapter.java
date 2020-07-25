@@ -183,6 +183,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     origin_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setOrigin(true);
                     notifyDataSetChanged();
+                    iCurrTrip.orgDstChanged();
                     saveSharedPref();
                     return true;
                 case R.id.set_dest:
@@ -193,6 +194,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                     destination_index = getAdapterPosition();
                     models.get(getAdapterPosition()).setDestination(true);
                     notifyDataSetChanged();
+                    iCurrTrip.orgDstChanged();
                     saveSharedPref();
                     return true;
                 case R.id.set_waypoint:
@@ -208,6 +210,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
                         iCurrTrip.dragTopBottom(null, false);
                     }
                     notifyDataSetChanged();
+//                    iCurrTrip.orgDstChanged();
                     saveSharedPref();
                     return true;
             }
@@ -239,5 +242,7 @@ public class CurrentTripAdapter extends DragItemAdapter<String, CurrentTripAdapt
 
     public interface ICurrTrip{
         public void dragTopBottom(Boolean topmost, Boolean bottommost);
+
+        public void orgDstChanged();
     }
 }

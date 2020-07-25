@@ -90,7 +90,7 @@ public class TimeFragment extends Fragment {
                 time_fragment_layout.setBackgroundResource(R.drawable.yellow_analysis);
             }
             else if(on_seconds < off_seconds){
-                time_fragment_layout.setBackgroundResource(R.drawable.green_analysis);
+                time_fragment_layout.setBackgroundResource(R.drawable.green_time_analysis);
             }
             else {
                 efficiency.setVisibility(View.GONE);

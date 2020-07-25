@@ -119,9 +119,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(getBaseContext(), GraphicalAnalysisActivity.class);
-
-                startActivity(intent);
+                if(opt_off == ""){
+                    Toast.makeText(MapsActivity.this,"NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Intent intent = new Intent(getBaseContext(), GraphicalAnalysisActivity.class);
+                    startActivity(intent);
+                }
             }
         });
 
@@ -157,8 +161,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Toast.makeText(getBaseContext(),"No further optimization",Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        Toast.makeText(MapsActivity.this,
-                                "Optimized", Toast.LENGTH_SHORT).show();
+                        if(optimization)
+                            Toast.makeText(MapsActivity.this,
+                                    "Optimized", Toast.LENGTH_SHORT).show();
                         loadApiResult(optimization);
                         plotMap(optimization);
                     }
@@ -398,7 +403,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
             else{
-                Toast.makeText(MapsActivity.this,"No Internet Connection Available",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapsActivity.this,"NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
             }
 
         }
