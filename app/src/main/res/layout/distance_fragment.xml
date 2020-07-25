@@ -69,7 +69,8 @@
         android:layout_marginRight="10dp"
         android:background="#ffffff"
         android:fontFamily="@font/fira_mono_bold"
-        android:text="Congrats ! We have saved your time by "
-        android:textColor="@color/places_text_black_alpha_87" />
+        android:text="Congrats ! We have saved your distance covered by "
+        android:textColor="@color/quantum_deeppurple900"
+        />
 
 </RelativeLayout>

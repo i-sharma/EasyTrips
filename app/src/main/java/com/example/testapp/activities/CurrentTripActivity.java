@@ -709,15 +709,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 saveOriginDestIdx();
                 if (data_models_map.keySet().size() >= 1 && (somethingDeleted || customStopAdded ||
                         viewDragged || somethingSwapped) && origin_index!=-1 && destination_index!=-1) {
-
+                    new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                    saveApiResult(false);   saveApiResult(true);
                     Log.d(TAG, "done onClick: org " + origin_index + " dst " + destination_index);
-                    if(opt_off == "") {
-                        showNoInternetSnackBar();
-                        Log.d(TAG, "doneBtn Pressed no api found");
-                        new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        saveApiResult(false);   saveApiResult(true);
-                        return;
-                    }
                 }
                 if(opt_off == "") {
                     showNoInternetSnackBar();
