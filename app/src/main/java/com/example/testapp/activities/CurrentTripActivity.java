@@ -329,12 +329,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         }
         Log.d(TAG, "validateApiResult: st " + status);
 
-        if(status.equals("")){
-            //show NO API RESULT FOUND as NO INTERNET
-            showNoInternetSnackBar();
-            return false;
-        }
-        else if(status.equals("We couldn't find the places you have added") ){
+        if(status.equals("OK"))
+            return true;
+
+        if(status.equals("We couldn't find the places you have added") ){
             //show dialog for some reason
             validationDialog("NOT_FOUND", from_route);
             return false;
@@ -363,8 +361,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             return false;
 
         }
-        else{
-            validationDialog("It's not you, it's us. Please try adding different items to your trip", from_route);
+        else {
+            validationDialog("Sorry! We couldn't process the places you've provided. Please try adding different items to your trip", from_route);
+            return false;
         }
 //        else if(status.equals("OVER_DAILY_LIMIT") ){
 //            return false;
@@ -382,7 +381,6 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 //            return false;
 //        }
 
-        return true;
     }
 
     private void initializePlaces() {
@@ -933,7 +931,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     Snacky.builder()
                                             .setActivity(CurrentTripActivity.this)
                                             .setText(R.string.trip_already_optimized)
-                                            .setBackgroundColor(R.drawable.current_trip_round_green)
+                                            .setBackgroundColor(getResources().getColor(R.color.green))
                                             .setTextTypeface(Typeface.SANS_SERIF)
                                             .setTextTypefaceStyle(BOLD)
                                             .setMaxLines(2)
@@ -945,7 +943,8 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     Snacky.builder()
                                             .setActivity(CurrentTripActivity.this)
                                             .setText(R.string.optimize_switch)
-                                            .setBackgroundColor(Color.GREEN)
+                                            .setTextColor(getResources().getColor(R.color.colorDark))
+                                            .setBackgroundColor(getResources().getColor(R.color.yellow))
                                             .setTextTypeface(Typeface.SANS_SERIF)
                                             .setTextTypefaceStyle(BOLD)
                                             .setMaxLines(2)
@@ -965,7 +964,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         Snacky.builder()
                                 .setActivity(CurrentTripActivity.this)
                                 .setText(R.string.trip_already_optimized)
-                                .setBackgroundColor(R.drawable.current_trip_round_green)
+                                .setBackgroundColor(getResources().getColor(R.color.green))
                                 .setTextTypeface(Typeface.SANS_SERIF)
                                 .setTextTypefaceStyle(BOLD)
                                 .setMaxLines(2)

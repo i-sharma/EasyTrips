@@ -158,6 +158,7 @@ public class ExploreActivity extends AppCompatActivity {
                 }else if(selected_city == city_options.CURR_LOC){
                     progressBar.setVisibility(View.VISIBLE);
                     fetchLocation();
+                    progressBar.setVisibility(View.GONE);
                 }
 
 
