@@ -85,6 +85,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.graphics.Typeface.BOLD;
+import static android.graphics.Typeface.createFromAsset;
 
 @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
 public class CurrentTripActivity extends Activity implements CurrentTripAdapter.ICurrTrip {
@@ -281,7 +282,39 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         }
     }
 
-    private boolean validateApiResult() {
+    private void validationDialog(String msg, Boolean from_switch){
+        Log.d(TAG, "validateApiResult: dialog");
+        if(from_switch){
+            new SweetAlertDialog(this)
+                    .setTitleText(msg)
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.dismissWithAnimation();
+                        }
+                    })
+                    .show();
+        }else{
+            if(switchButton.isChecked()){
+                new SweetAlertDialog(this)
+                        .setTitleText(msg)
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismissWithAnimation();
+                                switchButton.setChecked(false);
+
+                            }
+                        })
+                        .show();
+            }
+        }
+
+
+
+    }
+
+    private boolean validateApiResult(Boolean from_route) {
 
         JSONObject jObject;
         String status;
@@ -294,55 +327,60 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
             status = "";
             e.printStackTrace();
         }
+        Log.d(TAG, "validateApiResult: st " + status);
 
-        if(status == ""){
+        if(status.equals("")){
             //show NO API RESULT FOUND as NO INTERNET
             showNoInternetSnackBar();
             return false;
         }
-        else if(status == "NOT_FOUND"){
+        else if(status.equals("We couldn't find the places you have added") ){
             //show dialog for some reason
+            validationDialog("NOT_FOUND", from_route);
             return false;
         }
-        else if(status == "ZERO_RESULTS"){
+        else if(status.equals("ZERO_RESULTS") ){
             //show dialog for some reason
-
+            validationDialog("We couldn't find a route through the places you have added. Maybe they're too far away from each other.", from_route);
             return false;
 
         }
-        else if(status == "MAX_WAYPOINTS_EXCEEDED"){
+        else if(status.equals("MAX_WAYPOINTS_EXCEEDED") ){
             //show dialog for some reason
-
+            validationDialog("Please keep the number of places you have added under 11", from_route);
             return false;
 
         }
-        else if(status == "MAX_ROUTE_LENGTH_EXCEEDED"){
+        else if(status.equals("MAX_ROUTE_LENGTH_EXCEEDED") ){
             //show dialog for some reason
-
+            validationDialog("Your route's length seems to be longer than what we can handle. Please keep it short", from_route);
             return false;
 
         }
-        else if(status == "INVALID_REQUEST"){
+        else if(status.equals("INVALID_REQUEST") ){
             //show dialog for some reason
-
+            validationDialog("This is an invalid request. Please add places not too far from each other", from_route);
             return false;
 
         }
-        else if(status == "OVER_DAILY_LIMIT"){
-            return false;
-
+        else{
+            validationDialog("It's not you, it's us. Please try adding different items to your trip", from_route);
         }
-        else if(status == "OVER_QUERY_LIMIT"){
-            return false;
-
-        }
-        else if(status == "REQUEST_DENIED"){
-            return false;
-
-        }
-        else if(status == "UNKNOWN_ERROR"){
-            return false;
-        }
+//        else if(status.equals("OVER_DAILY_LIMIT") ){
+//            return false;
+//
+//        }
+//        else if(status.equals("OVER_QUERY_LIMIT") ){
+//            return false;
+//
+//        }
+//        else if(status.equals("REQUEST_DENIED") ){
+//            return false;
+//
+//        }
+//        else if(status.equals("UNKNOWN_ERROR") ){
+//            return false;
+//        }
 
         return true;
     }
@@ -612,9 +650,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
         Intent intent = new Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.OVERLAY, fields).setCountry("IN")  //INDIA
-                .setHint("Stops within Delhi")
-                .setLocationRestriction(RectangularBounds.newInstance(
-                        southWest, northEast))
+//                .setHint("Stops within Delhi")
+//                .setLocationRestriction(RectangularBounds.newInstance(
+//                        southWest, northEast))
                 .build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
@@ -648,7 +686,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         route.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Log.d(TAG, "onClick: 1");
                 if(opt_off == "") {
                     Log.d(TAG, "routeBtn Pressed no api found");
                     showNoInternetSnackBar();
@@ -663,6 +701,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
                 if((origin_index == -1 || destination_index == -1)){
                     popUpOrgDstNotSet(popup_switch_route.SHOW_ROUTE);
+                    return;
+                }
+                Log.d(TAG, "onClick: 2");
+
+                if(validateApiResult(true) == false){
+                    Log.d(TAG, "onClick: 3");
+
                     return;
                 }
 
@@ -837,6 +882,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
                 Log.d(TAG, "onCheckedChanged: hello there");
                 optimization = isChecked;
+                if(validateApiResult(false) == false){
+                    return;
+                }
                 if (optimization) {
                     if (data_models_map.keySet().size() > 3) {
                         loadApiResult(optimization);
@@ -1076,11 +1124,12 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     }
 
     private void applyModel_opt_on() {
+        Log.d(TAG, "validateApiResult: ap_m");
         // waypoint (0,3,1,2)    (0,1,2,3)
 
-        if(validateApiResult() == false){
-            return;
-        }
+//        if(validateApiResult() == false){
+//            return;
+//        }
 
         model_opt_on = new ArrayList<>();
 //        int count = 0;
