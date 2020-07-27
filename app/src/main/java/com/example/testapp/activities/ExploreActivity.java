@@ -363,6 +363,55 @@ public class ExploreActivity extends AppCompatActivity {
         public abstract void onFinished(List<Address> results);
     }
 
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 10) {
+            // for each permission check if the user granted/denied them
+            // you may want to group the rationale in a single dialog,
+            // this is just an example
+            for (int i = 0, len = permissions.length; i < len; i++) {
+                String permission = permissions[i];
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    if(ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                        mFusedLocationClient.getLastLocation()
+                                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                                    @Override
+                                    public void onSuccess(Location location) {
+                                        // Got last known location. In some rare situations this can be null.
+                                        if (location != null) {
+                                            getCityName(location, new OnGeocoderFinishedListener() {
+                                                @Override
+                                                public void onFinished(List<Address> results) {
+                                                    Log.d(TAG, "onFinished: 2" + results);
+//                                        Log.d(TAG, "onFinished: " + );
+                                                    if(results != null && results.size() > 0){
+                                                        if(results.get(0).getLocality()!=null){
+                                                            save_shared_pref(1, results.get(0).getLocality(), location.getLatitude(), location.getLongitude());
+                                                            updateUI(1, results.get(0).getLocality());
+                                                        }
+                                                        else {
+                                                            save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                                            updateUI(2, location.getLatitude() + " " +  location.getLongitude());
+                                                        }
+                                                    }else{
+                                                        save_shared_pref(2, location.getLatitude() + " " +  location.getLongitude(), location.getLatitude(), location.getLongitude());
+                                                        updateUI(2, location.getLatitude() + " " +  location.getLongitude());
+                                                    }
+                                                }
+                                            });
+                                        }else{
+                                            save_shared_pref(3, null, null, null);
+                                            updateUI(3, null);
+                                        }
+                                    }
+                                });
+                    }
+                }
+            }
+        }
+    }
     private void fetchLocation() {
 
         if (ActivityCompat.checkSelfPermission((Activity)this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)

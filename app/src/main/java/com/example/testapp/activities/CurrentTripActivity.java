@@ -1149,10 +1149,19 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     private void optimizeRoute() {
 
         //11 = 9 + 2 (9 waypts and 2 means origin and dest)
-        if(data_models_map.size() > 11){
-            //showWayptsLimitExceedDialog
-            return;
-        }
+//        if(data_models_map.size() > 11){
+//            //showWayptsLimitExceedDialog
+//            new SweetAlertDialog(this)
+//                    .setTitleText("Hey! You have added more than 11 places in your trip. Please remove a few items. Any number less than 11 will do!")
+//                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+//                        @Override
+//                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+//                            sweetAlertDialog.dismissWithAnimation();
+//                        }
+//                    })
+//                    .show();
+//            return;
+//        }
 
         Log.d(TAG, "optimizeRoute: is being called");
         
