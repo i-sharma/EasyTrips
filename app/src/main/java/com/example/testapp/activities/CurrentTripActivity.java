@@ -318,16 +318,20 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
         if(opt_off == "") {
             saveApiResult(false);   saveApiResult(true);
-            Log.d(TAG, "switchBtn Pressed no api found");
+            Log.d(TAG, "no api found");
                             /*switchButton.setOnCheckedChangeListener (null);
                             switchButton.setChecked(false);
                             switchButton.setOnCheckedChangeListener (this);*/
             new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            if(opt_off == "")
+            if(opt_off == "") {
                 showNoInternetSnackBar();
+            }
             saveApiResult(false);   saveApiResult(true);
             return false;
         }
+
+        if(from_route && opt_on == "")
+            return true;
 
         JSONObject jObject;
         String status;

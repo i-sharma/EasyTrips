@@ -11,12 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Switch;
-
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
-
 import com.example.testapp.R;
 import com.example.testapp.models.TourismSpotModel;
+import com.example.testapp.pendant_popup.SweetAlertDialog;
 import com.example.testapp.utils.MapsDataParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,9 +25,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.logicbeanzs.uberpolylineanimation.MapAnimator;
-
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,9 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 import de.mateware.snacky.Snacky;
-
 import static android.graphics.Typeface.BOLD;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
@@ -54,7 +49,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap map;
     LinkedHashMap<String, TourismSpotModel> data_models_map = new LinkedHashMap<>();
     ArrayList<Integer> waypoint_order = new ArrayList<>();
-    long dist_opt_off,dist_opt_on,time_opt_off,time_opt_on;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +66,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         waypoint_order = it.getExtras().getIntegerArrayList("waypoints");
         waypoints_coordinates_opt_off = it.getExtras().getString("wc_opt_off");
         waypoints_coordinates_opt_on = it.getExtras().getString("wc_opt_on");
+
+        if(data_models_map.size() <= 3){
+            waypoints_coordinates_opt_on = waypoints_coordinates_opt_off;
+        }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -145,28 +143,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 if (same) {
-                    Snacky.builder()
-                            .setActivity(MapsActivity.this)
-                            .setText(R.string.trip_already_optimized)
-                            .setBackgroundColor(R.drawable.current_trip_round_green)
-                            .setTextTypeface(Typeface.SANS_SERIF)
-                            .setTextTypefaceStyle(BOLD)
-                            .setMaxLines(2)
-                            .setDuration(Snacky.LENGTH_SHORT)
-                            .build()
-                            .show();
+                    if(optimize_switch.isChecked()){
+                        new SweetAlertDialog(MapsActivity.this)
+                                .setTitleText("There is no further scope for optimization when there are less than 4 places in the trip!!")
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        sweetAlertDialog.dismissWithAnimation();
+                                        optimize_switch.setChecked(false);
+
+                                    }
+                                })
+                                .show();
+                    }
                 }else{
                     if(data_models_map.keySet().size() <= 3){
-                        Snacky.builder()
-                                .setActivity(MapsActivity.this)
-                                .setText(R.string.trip_already_optimized)
-                                .setBackgroundColor(R.drawable.current_trip_round_green)
-                                .setTextTypeface(Typeface.SANS_SERIF)
-                                .setTextTypefaceStyle(BOLD)
-                                .setMaxLines(2)
-                                .setDuration(Snacky.LENGTH_SHORT)
-                                .build()
-                                .show();
+                        if(optimize_switch.isChecked()){
+                            new SweetAlertDialog(MapsActivity.this)
+                                    .setTitleText("There is no further scope for optimization when there are less than 4 places in the trip!!")
+                                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                        @Override
+                                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                            sweetAlertDialog.dismissWithAnimation();
+                                            optimize_switch.setChecked(false);
+
+                                        }
+                                    })
+                                    .show();
+                        }
                     }
                     else{
                         if(optimization)
@@ -236,7 +240,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .getString(R.string.style_json)));
 
         if(origin != null && destination != null && map != null){
-            map.addMarker(new MarkerOptions().position(origin).title("Start location")).showInfoWindow();
+
+            if(origin.equals(destination)){
+                map.addMarker(new MarkerOptions().position(origin).title("ORIGIN & DEST")).showInfoWindow();
+            }
+            else{
+                map.addMarker(new MarkerOptions().position(destination).title("DEST")).showInfoWindow();
+                map.addMarker(new MarkerOptions().position(origin).title("ORIGIN")).showInfoWindow();
+            }
+
+            //map.addMarker(new MarkerOptions().position(origin).title("Start location")).showInfoWindow();
             //map.addMarker(new MarkerOptions().position(destination).title("destination"));
             map.moveCamera(CameraUpdateFactory.newLatLng(origin));
             map.animateCamera(CameraUpdateFactory.zoomTo(12), 2000, null);
