@@ -316,6 +316,19 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
 
     private boolean validateApiResult(Boolean from_route) {
 
+        if(opt_off == "") {
+            saveApiResult(false);   saveApiResult(true);
+            Log.d(TAG, "switchBtn Pressed no api found");
+                            /*switchButton.setOnCheckedChangeListener (null);
+                            switchButton.setChecked(false);
+                            switchButton.setOnCheckedChangeListener (this);*/
+            new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            if(opt_off == "")
+                showNoInternetSnackBar();
+            saveApiResult(false);   saveApiResult(true);
+            return false;
+        }
+
         JSONObject jObject;
         String status;
         try {
@@ -332,9 +345,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
         if(status.equals("OK"))
             return true;
 
-        if(status.equals("We couldn't find the places you have added") ){
+        if(status.equals("NOT_FOUND") ){
             //show dialog for some reason
-            validationDialog("NOT_FOUND", from_route);
+            validationDialog("We couldn't find the places you have added", from_route);
             return false;
         }
         else if(status.equals("ZERO_RESULTS") ){
@@ -880,23 +893,13 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                 }
                 Log.d(TAG, "onCheckedChanged: hello there");
                 optimization = isChecked;
-                if(validateApiResult(false) == false){
-                    return;
-                }
+
                 if (optimization) {
                     if (data_models_map.keySet().size() > 3) {
+
                         loadApiResult(optimization);
 
-                        if(opt_on == "" || opt_off == "") {
-                            saveApiResult(false);   saveApiResult(true);
-                            Log.d(TAG, "switchBtn Pressed no api found");
-                            /*switchButton.setOnCheckedChangeListener (null);
-                            switchButton.setChecked(false);
-                            switchButton.setOnCheckedChangeListener (this);*/
-                            new OptimizeAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                            if(opt_on == "")
-                                showNoInternetSnackBar();
-                            saveApiResult(false);   saveApiResult(true);
+                        if(validateApiResult(false) == false){
                             return;
                         }
 
@@ -961,7 +964,10 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                         }
                     } else {
                         Log.d(TAG, "onCheckedChanged: 7");
-                        Snacky.builder()
+
+                        validationDialog("There is no further scope for optimization when there are less than 4 places in the trip!!",false);
+
+                       /* Snacky.builder()
                                 .setActivity(CurrentTripActivity.this)
                                 .setText(R.string.trip_already_optimized)
                                 .setBackgroundColor(getResources().getColor(R.color.green))
@@ -970,7 +976,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                 .setMaxLines(2)
                                 .setDuration(Snacky.LENGTH_SHORT)
                                 .build()
-                                .show();
+                                .show();*/
                     }
                 } else {
                     Log.d(TAG, "onCheckedChanged: 8");
