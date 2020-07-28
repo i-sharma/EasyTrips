@@ -628,6 +628,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                     updateModel(0);
                 } else {
                     adapter.notifyItemInserted(insert_pos);
+                    dragListView.getRecyclerView().scrollToPosition(insert_pos);
                 }
                 loadOriginDestIdx();
                 if(insert_pos <= origin_index && origin_index > 0)  origin_index += 1;
@@ -762,9 +763,7 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
                                     data_models_map.clear();
                                     model_opt_on.clear();
                                     model_opt_off.clear();
-                                    editor.putInt("origin_index", -1);
-                                    editor.putInt("destination_index", -1);
-                                    editor.commit();
+
                                     saveTripData();
                                     showEmptyTripUI();
                                     dialog.dismiss();
@@ -1108,6 +1107,9 @@ public class CurrentTripActivity extends Activity implements CurrentTripAdapter.
     }
 
     private void showEmptyTripUI() {
+        editor.putInt("origin_index", -1);
+        editor.putInt("destination_index", -1);
+        editor.commit();
         progressBar.setVisibility(View.GONE);
         empty_trip = findViewById(R.id.empty_trip_notify);
         empty_trip.setVisibility(View.VISIBLE);
