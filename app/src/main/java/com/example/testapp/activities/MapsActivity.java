@@ -143,19 +143,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 if (same) {
-                    if(optimize_switch.isChecked()){
-                        new SweetAlertDialog(MapsActivity.this)
-                                .setTitleText("There is no further scope for optimization when there are less than 4 places in the trip!!")
-                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                    @Override
-                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                        sweetAlertDialog.dismissWithAnimation();
-                                        optimize_switch.setChecked(false);
-
-                                    }
-                                })
-                                .show();
-                    }
+                    Snacky.builder()
+                            .setActivity(MapsActivity.this)
+                            .setText(R.string.trip_already_optimized)
+                            .setBackgroundColor(getResources().getColor(R.color.green))
+                            .setTextTypeface(Typeface.SANS_SERIF)
+                            .setTextTypefaceStyle(BOLD)
+                            .setMaxLines(2)
+                            .setDuration(Snacky.LENGTH_SHORT)
+                            .build()
+                            .show();
                 }else{
                     if(data_models_map.keySet().size() <= 3){
                         if(optimize_switch.isChecked()){
