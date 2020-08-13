@@ -40,3 +40,7 @@ This project is mantained by:
 3. Commit your changes (git commit -m 'Add some feature')
 4. Push your branch (git push origin my-new-feature)
 5. Create a new Pull Request
+
+#### License
+
+EasyTrips is [GNU GPL3 licensed](https://github.com/ishans996/EasyTrips/blob/master/LICENSE).
