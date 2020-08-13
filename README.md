@@ -4,7 +4,7 @@ An Android app to allow the end-users to book fully customized trips at unknown 
 
 Get the APK [here](https://drive.google.com/file/d/1vp2bjoXsZiKlEC1wezLmXrSHf0VK1GCo/view?usp=sharing).
 
-##Screenshots
+## Screenshots
 
 ![alt text](https://github.com/ishans996/EasyTrips/blob/master/easytrips_images/Group%201.png)
 
