@@ -41,6 +41,6 @@ This project is mantained by:
 4. Push your branch (git push origin my-new-feature)
 5. Create a new Pull Request
 
-#### License
+## License
 
 EasyTrips is [GNU GPL3 licensed](https://github.com/ishans996/EasyTrips/blob/master/LICENSE).
