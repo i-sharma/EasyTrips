@@ -6,8 +6,8 @@
     <string name="shared_pref_file_name">shared_pref</string>
     <string name="customStop">ADD CUSTOM STOPS</string>
     <string name="optimize_switch">OPTIMIZED</string>
-    <string name="directions_api_key">***REMOVED***</string>
-    <string name="autocomplete_api_key">***REMOVED***</string>
+    <string name="directions_api_key">API_KEY</string>
+    <string name="autocomplete_api_key">API_KEY</string>
     <string name="lost_connection">NO INTERNET CONNECTION</string>
     <string name="empty_trip">TRIP ALREADY EMPTY</string>
     <string name="trip_already_optimized">TRIP ALREADY OPTIMIZED</string>

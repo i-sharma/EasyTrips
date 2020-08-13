@@ -1,5 +1,6 @@
 *.iml
 *.apk
+*.jar
 .gradle
 /local.properties
 /.idea/caches
@@ -11,5 +12,7 @@
 .DS_Store
 /build
 /captures
+passwords.txt
 .externalNativeBuild
 .cxx
+bugs.txt
